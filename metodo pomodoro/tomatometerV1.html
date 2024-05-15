@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+</head>
+
+<body>
+    <style>
+        html {
+            font-size: 16px; /* Set the root font size to 16px */
+        }
+        main {
+            gap: 1rem; /* Use rem for gap */
+        }
+        div{
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 4vh;
+        }
+
+        header {
+            font-size: 2rem;
+            background-color: red;
+            color: #fff;
+            padding: 1rem; /* Use rem for padding */
+        }
+        footer{
+            font-size: 1rem;
+            background-color: red;
+            color: #fff;
+            padding: 0.5rem;
+        }
+        .imm{
+            /*background-color: red;*/
+            color: #fff;
+            height: 60vh;
+        }
+        .buttons{
+            left: 50%;
+            display: flex;
+
+            /*flex-direction: row-reverse;*/
+            flex-wrap: wrap;
+        }
+        .press{
+            display: block;
+            width: 30vh;
+            border: none;
+            background-color: #04AA6D;
+            padding: 14px 28px;
+            font-size: 20px;
+            font-style: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .animation {
+            /*background-color: green;*/
+            transform-origin: center;
+            animation: rotate-circle var(--duration) linear;
+        }
+        @keyframes rotate-circle {
+            0% {
+                /*background-color: green;*/
+                transform: rotate(0deg);
+            }/*
+            50% {
+                background-color: yellow;
+            }*/
+            100% {
+                /*background-color: red;*/
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+    <main>
+        <header>
+            Metodo Pomodoro
+        </header>
+
+        <div>
+            <img id="immage" class="imm" src="study.svg"  alt="waiting immage" width="500px">
+        </div>
+
+        <div class="form">
+            <label>Quanti secondi?:</label>
+            <input type="text" id="study_seconds">
+
+            <label>Quanto relax?:</label>
+            <input type="text" id="relax_seconds">
+        </div>
+        
+        <div>
+            <label>Quanti cicli?:</label>
+            <input type="number" id="cycles">
+            <button id="confirm" type="button" onclick="start()">Conferma</button>
+        </div>
+
+        <footer>Footer: Metodo pomodoro V1.0</footer>
+    </main>
+    <script>
+        //document.getElementById('confirm').onclick = start ;
+
+        cycles = 0;
+        var sound = new Audio('https://media.geeksforgeeks.org/wp-content/uploads/20190531135120/beep.mp3'); // test suono
+
+        function start(){
+            cycles = document.getElementById("cycles").value
+            study();
+        }
+        function study(){
+            timer = document.getElementById("study_seconds").value + "s";
+            document.documentElement.style.setProperty('--duration', timer);
+            var immage = document.getElementById('immage');
+            immage.classList.add("animation");
+            immage.src = "study.svg";
+            immage.addEventListener('animationend', endStudy);
+        }
+        function relax(){
+            timer = document.getElementById("relax_seconds").value + "s";
+            document.documentElement.style.setProperty('--duration', timer);
+            var immage = document.getElementById('immage');
+            immage.classList.add("animation");
+            immage.src = "tomato.svg";
+            immage.addEventListener('animationend', endRelax);
+        }
+        function endStudy(){
+            var immage = document.getElementById('immage');
+            immage.classList.remove('animation');
+            sound.play();
+            alert("Lo studio è finito!");
+            immage.removeEventListener('animationend', endStudy); // non voglio che lo rifaccia prossima volta che anmazione termina
+            relax();
+        }
+        function endRelax(keep){
+            var immage = document.getElementById('immage');
+            immage.classList.remove('animation');
+            sound.play();
+            alert("Il relax è finito!");
+            immage.removeEventListener('animationend', endRelax);
+            if(cycles > 1){
+                cycles--;
+                study();
+            }
+        }
+
+    </script>
+</body>
+
+</html>
