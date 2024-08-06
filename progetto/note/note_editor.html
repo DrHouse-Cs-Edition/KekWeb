@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+
+    <style>
+        body{
+            margin: 0px;
+        }
+        html {
+            font-size: 16px; /* Set the root font size to 16px */
+        }
+        main {
+            padding: 2vw;
+        }
+        div{
+            padding-bottom: 4vh;
+        }
+        header {
+            font-size: 2rem;
+            background-color: rgb(102, 167, 228);
+            color: #fff;
+            padding: 1rem; /* padding del testo su tutti i lati*/
+        }
+        footer{
+            font-size: 1rem;
+            background-color: rgb(102, 167, 228);
+            color: #fff;
+            padding: 0.5rem;
+        }
+        .text{
+            width: 100%;
+            height: 70vh;
+            box-sizing: border-box;
+        }
+        .output{
+            white-space: pre-wrap; /* Preserva le interruzioni di riga */
+        }
+
+    </style>
+
+</head>
+
+<body>
+    
+    <main>
+        <header>
+            Note
+        </header>
+
+        <textarea id="nota" class="text" placeholder="Scrivi qui la tua nota..."></textarea>
+        
+        <button onclick="getInput()">Inserisci Testo</button>
+        <button onclick="deleteInput()">Delete</button>
+        <button onclick="copyInput()">Copy</button>
+
+        <title>corrisponde:</title>
+        <div class="output" id="outputNota"></div>
+
+        <footer>Footer: Note V1.0</footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        /*document.getElementById('nota').addEventListener('input', function() {
+            document.getElementById('outputNota').innerHTML = marked.parse(this.value);
+        });*/ /*aggiorna automaticamente in base a markdown*/
+
+        function getInput(){
+            var get = document.getElementById('nota');
+            document.getElementById('outputNota').innerHTML = marked.parse(get.value);
+        }
+        function deleteInput(){
+            document.getElementById('nota').value = "";
+            document.getElementById('outputNota').innerHTML = "";
+        }
+        function copyInput(){
+            // Get the text field
+            var copyText = document.getElementById("nota");
+
+            // Select the text field
+            copyText.select(); // evidenzia testo mostrato all'utente
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            alert("Copied the text: " + copyText.value);
+        }
+        
+    </script>
+</body>
+
+</html>
