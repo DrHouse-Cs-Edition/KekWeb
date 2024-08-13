@@ -62,6 +62,8 @@
         <button onclick="getInput()">Inserisci Testo</button>
         <button onclick="deleteInput()">Delete</button>
         <button onclick="copyInput()">Copy</button>
+        <button onclick="save()">Save</button>
+        <button onclick="load()">Load</button>
 
         <title>corrisponde:</title>
         <div class="output" id="outputNota"></div>
@@ -71,6 +73,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
+        var noteName = "test1";
         /*document.getElementById('nota').addEventListener('input', function() {
             document.getElementById('outputNota').innerHTML = marked.parse(this.value);
         });*/ /*aggiorna automaticamente in base a markdown*/
@@ -82,6 +85,7 @@
         function deleteInput(){
             document.getElementById('nota').value = "";
             document.getElementById('outputNota').innerHTML = "";
+            remove();
         }
         function copyInput(){
             // Get the text field
@@ -96,6 +100,76 @@
 
             // Alert the copied text
             alert("Copied the text: " + copyText.value);
+        }
+        function save(){
+            /*if(document.getElementById('name') == ""){
+                alert("Inserisci un nome");
+            }*/
+            //remove(); // rimuovo per metterne nuova
+            /*if(document.getElementById('name') != nome)
+                nome = document.getElementById('name');*/
+            var note = {
+                title: "title",
+                text: document.getElementById('nota').value,
+                date: "new date()",
+            };
+            console.log(JSON.stringify(note))
+            
+            const endpoint = new URL(`http://localhost:3000/notes/save`);
+            const response = fetch(endpoint,{
+                method: "POST",
+                headers: {"Content-Type": "application/json; charset=UTF-8", /*Specifica il tipo di contenuto*/},
+                body: JSON.stringify(note),
+            })
+            .then((response) => response.json())
+            .then((json) => {
+                if(json.success)
+                    alert(json.message);
+                else
+                    alert("Failed to save note");
+            });
+            /*
+            $.ajax({
+                url: 'http://localhost:3000/notes/save',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function() {
+                    console.log('Errore nella richiesta AJAX');
+                }
+            });
+            */
+        }
+        function remove(){
+            const endpoint = new URL(`http://localhost:3000/notes/remove`);
+            const response = fetch(endpoint,{
+                method: "POST",
+                headers: {"Content-Type": "text/html; charset=UTF-8", /*Specifica il tipo di contenuto*/},
+                body: noteName,
+            })
+            .then((response) => response.json())
+            .then((json) => {
+                if(!json.success)
+                    alert(json.message);
+                else
+                    alert("Non siamo riusciti a rimuovere la nota");
+            });
+        }
+        function load(name){
+            const endpoint = new URL(`http://localhost:3000/notes/load`);
+            const response = fetch(endpoint)
+            .then((response) => response.json())
+            .then((json) => {
+                if(json.success){
+                    // noteName = json.name;
+                    document.getElementById('nota').value = json.note;
+                    document.getElementById('outputNota').innerHTML = marked.parse(json.note);
+                    alert("Nota caricata");
+                }
+                else
+                    alert("Non siamo riusciti a caricare la nota");
+            });
         }
         
     </script>
