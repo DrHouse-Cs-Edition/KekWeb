@@ -144,26 +144,26 @@
             const endpoint = new URL(`http://localhost:3000/notes/remove`);
             const response = fetch(endpoint,{
                 method: "POST",
-                headers: {"Content-Type": "text/html; charset=UTF-8", /*Specifica il tipo di contenuto*/},
+                headers: {"Content-Type": "text/plain; charset=UTF-8", /*Specifica il tipo di contenuto*/},
                 body: noteName,
             })
             .then((response) => response.json())
             .then((json) => {
-                if(!json.success)
+                if(json.success)
                     alert(json.message);
                 else
                     alert("Non siamo riusciti a rimuovere la nota");
             });
         }
         function load(name){
-            const endpoint = new URL(`http://localhost:3000/notes/load`);
+            const endpoint = new URL(`http://localhost:3000/notes/load?noteName=${noteName}`);
             const response = fetch(endpoint)
             .then((response) => response.json())
             .then((json) => {
                 if(json.success){
                     // noteName = json.name;
-                    document.getElementById('nota').value = json.note;
-                    document.getElementById('outputNota').innerHTML = marked.parse(json.note);
+                    document.getElementById('nota').value = json.text;
+                    document.getElementById('outputNota').innerHTML = marked.parse(json.text);
                     alert("Nota caricata");
                 }
                 else

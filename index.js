@@ -14,7 +14,7 @@ const app = express();
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 
 app.get('/', (request,response)=>{
-    response.sendFile( path.join(__dirname,'note','note_editor.html') );
+    response.sendFile( path.join(__dirname,'src/note','note_editor.html') );
 });
 
 app.post('/notes/save',  (request,response)=>{
@@ -39,7 +39,8 @@ app.post('/notes/remove',  (request,response)=>{
 
     // Remove the file
     fs.unlink(filePath, (err) => {
-        if (err) {console.error(err);
+        if (err) {
+            console.error(err);
             response.json({
                 success: false,
                 message: "Error"});
@@ -52,8 +53,25 @@ app.post('/notes/remove',  (request,response)=>{
 });
 
 app.get('/notes/load', (request,response)=>{
-    request.query.name;
-    response.sendFile( path.join(__dirname,'note','note_editor.html') );
+    const filePath = './src/note/notesJSON/' + request.query.noteName + '.JSON';
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            response.json({
+                success: false,
+                message: "Error"});
+        }
+        else{
+            json = JSON.parse(data);
+            response.json({
+                success: true,
+                title: json.title,
+                text: json.text,
+                date: json.date,
+            });
+        }
+        console.log('Contenuto del file:', data);
+    });
 });
 
 app.listen(PORT);
