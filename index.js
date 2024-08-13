@@ -11,7 +11,7 @@ const fs = require('fs')
 const PORT = 3000;
 const app = express();
 
-app.use(express.json()); // IMPORTANTE PER RICEVERE JSON
+app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 
 app.get('/', (request,response)=>{
     response.sendFile( path.join(__dirname,'note','note_editor.html') );
@@ -19,7 +19,7 @@ app.get('/', (request,response)=>{
 
 app.post('/notes/save',  (request,response)=>{
     const note = request.body;
-    fs.writeFile('./notesJSON/test1.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
+    fs.writeFile('./src/note/notesJSON/test1.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
         if(err) {
             console.log(err);
             response.json({
@@ -34,25 +34,26 @@ app.post('/notes/save',  (request,response)=>{
 });
 
 app.post('/notes/remove',  (request,response)=>{
-    response.json({success: true,
-                    message: "Note removed"});
-    const filePath = './notesJSON/' + request.noteName + '.JSON'; // Replace with the actual path to your file
+    console.log(request.body);
+    const filePath = './src/note/notesJSON/' + request.body + '.JSON'; // Replace with the actual path to your file
 
     // Remove the file
     fs.unlink(filePath, (err) => {
-        if (err) {console.error(err);} 
+        if (err) {console.error(err);
+            response.json({
+                success: false,
+                message: "Error"});
+        }
+        else
+            response.json({
+                success: true,
+                message: "Note removed"});
     });
-
-    if(!err){
-        response.json({
-            success: true,
-            message: "Note removed"});
-    }else{
-        response.json({
-            success: false,
-            message: "Error"});
-    }
 });
 
+app.get('/notes/load', (request,response)=>{
+    request.query.name;
+    response.sendFile( path.join(__dirname,'note','note_editor.html') );
+});
 
 app.listen(PORT);
