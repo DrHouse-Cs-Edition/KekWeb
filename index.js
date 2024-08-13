@@ -17,9 +17,11 @@ app.get('/', (request,response)=>{
     response.sendFile( path.join(__dirname,'src/note','note_editor.html') );
 });
 
-app.post('/notes/save',  (request,response)=>{
+app.post('/api/notes/save',  (request,response)=>{
     const note = request.body;
-    fs.writeFile('./src/note/notesJSON/test1.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
+    console.log(note);
+    const filePath = './src/note/notesJSON/' + note.title + '.JSON';
+    fs.writeFile('./src/note/notesJSON/' + note.title + '.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
         if(err) {
             console.log(err);
             response.json({
@@ -33,8 +35,7 @@ app.post('/notes/save',  (request,response)=>{
     });
 });
 
-app.post('/notes/remove',  (request,response)=>{
-    console.log(request.body);
+app.post('/api/notes/remove',  (request,response)=>{
     const filePath = './src/note/notesJSON/' + request.body + '.JSON'; // Replace with the actual path to your file
 
     // Remove the file
@@ -52,7 +53,7 @@ app.post('/notes/remove',  (request,response)=>{
     });
 });
 
-app.get('/notes/load', (request,response)=>{
+app.get('/api/notes/load', (request,response)=>{
     const filePath = './src/note/notesJSON/' + request.query.noteName + '.JSON';
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
