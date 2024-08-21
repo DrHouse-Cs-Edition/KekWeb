@@ -4,10 +4,6 @@ document.getElementById('studyForm').addEventListener('submit', function (event)
     // Previene il comportamento di default dell'evento, che sarebbe il submit del form
     event.preventDefault();
 
-    // Ottiene il tempo di studio inserito dall'utente e lo converte in un numero intero
-    const studyTime = parseInt(document.getElementById('studyTime').value, 10);
-    // Converte i minuti in secondi per l'animazione
-    const animationDuration = studyTime * 60;
 
     // Imposta l'animazione con durata dinamica per gli pseudo-elementi ::before e ::after
     const styleSheet = document.createElement("style");
