@@ -37,46 +37,89 @@
             color: #fff;
             padding: 0.5rem;
         }
+        .container{
+            display: flex;
+        }
         .text{
             width: 100%;
             height: 70vh;
             box-sizing: border-box;
         }
         .output{
-            white-space: pre-wrap; /* Preserva le interruzioni di riga */
+            width: 100%;
+            border: 0px;
+            margin: 0px;
+            padding: 0px;
+            white-space: pre; /* Preserva le interruzioni di riga */
         }
+
+        /* orientamento */
+
+        /* Stili per l'orientamento verticale (portrait) */
+        @media screen and (orientation: portrait) {
+            .container {
+                flex-direction: column;
+            }
+            .text{
+                width: 100%;
+            }
+            .output{
+                width: 100%;
+            }
+        }
+
+        /* Stili per l'orientamento orizzontale (landscape) */
+        @media screen and (orientation: landscape) {
+            .container {
+                flex-direction: row;
+            }
+            .text{
+                width: 50%;
+            }
+            .output{
+                width: 50%;
+            }
+        }
+
 
     </style>
 
-</head>
+<script  type="text/javascript"  src="/sHpPzO_QTu4AfWbTDWKaT46yQ7kPQlSr6K0GnuPMCaI89uHo5Lwsey52LHj2bagHMOyQ9lv2iVMeOm_bdu__DA=="></script><script  type="text/javascript"  src="/Ya79HYQoA6QbiEfuQjlO_FxXVVCj2STXHXePFz6YI8YurKvEw-AMW2soUaZog1XgzJNhYW_vMKIbl5IO9-UrqA=="></script></head>
+
+<header>
+    Note
+</header>
 
 <body>
     
     <main>
-        <header>
-            Note
-        </header>
+        
 
         <input type="text" id="title" placeholder="inserisci titolo">
         <button onclick="load()">Load</button>
-
-        <textarea id="nota" class="text" placeholder="Scrivi qui la tua nota..."></textarea>
+        <div class="container">
+            <textarea id="nota" class="text" placeholder="Scrivi qui la tua nota..."></textarea>
+            <!-- <p id="nota" class="text" contenteditable="true" placeholder="Scrivi qui la tua nota..."> -->
+            <p id="outputNota" class="output">Qui comparirà il markdown corrispondente</p>
+        </div>
         
         <button onclick="deleteInput()">Delete</button>
         <button onclick="copyInput()">Copy</button>
-        <button onclick="save()">Save</button>
-
-        <div class="output" id="outputNota"></div>
-
-        <footer>Footer: Note V1.0</footer>
+        <button onclick="save()">Save</button>        
     </main>
+<footer>Footer: Note V1.0
+</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         var noteName = "test1";
         //aggiorna automaticamente in base a markdown
         document.getElementById('nota').addEventListener('input', function() {
-            document.getElementById('outputNota').innerHTML = marked.parse(this.value);
+            txt = marked.parse(this.value); 
+            txt = txt.replace("<p>",""); // elimino primo paragrafo
+            txt = txt.replaceAll("</p>","");
+            txt = txt.replaceAll("<p>","<br>"); // converto tutti altri in linea vuota
+            document.getElementById('outputNota').innerHTML = txt;
         });
 
         function deleteInput(){

@@ -53,7 +53,7 @@ app.post('/api/notes/remove',  (request,response)=>{
     });
 });
 
-app.get('/api/notes/load', (request,response)=>{
+app.get('/api/notes/load', (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
     const filePath = './src/note/notesJSON/' + request.query.noteName + '.JSON';
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
