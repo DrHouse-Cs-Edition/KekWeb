@@ -1,3 +1,15 @@
+//*FUNCTIONS LIST IN FILE
+/*
+    TToption submit event: for the TotalTime format, calculates the options and shows them. Still needs to recieve the choice
+    fullSubmit submit event: starts the animation (to be reworked)
+    timeElapsed: calculates time passed (to be reworked)
+    updateFormat: changes the divs for the two format for time input
+    FVBV (field value bounds verification): verifies that a value inserted in a field is in the specified bounds, and sets them to the upper (if overflow) or lower (if underflow) bound
+*/
+
+
+
+
 
 
 /*
@@ -84,7 +96,7 @@ document.getElementById('TToptions').addEventListener('click', function (event){
         console.log(`added option: ${i}`);
     }
 
-    document.getElementById(`TTbox`).style.setProperty(`display`,`flex`);
+    document.getElementById(`TTbox`).style.setProperty(`display`,`inline-block`);
 
     //TODO: select option and store it's values
 });
@@ -169,46 +181,65 @@ function timeElapsed(startTime, endTime, currentTime) {
     return percentagePassed;
 }
 
-
-/* 
-    function that fills the fields for number of cycles, study duration and pause duration
-    it servers the purpouse of determining animation-related info and actuale timer data
-    it differentiates based on the format chosen by the user
-*/
-
-
-function time(event) {
-    print("user has written something");
-};
-
-
 function updateFormat(){
     let isCycles = document.getElementById("cyclesButton").checked;
     if(isCycles)
     {
-        //changing buttons
-        console.log("cycles");
-        document.getElementById("cycles").style.setProperty('display', 'inline-block');
-        document.getElementById("totalTime").style.setProperty('display', 'none');
-        document.getElementById('fullSubmit').style.setProperty('display', 'inline-block');
-        document.getElementById("TToptions").style.setProperty('display', 'none');
-
-        //changing instructions
-        console.log("instructions changed");
-        document.getElementById("cyclesLB").style.setProperty('display', "inline-block" );
-        document.getElementById("totalTimeLB").style.setProperty('display', "none");
+        document.getElementById('cyclesDiv').style.setProperty('display','inline-block');
+        document.getElementById("TTdiv").style.setProperty('display','none');
     }else{
-
-        //changing buttons
-        console.log("time");
-        document.getElementById("cycles").style.setProperty('display', 'none');
-        document.getElementById("totalTime").style.setProperty('display', 'inline-block');
-        document.getElementById('fullSubmit').style.setProperty('display', 'none');
-        document.getElementById('TToptions').style.setProperty('display', 'inline-block');
-
-        //changing instructions
-        console.log("instructions changed");
-        document.getElementById("cyclesLB").style.setProperty('display', "none" );
-        document.getElementById("totalTimeLB").style.setProperty('display', "inline-block");
+        document.getElementById('cyclesDiv').style.setProperty('display','none');
+        document.getElementById('TTdiv').style.setProperty('display','inline-block');
     }
 }
+
+
+/* 
+    function checks that the value of a field upon loss of focus is within of the min and max value. Can be called
+    regardless of actual automatic HTML verification, to directly set a value equal to the closest bound (min or max)
+*/
+function FVBV(fieldID, min, max){
+    let el = document.getElementById(String(fieldID));
+    console.log(`id recieved is ${fieldID}, min is ${min}, max is ${max}`);
+
+    if( max && parseInt(el.value) > parseInt(max)){
+        console.log(`value is  ${el.value} of type ${typeof(el.value)} substituted for max `);
+        el.value = max;
+        console.log(`value is now ${document.getElementById(String(fieldID)).value} `); 
+    }else if( min && parseInt(el.value) < parseInt(min)){
+        console.log(`value is  ${el.value} substituted for max `);
+        el.value = min;
+        console.log(`value is now ${document.getElementById(String(fieldID)).value} `); 
+    }
+}
+
+// function updateFormat(){
+//     let isCycles = document.getElementById("cyclesButton").checked;
+//     if(isCycles)
+//     {
+//         //changing buttons
+//         console.log("cycles");
+//         document.getElementById("cycles").style.setProperty('display', 'inline-block');
+//         document.getElementById("totalTime").style.setProperty('display', 'none');
+//         document.getElementById('fullSubmit').style.setProperty('display', 'inline-block');
+//         document.getElementById("TToptions").style.setProperty('display', 'none');
+
+//         //changing instructions
+//         console.log("instructions changed");
+//         document.getElementById("cyclesLB").style.setProperty('display', "inline-block" );
+//         document.getElementById("totalTimeLB").style.setProperty('display', "none");
+//     }else{
+
+//         //changing buttons
+//         console.log("time");
+//         document.getElementById("cycles").style.setProperty('display', 'none');
+//         document.getElementById("totalTime").style.setProperty('display', 'inline-block');
+//         document.getElementById('fullSubmit').style.setProperty('display', 'none');
+//         document.getElementById('TToptions').style.setProperty('display', 'inline-block');
+
+//         //changing instructions
+//         console.log("instructions changed");
+//         document.getElementById("cyclesLB").style.setProperty('display', "none" );
+//         document.getElementById("totalTimeLB").style.setProperty('display', "inline-block");
+//     }
+// }
