@@ -1,1 +1,0 @@
-per far partire l'app react usare i comandi "cd progettreact" e "npm run dev"
