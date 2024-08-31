@@ -27,7 +27,7 @@
 
     .inputDiv{
       border: 2px;
-      border-color: aqua;
+      border-color: yellow;
       border-style: dashed;
     }
 
@@ -119,10 +119,10 @@
   <form id="studyForm">
     <div class="inputDiv" id="cyclesDiv">
       <label for="studyTime">Enter study time in minutes:</label> 
-      <input type="number" id="studyTime" name="studyTime" class="timeInput" min="30"  placeholder="35" onblur="FVBV(id, min)"> <br>
+      <input type="number" id="studyTime" name="studyTime" class="timeInput" min="1"  placeholder="35" onblur="FVBV(id, min)"> <br>
       
       <label for="pausinaTime">Enter pause time in minutes </label> 
-      <input type="number" id="pausinaTime" name="pausinaTime" class="timeInput" min="5"  placeholder="5" onblur="FVBV(id, min)"> <br>
+      <input type="number" id="pausinaTime" name="pausinaTime" class="timeInput" min="1"  placeholder="5" onblur="FVBV(id, min)"> <br>
 
       <label for="cycles" id="cyclesLB">Enter number of cycles </label>
       <input type="number" id="cycles" name="cycles" min="1" placeholder="5" onblur="FVBV(id, min)" ><br>
@@ -158,7 +158,7 @@
           00:00
         </div>
       <div id="paperDiv">
-        <img src="images/paper/paperPile1.png" id="paperPile">
+        <img src="images/paper/paperPile1.png" id="imageSpace">
       </div>
     </div>
   </div>

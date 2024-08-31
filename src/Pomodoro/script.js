@@ -7,6 +7,8 @@
     FVBV (field value bounds verification): verifies that a value inserted in a field is in the specified bounds, and sets them to the upper (if overflow) or lower (if underflow) bound
 */
 
+//  
+
 
 
 
@@ -103,69 +105,118 @@ document.getElementById('TToptions').addEventListener('click', function (event){
 
 
 /*
-
     Aggiunge un listener in caso di click sul bottone per avviare l'animazione
     Deve avere i campi necessari ad avviare l'animazione già compilati. Fare riferimento alle altre funzioni
 */
 document.getElementById('fullSubmit').addEventListener('click', function (event) {
     console.log("kek"); //per vedere che la funzione parte
     // Previene l'invio del form, avviando invece l'animazione
-    event.preventDefault()
+    event.preventDefault();
     let studyTime = document.getElementById("studyTime").value;
     let pauseTime = document.getElementById("pausinaTime").value;
     let n_cycles = document.getElementById("cycles").value;
+    let cycleDuration = (studyTime + pauseTime) * 60000; //*1000 per esprimere in millisec, *60 perchè sto misurando in secondi
+    //tempo di attesa perchè termini un singolo ciclo
 
+    //!cicla i cicli (si è un casino)
 
+    let cycle = setInterval( () => {
+        console.log("oh that's not good");
+        let studyStart = Date.now();
+        let studyEnd = studyStart + studyTime*60000;
+        let studyInterval = setInterval(studyCycle(studyStart, studyEnd),1000);
 
-    // Calcola il tempo di fine aggiungendo la durata del timer al tempo corrente
-    const startTime = Date.now();
-    const endTime = startTime + studyTime * 60000;
+        let pauseStart = studyEnd;
+        let pauseEnd = pauseStart + pauseTime*60000;
+        let pauseInterval;
+        setTimeout( pauseInterval = setInterval(pauseCycle(pauseStart, pauseEnd), 1000),studyTime*60000);
+        n_cycles --;
 
-    // Imposta un intervallo che si ripete ogni secondo
-    const interval = setInterval(function () {
-        const now = Date.now();
-        const elapsedPercentage = timeElapsed(startTime, endTime, now);
+        if(n_cycles == 0 )
+            clearInterval(cycle);
+        
+    },cycleDuration);
 
-        // Aggiorna l'immagine in base alla percentuale trascorsa
-        let imgPaper = document.getElementById("paperPile");
-        if (elapsedPercentage >= 100) {
-            imgPaper.style.display = "none"; // Nascondi l'immagine quando la percentuale è 100
-        } else {
-            imgPaper.style.display = "block"; // Mostra l'immagine quando la percentuale è inferiore a 100
-
-            if (elapsedPercentage >= 80) {
-                imgPaper.src = "./images/paper/paperPile5.png";
-            } else if (elapsedPercentage >= 60) {
-                imgPaper.src = "./images/paper/paperPile4.png";
-            } else if (elapsedPercentage >= 40) {
-                imgPaper.src = "./images/paper/paperPile3.png";
-            } else if (elapsedPercentage >= 20) {
-                imgPaper.src = "./images/paper/paperPile2.png";
-            } else {
-                imgPaper.src = "./images/paper/paperPile1.png";
-            }
-        }
-
-        // Calcola la differenza tra il tempo di fine e il tempo corrente
-        const difference = endTime - now;
-
-        // Se la differenza è minore o uguale a 0, ferma l'intervallo
-        if (difference <= 0) {
-            clearInterval(interval);
-            // Pulisce il testo dell'elemento con id 'timerDisplay'
-            document.getElementById('timerDisplay').textContent = "";
-            return;
-        }
-
-        // Calcola i minuti e i secondi rimanenti
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
-        //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
-        document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }, 1000);
 });
+
+function studyCycle(studyStart, studyEnd){
+    console.log('starting study time interval');
+    let now = Date.now();
+    let elapsedPercentage = timeElapsed(studyStart, studyEnd, now);
+
+    // Aggiorna l'immagine in base alla percentuale trascorsa
+    let imgPaper = document.getElementById("imageSpace");
+    if (elapsedPercentage >= 100) {
+        imgPaper.style.display = "none"; // Nascondi l'immagine quando la percentuale è 100
+    } else {
+        imgPaper.style.display = "block"; // Mostra l'immagine quando la percentuale è inferiore a 100
+
+        if (elapsedPercentage >= 80) {
+            imgPaper.src = "./images/paper/paperPile5.png";
+        } else if (elapsedPercentage >= 60) {
+            imgPaper.src = "./images/paper/paperPile4.png";
+        } else if (elapsedPercentage >= 40) {
+            imgPaper.src = "./images/paper/paperPile3.png";
+        } else if (elapsedPercentage >= 20) {
+            imgPaper.src = "./images/paper/paperPile2.png";
+        } else {
+            imgPaper.src = "./images/paper/paperPile1.png";
+        }
+    }
+
+    // Calcola la differenza tra il tempo di fine e il tempo corrente
+    const difference = endStudyTime - now;
+
+    // Se la differenza è minore o uguale a 0, ferma l'intervallo
+    if (difference <= 0) {
+        clearInterval(studyInterval);
+        // Pulisce il testo dell'elemento con id 'timerDisplay'
+        document.getElementById('timerDisplay').textContent = "";
+        return;
+    }
+
+    // Calcola i minuti e i secondi rimanenti
+    let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
+    //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
+    document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function pauseCycle(pauseStart, pauseEnd){
+    console.log('starting rest time timer');
+    let now = Date.now();
+    let elapsedPercentage = timeElapsed(pauseStart, pauseEnd, now);
+
+    let imgCat = document.getElementById('imageSpace');
+
+    if (elapsedPercentage >= 75) {
+        imgCat.src = "./images/cat/cat4.png";
+    } else if (elapsedPercentage >= 50) {
+        imgCat.src = "./images/cat/cat3.png";
+    } else if (elapsedPercentage >= 25) {
+        imgCat.src = "./images/cat/cat2.png";
+    }else {
+        imgCat.src = "./images/cat/cat1.png";
+    }
+
+    let difference = endTime - now;
+    if( difference <= 0){
+        clearInterval(pauseInterval);
+        document.getElementById('timerDisplay').textContent = '';
+        return;
+    }
+
+    // Calcola i minuti e i secondi rimanenti
+    let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
+    //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
+    document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+}
 
 /*
 * function that returns the amount of time that has passed since the beginning
