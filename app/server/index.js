@@ -8,7 +8,7 @@ const fs = require('fs')
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 
-const PORT = 3000;
+const PORT = 5000;
 const app = express();
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
@@ -20,8 +20,8 @@ app.get('/', (request,response)=>{
 app.post('/api/notes/save',  (request,response)=>{
     const note = request.body;
     console.log(note);
-    const filePath = './src/note/notesJSON/' + note.title + '.JSON';
-    fs.writeFile('./src/note/notesJSON/' + note.title + '.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
+    const filePath = './client/public/note/notesJSON/' + note.title + '.JSON';
+    fs.writeFile('./client/public/note/notesJSON/' + note.title + '.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
         if(err) {
             console.log(err);
             response.json({
@@ -36,7 +36,7 @@ app.post('/api/notes/save',  (request,response)=>{
 });
 
 app.post('/api/notes/remove',  (request,response)=>{
-    const filePath = './src/note/notesJSON/' + request.body + '.JSON'; // Replace with the actual path to your file
+    const filePath = './client/public/note/notesJSON/' + request.body + '.JSON'; // Replace with the actual path to your file
 
     // Remove the file
     fs.unlink(filePath, (err) => {
