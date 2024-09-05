@@ -20,11 +20,10 @@ const Note = require ("./Note.js");
 //*************************************************************
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'build')));
+//app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.get('/', (request,response)=>{
-    response.type('application/javascript'); // RIGA AGGIUSTA???
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
 });
 
