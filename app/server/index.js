@@ -1,7 +1,7 @@
 const express = require ('express');
 const path = require ('path');
 //const { fileURLToPath } = require ('url');
-
+const bodyParser = require('body-parser');
 const fs = require('fs')
 
 // Get the directory name of the current module
@@ -20,9 +20,12 @@ const Note = require ("./Note.js");
 //*************************************************************
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/', (request,response)=>{
-    response.sendFile( path.join(__dirname,'../client/build/note/note_editor.html') );
+    response.type('application/javascript'); // RIGA AGGIUSTA???
+    response.sendFile( path.join(__dirname,'../client/build/index.html') );
 });
 
 app.post('/api/notes/save',  (request,response)=>{
@@ -155,4 +158,7 @@ app.get('/api/notes/load', (request,response)=>{ // richiesta: api/notes/load?no
 
 });
 
-app.listen(PORT);
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
