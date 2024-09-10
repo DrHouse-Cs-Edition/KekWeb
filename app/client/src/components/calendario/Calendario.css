@@ -1,0 +1,21 @@
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #ddd;
+}
+
+.calendar-header, .calendar-day {
+    background-color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.calendar-day:hover {
+    background-color: #e0f7fa; /* Light cyan background on hover */
+    cursor: pointer;
+}
+
+.calendar-day.selected {
+    background-color: #80deea; /* Even darker cyan background for selected date */
+}
