@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import { marked } from 'marked'; // Correct import
 import './Note.css'
 
@@ -123,7 +122,6 @@ function Note() {
 
   return (
     <>
-      <Navbar />
         <header>Note</header>
         <input
           id="title"

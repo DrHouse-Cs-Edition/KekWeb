@@ -24,7 +24,6 @@ function Pomodoro(){
   
     return (
         <>
-        <Navbar/>
         <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
         </>
     );

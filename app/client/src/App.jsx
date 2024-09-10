@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
-import Calendario from "./pages/Calendario.jsx";
+import Calendario from "./components/calendario/Calendario.jsx";
 import Note from "./pages/Note.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
 import Utente from "./pages/Utente.jsx";
