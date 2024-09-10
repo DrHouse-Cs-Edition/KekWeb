@@ -12,10 +12,10 @@
 }
 
 .calendar-day:hover {
-    background-color: #e0f7fa; /* Light cyan background on hover */
+    background-color: #e0f7fa; 
     cursor: pointer;
 }
 
 .calendar-day.selected {
-    background-color: #80deea; /* Even darker cyan background for selected date */
+    background-color: #80deea;
 }
