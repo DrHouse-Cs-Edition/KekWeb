@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import { marked } from 'marked'; // Correct import
 import './Note.css'
 
@@ -44,7 +43,7 @@ function Note() {
       .then(() => alert("Copied the text: " + noteText))
       .catch(err => console.error('Failed to copy text:', err));
   };
-
+  //prende i dati della pagina e li invia al server perche siano salvati su mongoDB
   const handleSave = () => {
     if (getName()) {
       const note = {
@@ -92,7 +91,7 @@ function Note() {
       .catch(err => console.error('Failed to remove note:', err));
     }
   };
-
+  // riceve dati dal server (li prende da mongoDB) e li carica sulla pagina.
   const handleLoad = () => {
     if (getName()) {
       fetch(`http://localhost:5000/api/notes/load?noteName=${noteName}`, {
@@ -123,7 +122,6 @@ function Note() {
 
   return (
     <>
-      <Navbar />
         <header>Note</header>
         <input
           id="title"
