@@ -72,11 +72,7 @@ document.getElementById('TToptions').addEventListener('click', function (event){
         optionLabel.innerHTML =`Study time: ${optionsArray[i].study}min, 
         Rest time: ${optionsArray[i].pause}min, 
         Cycles: ${optionsArray[i].cycles} </radio>`;
-        // TTdiv.innerHTML=`<input type="radio" name="formatOption" id="TToption${i+1}">
-        // Study time: ${optionsArray[i].study}min, 
-        // Rest time: ${optionsArray[i].pause}min, 
-        // Cycles: ${optionsArray[i].cycles} </radio>
-        // `;
+        
 
         TTdiv.appendChild(option);
         TTdiv.appendChild(optionLabel);
