@@ -5,7 +5,7 @@ import Evento from './Evento.jsx';
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const MyCalendar = () => {
+const Calendario = () => {
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [selectedDate, setSelectedDate] = useState(null);
     const [events, setEvents] = useState([]);
@@ -91,4 +91,4 @@ const MyCalendar = () => {
     );
 };
 
-export default MyCalendar;
+export default Calendario;

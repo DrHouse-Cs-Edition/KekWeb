@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home.jsx";
 import Calendario from "./components/calendario/Calendario.jsx";
 import Note from "./pages/Note.jsx";
-import Note_navigation from "./pages/Note_navigation.js";
+import Note_navigation from "./pages/Note_navigation.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
 import Utente from "./pages/Utente.jsx";
 
@@ -14,7 +14,7 @@ function App() {
       <Navbar />
       <div className="content">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/calendario" element={<Calendario />} />
           <Route path="/note" element={<Note />} />
           <Route path="/note_navigation" element={<Note_navigation />} />
