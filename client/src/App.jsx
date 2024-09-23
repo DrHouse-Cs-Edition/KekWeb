@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Calendario from "./pages/Calendario.jsx";
 import Note from "./pages/Note.jsx";
-import Pomodoro from "./pages/Pomodoro.jsx";
+import Pomodoro from "./pages/Pomodoro.jsx"
 import Utente from "./pages/Utente.jsx";
 
 function App() {

@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import Navbar from '../components/Navbar.jsx'
+import "../StyleSheets/pomodoro.css"
+import FormSelector from "../components/pomodoroComponents/FormSelector.jsx";
 
 function Pomodoro(){
 
     const [htmlContent, setHtmlContent] = useState("");
+
+    let [formType, updateFormType] = useState(0);
+    let [option, updateOption ]=useState(0);
   
     useEffect(() => {
       // Fetch the HTML content from the public directory
-      fetch("/Pomodoro/pomodoro.html")
+      fetch("./pomodoro.html")
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -23,10 +28,11 @@ function Pomodoro(){
     }, []);
   
     return (
-        <>
+        <Fragment>
         <Navbar/>
         <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-        </>
+        <FormSelector formType={formType} updateFormType={updateFormType} option={option} updateOption={updateOption} ></FormSelector>
+        </Fragment>
     );
   }
 export default Pomodoro;
