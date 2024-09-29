@@ -11,12 +11,21 @@ import "./pomodoro.css"
 function Pomodoro(){
 
     let [formType, updateFormType] = useState('TT');
+
+    function changeForm(){
+
+      formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
+      //switches the form type reference 
+    
+    }
+
     let formComponents = {
       TT : <TTform></TTform>,
       Cycles : <CyclesForm></CyclesForm>
     }
     //formComponents is an object, and TT and Cycles it's attributes. To the TT/cycles attribute i assign a component
-    //to access a component i sue a similar syntax to that of arrays
+    //to access a component i use a similar syntax to that of arrays. I can use a different component based on the index
+    //of the object (i'm accessing the component stored in the attribute)
 
     let currentComponent = formComponents[formType];
   
@@ -35,7 +44,9 @@ function Pomodoro(){
           </div>
         </div>
 
-        <button >Change Format</button>
+        {formComponents[formType]}
+
+        <button onClick={changeForm()}>Change Format</button>
         </Fragment>
     );
   }
