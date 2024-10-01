@@ -25,10 +25,10 @@ function TTform(){
     return (
         <Fragment>
             <form id="studyForm">
-                <div class="inputDiv" id="TTdiv">
+                <div className="inputDiv" id="TTdiv">
 
                     <label for="totalTime" id="totalTimeLB"> Enter total time available</label> <br></br>
-                    <input type="number" id="totalTime" name="totalTime" min="35" max="1440" value="120" onblur="FVBV(id, min,max)"></input> <br></br>
+                    <input type="number" id="totalTime" name="totalTime" min="35" max="1440" value="120"onBlur="FVBV(id, min,max)"></input> <br></br>
 
                     <button type="submit" id="TToptions" onClick={optionLoader}>See options</button> <br></br> 
                     
@@ -46,17 +46,17 @@ function CyclesForm (){
         return (
         <Fragment>
             <form id="studyForm">
-                <div class="inputDiv" id="cyclesDiv">
+                <div className="inputDiv" id="cyclesDiv">
                     
 
-                    <label for="studyTime">Enter study time in minutes:</label> 
-                    <input type="number" id="studyTime" name="studyTime" class="timeInput" min="1"  placeholder="35" onblur="FVBV(id, min)"></input> <br></br>
+                    <label htmlFor="studyTime">Enter study time in minutes:</label> 
+                    <input type="number" id="studyTime" name="studyTime" className="timeInput" min="1"  placeholder="35" onBlur="FVBV(id, min)"></input> <br></br>
             
-                    <label for="pausinaTime">Enter pause time in minutes </label> 
-                    <input type="number" id="pausinaTime" name="pausinaTime" class="timeInput" min="1"  placeholder="5" onblur="FVBV(id, min)"></input> <br></br>
+                    <label htmlFor="pausinaTime">Enter pause time in minutes </label> 
+                    <input type="number" id="pausinaTime" name="pausinaTime" className="timeInput" min="1"  placeholder="5" onBlur="FVBV(id, min)"></input> <br></br>
 
-                    <label for="cycles" id="cyclesLB">Enter number of cycles </label>
-                    <input type="number" id="cycles" name="cycles" min="1" placeholder="5" onblur="FVBV(id, min)"></input> <br></br>
+                    <label htmlFor="cycles" id="cyclesLB">Enter number of cycles </label>
+                    <input type="number" id="cycles" name="cycles" min="1" placeholder="5" onBlur="FVBV(id, min)"></input> <br></br>
 
                     <button type="submit" id="fullSubmit">Start Studying</button>
                 </div>

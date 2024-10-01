@@ -13,10 +13,9 @@ function Pomodoro(){
     let [formType, updateFormType] = useState('TT');
 
     function changeForm(){
-
       formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
+      console.log("changeForm");
       //switches the form type reference 
-    
     }
 
     let formComponents = {
@@ -33,20 +32,20 @@ function Pomodoro(){
       <Fragment>
         <div className="paperDestroyer3000">
           <div id="deskDiv">
-            <img id="desk" src={desk}></img>
-              <img src={clock} id="clockIMG"></img>
+            <img id="desk" src={desk} alt="desk image"></img>
+              <img src={clock} id="clockIMG" alt="clock image"></img>
               <div className="timer" id="timerDisplay">
                 00:00
               </div>
             <div id="paperDiv">
-              <img src={paper1} id="imageSpace"></img>
+              <img src={paper1} id="imageSpace" alt="two big piles of paper"></img>
             </div>
           </div>
         </div>
 
         {formComponents[formType]}
 
-        <button onClick={changeForm()}>Change Format</button>
+        <button onClick={changeForm}>Change Format</button>
         </Fragment>
     );
   }
