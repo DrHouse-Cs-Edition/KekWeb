@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-//import Navbar from '../components/Navbar.jsx';
 //import { marked } from 'marked';
 import Prewiew from '../components/Note/Prewiew.jsx';
 //import './Note_navigation.css'
 
-function Note() {
+function NoteNavigation() {
   // Inizializziamo lo stato con un array di prova
   const [notes, setNotes] = useState([{id: "1", title: "TestNota", text: "provaprova123"}]); // iserisco prima nota di prova
 
@@ -35,4 +34,4 @@ function Note() {
   // array.map( (elem) => {funz} ) = funzione js che esegue "funz" una volta per ogni elemento "elem" dell'array
 }
 
-export default Note;
+export default NoteNavigation;

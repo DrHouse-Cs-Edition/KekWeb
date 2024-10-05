@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { marked } from 'marked'; // Correct import
+import { marked } from 'marked';
 import './Note.css'
 
 function Note() {
