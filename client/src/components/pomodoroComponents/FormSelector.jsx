@@ -50,7 +50,7 @@ function CyclesForm ( {passTimeData}){
         passTimeData(getValues('studyTime'), getValues('breakTime'), getValues('cycles') );
         return false;
     }
-
+//
         return (
         <Fragment>
             <form id="studyForm" onSubmit={handleSubmit(handleFormSubmit)}>
