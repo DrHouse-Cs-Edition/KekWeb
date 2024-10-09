@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import Navbar from '../components/Navbar.jsx'
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
 
@@ -11,14 +11,25 @@ import paper3 from "./images/paper/paperPile3.png"
 import paper4 from "./images/paper/paperPile4.png"
 import paper5 from "./images/paper/paperPile5.png"
 import "./pomodoro.css"
+import { data } from "framer-motion/client";
 
 function Pomodoro(){
 
     let [formType, updateFormType] = useState('TT');
+    let cycles;
+    let pause;
+    let study;
+
+    function passTimeData(cData, pData, sData){
+      cycles = cData;
+      pause = pData;
+      study = sData;
+      console.log(cData);
+    }
 
     let formComponents = {
-      TT : <TTform></TTform>,
-      Cycles : <CyclesForm></CyclesForm>
+      TT : <TTform ></TTform>,
+      Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
     }
 
     function changeForm(){
@@ -33,9 +44,7 @@ function Pomodoro(){
 
     let currentComponent = formComponents[formType];
   
-    let cycles;
-    let pause;
-    let study;
+    
     //TODO update these variables from child forms and use them for animation
     return(
       <Fragment>
