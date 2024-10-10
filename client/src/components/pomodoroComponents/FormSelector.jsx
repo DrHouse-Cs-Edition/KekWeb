@@ -2,7 +2,7 @@ import React, { useState, Fragment } from "react";
 import OptionDisplay from "./OptionDisplay";
 import {useForm} from "react-hook-form";
 
-function TTform(){
+function TTform( {passTimeData}){
 
     let {register, handleSubmit, getValues} = useForm();
     //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form

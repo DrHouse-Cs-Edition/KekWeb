@@ -90,7 +90,7 @@ body {
     object-fit: contain;
   }
 
-  #paperDiv{
+  #animationDiv{
     position: absolute;
     width: 30%;
     height: 75%;
