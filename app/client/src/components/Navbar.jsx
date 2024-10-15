@@ -1,13 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Style from "./Navbar.module.css";
+import Style from "./Navbar.module.css"; // Assuming your CSS module for styles
+
 
 function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
     <header className={Style.header}>
       <Link to="/" className={Style.logo}>Logo</Link>
 
-      <nav className={Style.navbar}>
+      <button className={Style.hamburger} onClick={toggleMenu}>
+        {/* Hamburger icon: simple lines */}
+        <span className={isMenuOpen ? Style.hamburgerLineOpen : Style.hamburgerLine}></span>
+        <span className={isMenuOpen ? Style.hamburgerLineOpen : Style.hamburgerLine}></span>
+        <span className={isMenuOpen ? Style.hamburgerLineOpen : Style.hamburgerLine}></span>
+      </button>
+
+      <nav className={`${Style.navbar} ${isMenuOpen ? Style.navbarActive : ""}`}>
         <Link to="/home" className="nav-link">Home</Link>
         <Link to="/calendario" className="nav-link">Calendario</Link>
         <Link to="/note" className="nav-link">Note</Link>
