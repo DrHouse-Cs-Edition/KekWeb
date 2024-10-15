@@ -29,23 +29,6 @@ app.get('/', (request,response)=>{
 
 app.post('/api/notes/save',  (request,response)=>{
     const note = request.body;
-    /* versione con file locali
-    console.log(note);
-    const filePath = './client/public/note/notesJSON/' + note.title + '.JSON';
-    fs.writeFile('./client/public/note/notesJSON/' + note.title + '.JSON', JSON.stringify(note), (err)=>{ // salvo in un file
-        if(err) {
-            console.log(err);
-            response.json({
-                success: false,
-                message: "Error"});
-            }
-        else
-            response.json({
-                success: true,
-                message: "Note saved"
-            });
-    });*/
-
     //mongoDB mongoose => attualmente ne salva di più con stesso nome -> usare id? !!!!!!!!!
     async function save(ttl,txt) {
         const nota1 = new Note({
@@ -73,22 +56,6 @@ app.post('/api/notes/save',  (request,response)=>{
 });
 
 app.post('/api/notes/remove',  (request,response)=>{
-    /* versione con file locali
-    const filePath = './client/public/note/notesJSON/' + request.body + '.JSON';
-    fs.unlink(filePath, (err) => {
-        if (err) {
-            console.error(err);
-            response.json({
-                success: false,
-                message: "Error"});
-        }
-        else
-            response.json({
-                success: true,
-                message: "Note removed"
-            });
-    });*/
-
     //mongoDB mongoose
     async function remove(ttl) { // Remove the file  -> meglio usare id? !!!!!!!!!!
         try{ 
@@ -111,27 +78,6 @@ app.post('/api/notes/remove',  (request,response)=>{
 });
 
 app.get('/api/notes/load', (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
-    /* versione con file locali
-    const filePath = './src/note/notesJSON/' + request.query.noteName + '.JSON';
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            response.json({
-                success: false,
-                message: "Error"});
-        }
-        else{
-            json = JSON.parse(data);
-            response.json({
-                success: true,
-                title: json.title,
-                text: json.text,
-                date: json.date,
-            });
-        }
-        console.log('Contenuto del file:', data);
-    });*/
-
     //mongoDB mongoose
     async function load(ttl) {
         try{
@@ -154,6 +100,36 @@ app.get('/api/notes/load', (request,response)=>{ // richiesta: api/notes/load?no
         }
     }
     load(request.query.noteName);
+
+});
+
+app.get('/api/notes/all', (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
+    //mongoDB mongoose
+    async function load() {
+        try {
+            const note = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
+            
+            if (note.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
+                response.json({
+                    success: true,
+                    list: note, // Restituisce l'intero array di note
+                });
+            } else {
+                // Se nessuna nota viene trovata, restituisce 404
+                response.status(404).json({
+                    success: false,
+                    message: "Nessuna nota trovata",
+                });
+            }
+        } catch (e) {
+            console.log(e.message);
+            response.status(500).json({
+                success: false,
+                message: "Errore durante il caricamento dal DB",
+            });
+        }
+    }
+    load();
 
 });
 

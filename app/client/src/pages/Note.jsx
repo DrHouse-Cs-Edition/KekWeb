@@ -30,7 +30,7 @@ function Note() {
     txt = txt.replaceAll("</p>","");
     txt = txt.replaceAll("<p>","<br>"); // converto tutti altri in linea vuota
     document.getElementById('outputNota').innerHTML = txt; // setOutputText(txt); non va bene perché txt è in html
-  }, [noteText]);  // funzione viene applicato ogni volta che cambia noteText
+  }, [noteText]);  // funzione viene applicata ogni volta che cambia noteText
   
   const handleDelete = () => {
     setNoteText('');
@@ -43,7 +43,7 @@ function Note() {
       .then(() => alert("Copied the text: " + noteText))
       .catch(err => console.error('Failed to copy text:', err));
   };
-  //prende i dati della pagina e li invia al server perche siano salvati su mongoDB
+  //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
   const handleSave = () => {
     if (getName()) {
       const note = {
