@@ -20,7 +20,6 @@ const Timer = ( {duration} )=>{
 
             if(secondsLeft <= 0) 
                 clearInterval(interval);
-            console.log("cycle timer; ",secondsLeft);
     
             updateMinutes(Math.floor((secondsLeft/60)%60));
             updateSeconds(Math.floor(secondsLeft%60));
