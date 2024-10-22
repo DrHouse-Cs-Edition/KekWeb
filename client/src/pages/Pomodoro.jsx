@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import Navbar from '../components/Navbar.jsx'
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
-import Animation from "../components/pomodoroComponents/Animation.jsx";
+import Timer from "../components/pomodoroComponents/Timer.jsx"
 
 //images section
 import desk from "./images/desk.png"
@@ -10,17 +10,18 @@ import "./pomodoro.css"
 import { data } from "framer-motion/client";
 
 function Pomodoro(){
+  console.log("render check Pomodoro");
 
     const [formType, updateFormType] = useState('TT');
     const [aniState, updateAniState] = useState(0);
-    let cycles;
-    let breakTime;
-    let study;
+    let cycles=0;
+    let breakTime=0;
+    let study=0;
 
     //function to retrieve Time data from child components. 
-    function passTimeData(cData, pData, sData){
+    const passTimeData= (cData, bData, sData)=> {
       cycles = cData;
-      breakTime = pData;
+      breakTime = bData;
       study = sData;
       console.log("cycles are: ", cycles, " breakTime is: ", breakTime, "studyTime is: ", study);
     }
@@ -30,10 +31,8 @@ function Pomodoro(){
       Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
     }
 
-    function changeForm(){
+    const changeForm = ()=>{
       formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
-      console.log("changeForm");
-      //switches the form type reference 
     }
 
     //formComponents is an object, and TT and Cycles it's attributes. To the TT/cycles attribute i assign a component
@@ -41,30 +40,31 @@ function Pomodoro(){
     //of the object (i'm accessing the component stored in the attribute)
 
     let currentComponent = formComponents[formType];
-  
-    
-    //TODO update these variables from child forms and use them for animation
+
     return(
       <Fragment>
         {formComponents[formType]}
+
         <button onClick={changeForm}>Change Format</button>
         <button onClick = {()=>{
-          updateAniState(1);
-          //idea: ogni volta che cambia aniState fare una cosa diversa nel componente animation
+          if(!cycles || !breakTime || !study){  //data is not present
+          console.log("cycles are: ", cycles, " breakTime is: ", breakTime, "studyTime is: ", study);
+          alert("please insert timer settings");
+          }
+          else
+          {
+            updateAniState(1);
+          }
         }} >Start</button>
-        <button >Reset</button>
-        <button >Stop</button>
-        <button >Clear</button>
+
         <div className="paperDestroyer3000">
           <div id="deskDiv">
             <img id="desk" src={desk} alt="desk image"></img>
               <img src={clock} id="clockIMG" alt="clock image"></img>
-              <div className="timer" id="timerDisplay">
-                00:00
-              </div>
+              <Timer duration={60}></Timer>
             <div id="animationDiv">
               {
-                <Animation aniState={aniState}></Animation>
+                
               }
             </div>
           </div>

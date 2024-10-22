@@ -8,12 +8,12 @@ function TTform( {passTimeData}){
     //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form
 
     //!potentially gonna break everything
-    let {displayOption, updateDisplayOption} = useState(0);
+    let [displayOption, updateDisplayOption] = useState(0);
     
     function optionLoader(data){
-        this.form.preventDefault();
         console.log('launching TToption module with data: ', data);
         updateDisplayOption(1);
+        return false;
     }
 
     if(!displayOption){
