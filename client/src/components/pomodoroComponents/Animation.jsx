@@ -9,7 +9,77 @@ import cat3 from "../../pages/images/cat/cat3.png"
 import cat4 from "../../pages/images/cat/cat4.png"
 import { Fragment } from "react"
 
-function Animation(aniState){
+function Animation({lastCmd, studyTime, breakTime, cycles}){
+    switch (lastCmd){
+        case 0:
+            console.log("animation cmd 0: display base look");
+            return(
+                <img id="paper" src={paper1} alt="paper pile image"></img>
+            );
+        case 1:
+            console.log("animation cmd 1: start animation");
+
+            let curFrame = paper1; //current animation frame that is updatet by the animation functions
+            let cycleDuration = (studyTime + breakTime) * 60000; //*1000 per esprimere in millisec, *60 perchè sto misurando in secondi
+            //elapsed time for a complete cycle (study + break)
+        
+            let NotFirst = 0;
+            //this var is used to prevent the delay from setInterval on the first Cycle
+        
+            let fullCycle = setInterval( () => {
+                NotFirst = 1;
+                console.log("starting fullCycle");
+                //*study loop
+                let studyStart = Date.now();
+                let studyEnd = studyStart + studyTime*60000;
+                let studyInterval = setInterval(() => {
+                    let stopStudy = studyCycle(studyStart, studyEnd, curFrame);
+                    if(stopStudy)
+                    {
+                        console.log("clearing study interval");
+                        clearInterval(studyInterval);
+                        document.getElementById('timerDisplay').textContent = "00:00";
+                    }
+                },1000);
+        
+                //* breakTime loop
+                let breakStart = studyEnd;
+                let breakEnd = breakStart + breakTime*60000;
+                setTimeout( () =>{
+                    let breakInterval = setInterval(() =>{
+                        let endBreakCycle = pauseCycle(breakStart, breakEnd);
+                        if(endBreakCycle){
+                            console.log(`clearing break interval`);
+                            clearInterval(breakInterval);
+                            document.getElementById(`timerDisplay`).textContent = `00:00`;
+                        }
+                    }, 1000)
+                },studyTime*60000);
+                //this delay makes sure to avoid overlaps between the two cycles
+                cycles --;
+        
+                if(cycles === 0 )
+                    clearInterval(fullCycle);
+                
+            },cycleDuration*NotFirst);
+
+            return(
+                <Fragment>
+                    <img id="animationFrame" src={curFrame} alt="current animation frame"></img>
+                </Fragment>
+            );
+            break;
+        case 2:
+            console.log("animation cmd 2: reset animation");
+            break;
+        case 3:
+            console.log("animation cmd 3: stop/resume animation");
+            break;
+        default:
+            console.log("default animation command: unexpected val", lastCmd);
+            break;
+
+    }
     
     
 }
@@ -19,7 +89,7 @@ export default Animation;
     Aggiunge un listener in caso di click sul bottone per avviare l'animazione
     Deve avere i campi necessari ad avviare l'animazione già compilati. Fare riferimento alle altre funzioni
 */
-function mainAnimation(studyTime, breakTime, cycles) {
+function mainAnimation(studyTime, breakTime, cycles, curFrame) {
     console.log("kek"); //per vedere che la funzione parte
     // let studyTime = document.getElementById("studyTime").value;
     // let pauseTime = document.getElementById("pausinaTime").value;
@@ -38,14 +108,45 @@ function mainAnimation(studyTime, breakTime, cycles) {
         let studyStart = Date.now();
         let studyEnd = studyStart + studyTime*60000;
         let studyInterval = setInterval(() => {
-            let stopStudy = studyCycle(studyStart, studyEnd);
-            if(stopStudy)
-            {
+            console.log('starting study time interval');
+            let now = Date.now();
+            let elapsedPercentage = timeElapsed(studyStart, studyEnd, now);
+            // console.log(`elapsed percentage is ${elapsedPercentage}`);
+            // Aggiorna l'immagine in base alla percentuale trascorsa
+            
+            if (elapsedPercentage >= 80) {
+                curFrame = paper5;
+            } else if (elapsedPercentage >= 60) {
+                curFrame = paper4;
+            } else if (elapsedPercentage >= 40) {
+                curFrame = paper3;
+            } else if (elapsedPercentage >= 20) {
+                curFrame = paper2;
+            } else {
+            curFrame = paper1;
+            }
+            // console.log(`succesfully checked for image`);
+        
+            // Calcola la differenza tra il tempo di fine e il tempo corrente
+            const difference = studyEnd - now;
+            
+            // Se la differenza è minore o uguale a 0, ferma l'intervallo
+            if (difference <= 0) {
                 console.log("clearing study interval");
                 clearInterval(studyInterval);
                 // Pulisce il testo dell'elemento con id 'timerDisplay'
-                document.getElementById('timerDisplay').textContent = "00:00";
+                //!document.getElementById('timerDisplay').textContent = "00:00";
             }
+            
+            // Calcola i minuti e i secondi rimanenti
+            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            
+            // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
+            //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
+            //! console.log(`updating timer...`);
+            //! document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            //! console.log(`complete`);         
         },1000);
   
         //* pause loop
@@ -70,34 +171,26 @@ function mainAnimation(studyTime, breakTime, cycles) {
     },cycleDuration*NotFirst);
   
   };
-
-  export {mainAnimation};
   
   
-  function studyCycle(studyStart, studyEnd){
+  function studyCycle(studyStart, studyEnd, curFrame){
     console.log('starting study time interval');
     let now = Date.now();
     let elapsedPercentage = timeElapsed(studyStart, studyEnd, now);
     // console.log(`elapsed percentage is ${elapsedPercentage}`);
     // Aggiorna l'immagine in base alla percentuale trascorsa
-    let imgPaper = document.getElementById("imageSpace");
-    if (elapsedPercentage >= 100) {
-        imgPaper.style.display = "none"; // Nascondi l'immagine quando la percentuale è 100
-    } else {
-        imgPaper.style.display = "block"; // Mostra l'immagine quando la percentuale è inferiore a 100
   
         if (elapsedPercentage >= 80) {
-            imgPaper.src = paper5;
+            curFrame = paper5;
         } else if (elapsedPercentage >= 60) {
-            imgPaper.src = paper4;
+            curFrame = paper4;
         } else if (elapsedPercentage >= 40) {
-            imgPaper.src = paper3;
+            curFrame = paper3;
         } else if (elapsedPercentage >= 20) {
-            imgPaper.src = paper2;
+            curFrame = paper2;
         } else {
-            imgPaper.src = paper1;
+            curFrame = paper1;
         }
-    }
     // console.log(`succesfully checked for image`);
   
     // Calcola la differenza tra il tempo di fine e il tempo corrente
@@ -115,7 +208,7 @@ function mainAnimation(studyTime, breakTime, cycles) {
     // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
     //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
     // console.log(`updating timer...`);
-    document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    //document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     // console.log(`complete`);
   }  
   
@@ -128,20 +221,14 @@ function mainAnimation(studyTime, breakTime, cycles) {
   
     let imgCat = document.getElementById('imageSpace');
   
-    if (elapsedPercentage >= 100) {
-        imgCat.style.display = "none"; // Nascondi l'immagine quando la percentuale è 100
-    } else {
-        imgCat.style.display = "block"; // Mostra l'immagine quando la percentuale è inferiore a 100
-    }
-  
     if (elapsedPercentage >= 75) {
-        imgCat.src = "./images/cat/cat4.png";
+        imgCat.src = cat4;
     } else if (elapsedPercentage >= 50) {
-        imgCat.src = "./images/cat/cat3.png";
+        imgCat.src = cat3;
     } else if (elapsedPercentage >= 25) {
-        imgCat.src = "./images/cat/cat2.png";
+        imgCat.src = cat2;
     }else {
-        imgCat.src = "./images/cat/cat1.png";
+        imgCat.src = cat1;
     }
   
     let difference = pauseEnd - now;
@@ -155,7 +242,7 @@ function mainAnimation(studyTime, breakTime, cycles) {
   
     // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
     //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
-    document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    //document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
   
   /*
