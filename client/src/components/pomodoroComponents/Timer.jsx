@@ -6,7 +6,7 @@ import {useState, useEffect, Fragment} from 'react';
     Timer simply display a simple timer that displays minutes and seconds
     It requires a duration expressed in ms and nothing more
 */
-const Timer = ( {duration} )=>{
+const Timer = ( {duration, notifyEnd} )=>{
     const [seconds, updateSeconds] = useState(0);
     const [minutes, updateMinutes] = useState(0);
     
@@ -18,8 +18,11 @@ const Timer = ( {duration} )=>{
         let interval = setInterval(()=>{
             secondsLeft = secondsLeft -1;
 
-            if(secondsLeft <= 0) 
+            if(secondsLeft <= 0){
                 clearInterval(interval);
+                notifyEnd();
+            } 
+                
     
             updateMinutes(Math.floor((secondsLeft/60)%60));
             updateSeconds(Math.floor(secondsLeft%60));
@@ -35,6 +38,7 @@ const Timer = ( {duration} )=>{
                 <div id = "minutes">
                     {minutes < 10 ? "0" + minutes : minutes}
                 </div>
+                
                 <div id = "seconds">
                 {seconds < 10 ? "0" + seconds : seconds}
                 </div>
