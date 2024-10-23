@@ -8,12 +8,12 @@ function TTform( {passTimeData}){
     //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form
 
     //!potentially gonna break everything
-    let {displayOption, updateDisplayOption} = useState(0);
+    let [displayOption, updateDisplayOption] = useState(0);
     
     function optionLoader(data){
-        this.form.preventDefault();
         console.log('launching TToption module with data: ', data);
         updateDisplayOption(1);
+        return false;
     }
 
     if(!displayOption){
@@ -44,16 +44,18 @@ function CyclesForm ( {passTimeData}){
 
     let {register, handleSubmit, getValues} = useForm();
 
-    function handleFormSubmit (){
-        console.log('submitting form for cycles');
-        console.log("study time from CyclesForm", getValues("studyTime"));
-        passTimeData(getValues('studyTime'), getValues('breakTime'), getValues('cycles') );
+    const handleFormSubmit = ()=>{
         return false;
     }
-//
+
+    const sendDataToParent = ()=>{
+        console.log('submitting form for cycles');
+        passTimeData(getValues('studyTime'), getValues('breakTime'), getValues('cycles') );
+    }
         return (
         <Fragment>
-            <form id="studyForm" onSubmit={handleSubmit(handleFormSubmit)}>
+            <form id="studyForm" onSubmit={handleFormSubmit}>
+
                 <div className="inputDiv" id="cyclesDiv">
 
                     <label htmlFor="studyTime">Enter study time in minutes:</label> 
@@ -65,7 +67,7 @@ function CyclesForm ( {passTimeData}){
                     <label htmlFor="cycles" id="cyclesLB">Enter number of cycles </label>
                     <input type="number" id="cycles" name="cycles" min="1" placeholder="5" onBlur="FVBV(id, min)" {...register("cycles")}></input> <br></br>
 
-                    <button type="submit" id="fullSubmit">Start Studying</button>
+                    <button id="CycleSend" type="button" onClick={sendDataToParent}>Start Studying</button>
                 </div>
             </form>
         </Fragment>
