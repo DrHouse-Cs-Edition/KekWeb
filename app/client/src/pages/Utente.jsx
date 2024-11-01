@@ -1,5 +1,5 @@
 import React from 'react';
-import Login from '../components/login/login.jsx'
+import Login from '../components/login_signup/Login.jsx'
 function Utente(){
     return(
         <Login/>
