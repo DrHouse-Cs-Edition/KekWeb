@@ -1,8 +1,9 @@
 import React, {useState} from "react";
 
-function Login(){
+function Signup(){
     const [email, SetEmail] = useState("");
     const [password, SetPassword] = useState("");
+    const [confPassword, SetConfPassword] = useState("");
 
     return(
         <div>
@@ -22,10 +23,17 @@ function Login(){
                 onChange={(e) => SetPassword(e.target.value)}
                 required
                 />
+                <input 
+                type="password"
+                placeholder="Confirm password"
+                value={confPassword}
+                onChange={(e) => SetConfPassword(e.target.value)}
+                required
+                />
                 <button type="submit">Login</button>
             </form>
         </div>
     );
 }
 
-export default Login;
+export default Signup;
