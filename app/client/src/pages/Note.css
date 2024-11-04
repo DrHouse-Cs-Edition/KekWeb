@@ -25,6 +25,12 @@ footer{
 .container{
     display: flex;
 }
+.title{
+    color: blue;
+    font-size: 2rem;
+    font-style: italic;
+    font-weight: bold;
+}
 .text{
     width: 100%;
     height: 70vh;

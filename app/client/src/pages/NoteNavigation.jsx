@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-//import { marked } from 'marked';
 import Prewiew from '../components/Note/Prewiew.jsx';
 import { useNavigate } from "react-router-dom";
 //import './Note_navigation.css'
 
 function NoteNavigation() {
-  // Inizializziamo lo stato con un array di prova
-  const [notes, setNotes] = useState([{id: "1", title: "TestNota", text: "provaprova123"}]); // iserisco prima nota di prova
+
+  const navigate = useNavigate(); // useNavigate ritorna solo una funzione, che poi va usata per navigare
+
+  const [notes, setNotes] = useState([{id: "1", title: "TestNota", text: "provaprova123"}]);
 
   // Funzione per aggiungere un nuovo paragrafo alla visualizzazione
   const loadNotes = (newNotesArray) => {
     setNotes([...newNotesArray.map(note => ({
-      id: note._id,        // Assumi che l'ID della nota sia _id (controlla il campo corretto dal DB)
-      title: note.title,   // Prendi il titolo dalla nota
-      text: note.text,     // Prendi il testo dalla nota
+      id: note._id,
+      title: note.title,
+      text: note.text,
+      date: note.date
       }))
     ]);
   }
@@ -26,19 +28,17 @@ function NoteNavigation() {
   // MONGODB
 
   const handleRemove = (index) => {
-    fetch('http://localhost:5000/api/notes/remove', {
-      method: 'POST',
+    fetch('http://localhost:5000/api/notes/remove/' + notes[index].id, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
-      },
-      body: notes[index].title
+      }
     })
     .then(response => response.json())
     .then(json => {
-      console.log(json); // Controlla la struttura del JSON restituito
       if (json.success) {
         alert(json.message);
-        deleteNote(index); // rimuove solo l'eliminato, non aggiorna tutto
+        deleteNote(index); // rimuove solo l'eliminato, non ricarica tutto
       } else {
         alert("Failed to remove note");
       }
@@ -96,9 +96,9 @@ function NoteNavigation() {
   useEffect(() => {
     handleLoad();  // Chiamare la funzione al caricamento del componente
   }, []);
-  const navigate = useNavigate(); // serve perche si...
-  const openNote = ()=>{
-    navigate(`/note`);
+
+  const openNote = (id)=>{
+    navigate(`/note/${id}`);
   }
 
   return (
@@ -109,7 +109,7 @@ function NoteNavigation() {
       </button>
 
       <div>
-        {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} text={note.text} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote()}></Prewiew> )}
+        {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} text={note.text} date={note.date} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
       </div>
       <footer>Footer: Note V2.0</footer>
     </>

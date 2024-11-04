@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import './Note.css'
+import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
+import { useNavigate } from "react-router-dom";
 
 function Note() {
-  const [noteName, setNoteName] = useState(''); // utile perche con setNoteName cambia ogni istanza della variabile nel DOM con nuovo valore
+
+  const navigate=useNavigate(); // useNavigate ritorna una funzione
+
+  const { id } = useParams(); // id come Parametro di percorso ( Note/:id )
+
+  const [noteName, setNoteName] = useState(''); // utile perché con setNoteName cambia ogni istanza della variabile nel DOM con nuovo valore
   const [noteText, setNoteText] = useState('');
-  const [outputText, setOutputText] = useState('Qui comparirà il markdown corrispondente');
 
 
   marked.setOptions({
-    breakkggs: true,  // Converti `\n` in `<br>`
+    breakkggs: true,  // converte `\n` in `<br>` IN TEORIA
   });
 
   
@@ -18,123 +24,121 @@ function Note() {
     //console.log('NoteText:', noteText);
     //console.log('Textarea value:', JSON.stringify(noteText));
     
-    marked.use({
+    marked.use({ // anche questo converte `\n` in `<br>` IN TEORIA
       gfm: true,
       breaks: true,
     });
     
-
     let txt = marked.parse(noteText);
-    console.log(txt) 
     txt = txt.replace("<p>",""); // elimino primo paragrafo
     txt = txt.replaceAll("</p>","");
     txt = txt.replaceAll("<p>","<br>"); // converto tutti altri in linea vuota
-    document.getElementById('outputNota').innerHTML = txt; // setOutputText(txt); non va bene perché txt è in html
+    document.getElementById('outputText').innerHTML = txt; // usare variabile useState(tipo "setOutputText") non va bene perché txt è in html
   }, [noteText]);  // funzione viene applicata ogni volta che cambia noteText
   
   const handleDelete = () => {
-    setNoteText('');
-    setOutputText('');
-    removeNote();
+    fetch('http://localhost:5000/api/notes/remove/' + id, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'text/plain; charset=UTF-8',
+      }
+    })
+    .then(response => response.json())
+    .then(json => {
+      if (json.success) {
+        alert(json.message);
+        navigate(`/noteNavigation`); // torno alle note
+      } else {
+        alert(json.message);
+      }
+    })
+    .catch(err => console.error('Failed to remove note:', err));
+    
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(noteText)
-      .then(() => alert("Copied the text: " + noteText))
-      .catch(err => console.error('Failed to copy text:', err));
+      .then(() => alert("Testo copiato su appunti"))
+      .catch(err => console.error('Errore durante la copia:', err));
   };
+
   //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
   const handleSave = () => {
-    if (getName()) {
+    if (getName()) { // se c'é un titolo
       const note = {
         title: noteName,
         text: noteText,
         date: new Date().toISOString(), // Use current date in ISO format
       };
 
-      fetch('http://localhost:5000/api/notes/save', {
-        method: 'POST',
+      fetch('http://localhost:5000/api/notes/update/' + id, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify(note),
+        body: JSON.stringify(note)
       })
       .then(response => response.json())
       .then(json => {
-        if (json.success) {
+        if (!json.success)
           alert(json.message);
-        } else {
-          alert("Failed to save note");
-        }
+        else
+          alert("nota aggiornata");
       })
       .catch(err => console.error('Failed to save note:', err));
     }
+    else{
+      alert("per salvare la nota devi inserire un titolo")
+    }
   };
 
-  const removeNote = () => {
-    if (getName()) {
-      fetch('http://localhost:5000/api/notes/remove', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain; charset=UTF-8',
-        },
-        body: noteName,
-      })
-      .then(response => response.json())
-      .then(json => {
-        if (json.success) {
-          alert(json.message);
-        } else {
-          alert("Failed to remove note");
-        }
-      })
-      .catch(err => console.error('Failed to remove note:', err));
-    }
-  };
   // riceve dati dal server (li prende da mongoDB) e li carica sulla pagina.
   const handleLoad = () => {
-    if (getName()) {
-      fetch(`http://localhost:5000/api/notes/load?noteName=${noteName}`, {
-        headers: {
-          'Content-Type': 'text/plain; charset=UTF-8',
-        },
-      })
-      .then(response => response.json())
-      .then(json => {
-        if (json.success) {
-          setNoteText(json.text);
-          alert("Note loaded");
-        } else {
-          alert("Failed to load note");
-        }
-      })
-      .catch(err => console.error('Failed to load note:', err));
-    }
+    fetch(`http://localhost:5000/api/notes/load/` + id, {
+      headers: {
+        'Content-Type': 'text/plain; charset=UTF-8',
+      },
+    })
+    .then(response => response.json())
+    .then(json => {
+      if (json.success) {
+        setNoteName(json.title);
+        setNoteText(json.text);
+        alert("Note loaded");
+      } else {
+        alert(json.message);
+      }
+    })
+    .catch(err => console.error('error while loading note:' + err));
   };
 
   const getName = () => {
-    if (!noteName) {
-      alert("Insert a name");
+    if (noteName)
+      return true;
+    else
       return false;
-    }
-    return true;
   };
+
+  // useEffect esegue handleLoad una volta quando il componente viene montato
+  useEffect(() => {
+    handleLoad();  // Chiamare la funzione al caricamento del componente
+  }, []);
 
   return (
     <>
         <header>Note</header>
+        
         <input
-          id="title"
+          id="noteName"
+          class="title"
           type="text"
-          // value={noteName} // val iniziale è quello dentro noteName
+          value={noteName} // val iniziale è quello dentro noteName
           onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
-          placeholder="Inserisci titolo"
         />
-        <button onClick={handleLoad}>Load</button>
 
         <div className="container">
-            <textarea id="nota" className="text" placeholder="Scrivi qui la tua nota..." onChange={(e) => setNoteText(e.target.value)}></textarea>
-            <p id="outputNota" className="output">{outputText}</p>
+            <textarea id="noteText" className="text" value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>
+            <p id="outputText" className="output"></p>
         </div>
 
         <button onClick={handleDelete}>Delete</button>

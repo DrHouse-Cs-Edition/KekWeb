@@ -27,39 +27,62 @@ app.get('/', (request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
 });
 
-app.post('/api/notes/save',  (request,response)=>{
+app.post('/api/notes/save', async (request,response)=>{
     const note = request.body;
-    //mongoDB mongoose => attualmente ne salva di più con stesso nome -> usare id? !!!!!!!!!
-    async function save(ttl,txt) {
-        const nota1 = new Note({
-            title: ttl,
-            text: txt,
-            date: Date.now(),
+    const nota1 = new Note({
+        title: note.title,
+        text: note.text,
+        date: note.date
+    });
+
+    try{
+        await nota1.save();
+        response.json({
+            success: true,
+            message: "Note saved"
         });
-        try{
-            await nota1.save();
-            response.json({
-                success: true,
-                message: "Note saved"
-            });
-        }
-        catch(e){
-            console.log(e.message);
-            response.json({
-                success: false,
-                message: "Errore durante il salvataggio sul DB",
-            });
-        }
     }
-    save(note.title,note.text);
+    catch(e){
+        console.log(e.message);
+        response.json({
+            success: false,
+            message: "Errore durante il salvataggio sul DB",
+        });
+    }
 
 });
 
-app.post('/api/notes/remove',  (request,response)=>{
-    //mongoDB mongoose
-    async function remove(ttl) { // Remove the file  -> meglio usare id? !!!!!!!!!!
+app.put('/api/notes/update/:id', async (request,response)=>{
+    const id = request.params.id;
+    const note = request.body;
+
+    try{
+        await Note.findByIdAndUpdate(id,{
+            title: note.title,
+            text: note.text,
+            date: note.date,
+        });
+        response.json({
+            success: true,
+            message: "Nota aggiornata"
+        });
+    }
+    catch(e){
+        console.log(e.message);
+        response.json({
+            success: false,
+            message: "Errore durante il salvataggio sul DB",
+        });
+    }
+
+});
+
+app.delete('/api/notes/remove/:id',  (request,response)=>{
+    id = request.params.id;
+
+    async function remove(id) { // Remove the file
         try{ 
-            await Note.deleteOne({title: ttl});
+            await Note.deleteOne({_id: id});
             response.json({
                 success: true,
                 message: "Note removed",
@@ -73,63 +96,58 @@ app.post('/api/notes/remove',  (request,response)=>{
             });
         }
     }
-    remove(request.body);
+    remove(request.params.id);
 
 });
 
-app.get('/api/notes/load', (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
-    //mongoDB mongoose
-    async function load(ttl) {
-        try{
-            const nota = await Note.where("title").equals(ttl).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
-            // nota: mongoose ritorna un ARRAY
-            console.log(nota[0].title)
+app.get('/api/notes/load/:id', async (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
+    id = request.params.id;
+
+    try{
+        const nota = await Note.findById(id).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
+        // nota: find ritorna un ARRAY ma non findById
+        response.json({
+            success: true,
+            id: nota.id,
+            title: nota.title,
+            text: nota.text,
+            date: nota.date,
+        });
+    }
+    catch(e){
+        console.log("errore load:" + e.message);
+        response.json({
+            success: false,
+            message: "Errore durante il caricamento dal DB:"+e,
+        });
+    }
+
+});
+
+app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
+
+    try {
+        const note = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
+        
+        if (note.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
             response.json({
                 success: true,
-                title: nota[0].title,
-                text: nota[0].text,
-                date: nota[0].date,
+                list: note, // Restituisce l'intero array di note
             });
-        }
-        catch(e){
-            console.log(e.message);
-            response.json({
+        } else {
+            // Se nessuna nota viene trovata, restituisce 404
+            response.status(404).json({
                 success: false,
-                message: "Errore durante il caricamento dal DB",
+                message: "Nessuna nota trovata",
             });
         }
+    } catch (e) {
+        console.log(e.message);
+        response.status(500).json({
+            success: false,
+            message: "Errore durante il caricamento dal DB",
+        });
     }
-    load(request.query.noteName);
-
-});
-
-app.get('/api/notes/all', (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
-    //mongoDB mongoose
-    async function load() {
-        try {
-            const note = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
-            
-            if (note.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
-                response.json({
-                    success: true,
-                    list: note, // Restituisce l'intero array di note
-                });
-            } else {
-                // Se nessuna nota viene trovata, restituisce 404
-                response.status(404).json({
-                    success: false,
-                    message: "Nessuna nota trovata",
-                });
-            }
-        } catch (e) {
-            console.log(e.message);
-            response.status(500).json({
-                success: false,
-                message: "Errore durante il caricamento dal DB",
-            });
-        }
-    }
-    load();
 
 });
 
