@@ -1,5 +1,6 @@
 import {useState, useEffect, Fragment} from 'react';
 import { useTimer } from 'react-timer-hook';
+import { useRef } from 'react';
 
 //*TMP for animation testing
 import paper1 from "../../pages/images/paper/paperPile1.png"
@@ -14,9 +15,11 @@ const SimpleTimer = ( {StudyTime, BreakTime, callbackFunction} )=>{
         1 : BreakTime
     }
 
-    let [x, setX] = useState(0);    //variable used to alternate between the two timers
+    let y = useRef(0);
 
+    let [x, setX] = useState(0);    //variable used to alternate between the two timers
     let date = new Date();
+
     const {
         totalSeconds,
         seconds,
@@ -29,7 +32,7 @@ const SimpleTimer = ( {StudyTime, BreakTime, callbackFunction} )=>{
         resume, //locally implemented in the component
         restart, //locally implemented in the component with the addition of a button that first resets the time values, and then restarts
         //*autostart is irrelevant since the update on the x var calls useEffect
-      } = useTimer({expiryTimestamp : date.setSeconds( date.getSeconds() + timeFrame[0]), onExpire : ()=>{console.log("restarting timer with x = ", !x);
+      } = useTimer({expiryTimestamp : date.setSeconds( date.getSeconds() + timeFrame[0]), autoStart : false,  onExpire : ()=>{console.log("restarting timer with x = ", !x);
         if(x) //if x === 1 then a break cycle has ended, need to sub cycles in Pomodoro
             callbackFunction(); //*to be tested
         setX(Math.abs(x-1));
@@ -42,7 +45,7 @@ const SimpleTimer = ( {StudyTime, BreakTime, callbackFunction} )=>{
       
     return(
         <Fragment>
-            <div>
+            <div id= "timerDiv">
                 <span>{minutes < 10 ? '0' + minutes : minutes} </span>
                 <span>{seconds < 10 ? '0' + seconds : seconds} </span>
             </div>
