@@ -81,13 +81,13 @@ function Pomodoro(){
           alert("please insert timer settings");
           }
         }} >Start</button>
+        {
+          timerComponents[timerCode]
+        }
         <div className="paperDestroyer3000">
           <div id="deskDiv">
             <img id="desk" src={desk} alt="desk image"></img>
               <img src={clock} id="clockIMG" alt="clock image"></img>
-              {
-                timerComponents[timerCode]
-              }
             <div id="animationDiv">
             </div>
           </div>

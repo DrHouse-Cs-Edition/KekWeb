@@ -1,6 +1,5 @@
-import {useState, useEffect, Fragment} from 'react';
+import {useState, useEffect, Fragment, useRef} from 'react';
 import { useTimer } from 'react-timer-hook';
-import { useRef } from 'react';
 
 //*TMP for animation testing
 import paper1 from "../../pages/images/paper/paperPile1.png"
@@ -9,39 +8,42 @@ import cat1 from "../../pages/images/cat/cat1.png"
 import cat2 from "../../pages/images/cat/cat2.png"
 
 //! for the animation, sycnh some interval on 1000ms and two frames of an animation with the timer
-const SimpleTimer = ( {StudyTime, BreakTime, callbackFunction} )=>{
-    let timeFrame = {
-        0 : StudyTime,
-        1 : BreakTime
-    }
+function SimpleTimer( {StudyTime = 0, BreakTime = 0, Cycles = 2, callbackFunction, autoStart = 0} ){   //default is studyTime, expressed in seconds
+    const [minutes, setMinutes] = useState(Math.trunc(StudyTime/60%60));
+    const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));
+    const [runTimer, setRunTimer] = useState(autoStart);
+    const [cycle, setCycle] = useState(Cycles)
+    const curTimer = useRef(0);
 
-    let y = useRef(0);
+        const timer = useEffect(()=>{
+            if(runTimer){
+                const pomodoroInterval = setTimeout(()=>{ 
+                    if(seconds == 0){
+                        if(minutes == 0){
+                            if(cycle > 0){
+                                if(!curTimer.current){//study timer initialization
+                                    setSeconds(Math.trunc(StudyTime%60));
+                                    setMinutes(Math.trunc(StudyTime/60%60));
+                                } else{ //break timer
+                                    setSeconds(Math.trunc(BreakTime%60));
+                                    setMinutes(Math.trunc(BreakTime/60%60));
+                                }
+                                if(curTimer.current) {setCycle(cycle-1); console.log("-1 cycle")};
 
-    let [x, setX] = useState(0);    //variable used to alternate between the two timers
-    let date = new Date();
-
-    const {
-        totalSeconds,
-        seconds,
-        minutes,
-        hours,
-        days,
-        isRunning,
-        start,  
-        pause,  //locally implemented in the component
-        resume, //locally implemented in the component
-        restart, //locally implemented in the component with the addition of a button that first resets the time values, and then restarts
-        //*autostart is irrelevant since the update on the x var calls useEffect
-      } = useTimer({expiryTimestamp : date.setSeconds( date.getSeconds() + timeFrame[0]), autoStart : false,  onExpire : ()=>{console.log("restarting timer with x = ", !x);
-        if(x) //if x === 1 then a break cycle has ended, need to sub cycles in Pomodoro
-            callbackFunction(); //*to be tested
-        setX(Math.abs(x-1));
-      } } );
-
-      useEffect(()=>{
-        let restartDate = new Date();
-        restart(restartDate.setSeconds(restartDate.getSeconds() + timeFrame[x]));
-      }, [x]);
+                                curTimer.current = !curTimer.current; 
+                                
+                                console.log("cur time is now ", curTimer.current);
+                            }//else do nothing or notify end
+                            clearTimeout(pomodoroInterval);
+                        }else{
+                            setSeconds(59);
+                            setMinutes(minutes-1);
+                        }
+                    }else
+                    setSeconds(seconds - 1);
+                }, 1000);
+            }
+    }, [minutes, seconds, runTimer]);
       
     return(
         <Fragment>
@@ -49,8 +51,10 @@ const SimpleTimer = ( {StudyTime, BreakTime, callbackFunction} )=>{
                 <span>{minutes < 10 ? '0' + minutes : minutes} </span>
                 <span>{seconds < 10 ? '0' + seconds : seconds} </span>
             </div>
-            <div id="AnimationDiv">
-                
+            <div id="testingDiv">
+                <h2> Testing buttons below </h2>
+                <button onClick={()=>{setRunTimer(1)}}> run timer </button>
+                <button onClick={()=>{setRunTimer(0)}}> Stop timer </button>
             </div>
         </Fragment>
     )
