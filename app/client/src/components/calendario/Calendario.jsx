@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import './Calendario.css';
 import Evento from './Evento.jsx';
 
-const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const daysOfWeek = ['DOM', 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB'];
 
 const Calendario = () => {
     const [currentDate, setCurrentDate] = useState(dayjs());
@@ -13,8 +13,8 @@ const Calendario = () => {
 
     const startOfMonth = currentDate.startOf('month');
     const endOfMonth = currentDate.endOf('month');
-    const startOfWeek = startOfMonth.startOf('week');
-    const endOfWeek = endOfMonth.endOf('week');
+    const startOfWeek = startOfMonth.startOf('week'); // primo giorno settimana contenente il primo giorno del mese (NOTA: comincia dalla domenica)
+    const endOfWeek = endOfMonth.endOf('week'); // ultimo giorno settimana contenente l'ultimo giorno del mese
 
     const handlePrevMonth = () => {
         setCurrentDate(currentDate.subtract(1, 'month'));
@@ -37,15 +37,15 @@ const Calendario = () => {
     };
 
     const generateCalendar = () => {
-        const calendar = [];
+        const calendar = []; // calendario = unico array di "giorni" in html
         let date = startOfWeek;
 
-        while (date.isBefore(endOfWeek, 'day')) {
-            const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day'));
+        while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day') ) { // perché isBefore(endOfWeek) anziché (endOfMonth) ?
+            const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day')); // filter
             calendar.push(
                 <div
                     key={date.format('YYYY-MM-DD')}
-                    className={`calendar-day ${selectedDate && date.isSame(selectedDate, 'day') ? 'selected' : ''}`}
+                    className={`calendar-day ${selectedDate && date.isSame(selectedDate, 'day') ? 'selected' : ''}`} // "selectedDate && ..." controlla che selectedDate sia definito && ...
                     onClick={() => handleDateClick(date)}
                 >
                     {date.date()}
@@ -67,14 +67,16 @@ const Calendario = () => {
                 <span>{currentDate.format('MMMM YYYY')}</span>
                 <button onClick={handleNextMonth}>Next</button>
             </div>
+
             <div className="calendar">
-                {daysOfWeek.map((day) => (
+                {daysOfWeek.map((day) => ( // scrive i giorni della settimana (lun,mar,mer,...)
                     <div key={day} className="calendar-header">
                         {day}
                     </div>
                 ))}
                 {generateCalendar()}
             </div>
+            
             {selectedDate && (
                 <form className="event-form" onSubmit={handleAddEvent}>
                     <h3>Add Event for {selectedDate.format('MMMM DD, YYYY')}</h3>
