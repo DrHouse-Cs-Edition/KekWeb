@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import './Calendario.css';
 import Evento from './Evento.jsx';
+import Giorno from './Giorno.jsx';
 
 const daysOfWeek = ['DOM', 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB'];
 
@@ -25,7 +26,7 @@ const Calendario = () => {
     };
 
     const handleDateClick = (date) => {
-        setSelectedDate(date);
+        setSelectedDate(date); // giorno selezionato = giorno su cui hai cliccato
     };
 
     const handleAddEvent = (e) => {
@@ -37,23 +38,19 @@ const Calendario = () => {
     };
 
     const generateCalendar = () => {
-        const calendar = []; // calendario = unico array di "giorni" in html
+        const calendar = []; // calendario = unico array di "giorni" (componenti)
         let date = startOfWeek;
 
-        while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day') ) { // perché isBefore(endOfWeek) anziché (endOfMonth) ?
-            const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day')); // filter
-            calendar.push(
-                <div
-                    key={date.format('YYYY-MM-DD')}
-                    className={`calendar-day ${selectedDate && date.isSame(selectedDate, 'day') ? 'selected' : ''}`} // "selectedDate && ..." controlla che selectedDate sia definito && ...
-                    onClick={() => handleDateClick(date)}
-                >
-                    {date.date()}
-                    {dayEvents.map((event, index) => (
-                        <Evento key={index} title={event.title} />
-                    ))}
-                </div>
-            );
+        while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day') ) { // isBefore(endOfWeek) mostra invece pezzo settimana prossimo mese
+            if(date.isBefore(startOfMonth, 'day')) // facoltativo per eliminare giorni mese precedente
+                calendar.push(<div></div>);
+            else{
+                const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day')); // filtra quelli che accadono nel giorno date
+                calendar.push(
+                    <Giorno date = {date} events={dayEvents} selected={date.isSame(selectedDate, 'day')} handleClick={handleDateClick}>
+                    </Giorno>
+                );
+            }
             date = date.add(1, 'day');
         }
 
@@ -74,10 +71,10 @@ const Calendario = () => {
                         {day}
                     </div>
                 ))}
-                {generateCalendar()}
+                {generateCalendar() /*inserisce array di "giorni" html*/}
             </div>
             
-            {selectedDate && (
+            {selectedDate && ( // se selectedDate non è null allora carica html
                 <form className="event-form" onSubmit={handleAddEvent}>
                     <h3>Add Event for {selectedDate.format('MMMM DD, YYYY')}</h3>
                     <input
