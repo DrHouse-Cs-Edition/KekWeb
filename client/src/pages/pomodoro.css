@@ -60,8 +60,8 @@ body {
 
   .paperDestroyer3000{
     position: relative;
-    height: 70vh;
-    width: 100vw;
+    height: 50%;
+    width: 100%;
     align-items: center;
     justify-content: center;
   }
