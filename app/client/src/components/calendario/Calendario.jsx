@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import './Calendario.css';
 import Evento from './Evento.jsx';
 import Giorno from './Giorno.jsx';
-
-const daysOfWeek = ['DOM', 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB'];
+dayjs.extend(isoWeek);
+const daysOfWeek = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'];
 
 const Calendario = () => {
     const [currentDate, setCurrentDate] = useState(dayjs());
@@ -14,7 +15,7 @@ const Calendario = () => {
 
     const startOfMonth = currentDate.startOf('month');
     const endOfMonth = currentDate.endOf('month');
-    const startOfWeek = startOfMonth.startOf('week'); // primo giorno settimana contenente il primo giorno del mese (NOTA: comincia dalla domenica)
+    const startOfWeek = startOfMonth.startOf('isoWeek'); // primo giorno settimana contenente il primo giorno del mese (NOTA: comincia dalla domenica) puoi aggiungere .add(1,'day') ma è buggato  
     const endOfWeek = endOfMonth.endOf('week'); // ultimo giorno settimana contenente l'ultimo giorno del mese
 
     const handlePrevMonth = () => {
