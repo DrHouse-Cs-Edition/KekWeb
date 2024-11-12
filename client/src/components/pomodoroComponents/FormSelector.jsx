@@ -31,7 +31,7 @@ function TTform( {passTimeData}){
     }else{
         return(
             <Fragment>
-                <button type="submit" id="TTfullSubmit">Start Studying </button>
+                <button type="submit" id="TTfullSubmit">Register Data </button>
             </Fragment>
         );
     }
@@ -67,7 +67,7 @@ function CyclesForm ( {passTimeData}){
                     <label htmlFor="cycles" id="cyclesLB">Enter number of cycles </label>
                     <input type="number" id="cycles" name="cycles" min="1" placeholder="5"  {...register("cycles")}></input> <br></br>
 
-                    <button id="CycleSend" type="button" onClick={sendDataToParent}>Start Studying</button>
+                    <button id="CycleSend" type="button" onClick={sendDataToParent}>Register Data</button>
                 </div>
             </form>
         </Fragment>

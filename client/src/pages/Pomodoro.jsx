@@ -40,12 +40,6 @@ function Pomodoro(){
 
   return(
     <Fragment>
-      <button onClick = {()=>{
-        if(!cycles || !breakTime || !studyTime){  //data is not present
-        console.log("cycles are: ", cycles, " breakTime is: ", breakTime, "studyTime is: ", studyTime);
-        alert("please insert timer settings");
-        }
-      }} >Start</button>
 
       {timerComponents[timerCode]}
 
