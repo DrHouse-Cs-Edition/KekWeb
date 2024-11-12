@@ -1,0 +1,14 @@
+.day {
+    background-color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.day:hover {
+    background-color: #e0f7fa; 
+    cursor: pointer;
+}
+
+.day.selected {
+    background-color: #80deea;
+}
