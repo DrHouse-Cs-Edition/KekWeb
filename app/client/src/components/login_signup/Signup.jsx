@@ -7,7 +7,7 @@ function Signup(){
 
     return(
         <div>
-            <h2>Login</h2>
+            <h2>Sign up</h2>
             <form>
                 <input 
                 type="email"
