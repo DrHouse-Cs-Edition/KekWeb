@@ -1,5 +1,4 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
-import { useTimer } from 'react-timer-hook';
 import {GenOptionDisplayer} from "../GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "./FormSelector.jsx";
 
