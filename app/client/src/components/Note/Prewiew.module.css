@@ -1,0 +1,8 @@
+.bin{
+    width: 20px;
+    height: 20px;
+}
+.div{
+    background-color: aquamarine;
+    border-radius: 20px; /* Stonda tutti e 4 i bordi */
+}
