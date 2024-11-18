@@ -10,6 +10,7 @@ import cat2 from "../../pages/images/cat/cat2.png"
 
 //! for the animation, sycnh some interval on 1000ms and two frames of an animation with the timer
 function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in seconds
+    //these values are used to store the timer parameters and keep them "safe"
     const [StudyTime, updateStudyTime] = useState(0);   //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);   //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);         //indicates the number of full Cycles
@@ -18,6 +19,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
 
     const [minutes, setMinutes] = useState(Math.trunc(StudyTime/60%60));        //current timer minutes value
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
+    const cyclesLeft = useRef(Cycles);          //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
     
     const curTimer = useRef(0);     //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
@@ -37,6 +39,8 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         curTimer.current = 0;
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
+        cyclesLeft.current = Cycles;
+        console.log("passTimeData func; cyclesLeft is ", cyclesLeft.current, "while cycles is ", Cycles);
     }
 
     //*formComponents is an object, and TT and Cycles it's attributes. To the TT/Cycles attribute i assign a component
@@ -52,13 +56,13 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         const timer = useEffect(()=>{
             if(runTimer){   //normal update of the timer
                 pomodoroInterval = setTimeout(()=>{ 
-                    if(Cycles > 0){
+                    if(cyclesLeft.current > 0){
                         if(seconds == 0){
                             if(minutes == 0){
                                 if(curTimer.current){//study timer initialization
-                                    updateCycles(Cycles-1); 
+                                    cyclesLeft.current = cyclesLeft.current-1; 
                                     console.log("-1 Cycles");
-                                    if(Cycles <= 1 ){ //set to 1 because of latency from useState
+                                    if(cyclesLeft.current <= 1 ){ //set to 1 because of latency from useState
                                         clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                         console.log("clearing interval inside"); 
                                     }else{
@@ -124,7 +128,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 <span>{seconds < 10 ? '0' + seconds : seconds} </span>
             </div>
             <div id = "timerCurrentVals">
-                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={Cycles}></GenOptionDisplayer>
+                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft.current}></GenOptionDisplayer>
             </div>
             <div id="testingDiv">
                 <h2> Testing buttons below </h2>
