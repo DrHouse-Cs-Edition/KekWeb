@@ -19,7 +19,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
 
     const [minutes, setMinutes] = useState(Math.trunc(StudyTime/60%60));        //current timer minutes value
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
-    const cyclesLeft = useRef(Cycles);          //variable used for storing current, running timer cycles left to do
+    const [cyclesLeft, setCyclesLeft] = useState(Cycles);          //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
     
     const curTimer = useRef(0);     //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
@@ -29,8 +29,9 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
     }
 
-    //function given to the forms for recording StudyTime, BreakTime, Cycles
+    //*function given to the forms for recording StudyTime, BreakTime, Cycles
     const passTimeData = (sData, bData, cData)=>{
+        //inside this function, use the data passed as parameters instead of renewed vals as they'll be updated after a rerender
         updateStudyTime(sData);
         updateBreakTime(bData);
         updateCycles(cData);
@@ -39,8 +40,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         curTimer.current = 0;
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
-        cyclesLeft.current = Cycles;
-        console.log("passTimeData func; cyclesLeft is ", cyclesLeft.current, "while cycles is ", Cycles);
+        setCyclesLeft(cData);
     }
 
     //*formComponents is an object, and TT and Cycles it's attributes. To the TT/Cycles attribute i assign a component
@@ -56,13 +56,13 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         const timer = useEffect(()=>{
             if(runTimer){   //normal update of the timer
                 pomodoroInterval = setTimeout(()=>{ 
-                    if(cyclesLeft.current > 0){
+                    if(cyclesLeft > 0){
                         if(seconds == 0){
                             if(minutes == 0){
                                 if(curTimer.current){//study timer initialization
-                                    cyclesLeft.current = cyclesLeft.current-1; 
+                                    cyclesLeft = setCyclesLeft(cyclesLeft-1); 
                                     console.log("-1 Cycles");
-                                    if(cyclesLeft.current <= 1 ){ //set to 1 because of latency from useState
+                                    if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                         clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                         console.log("clearing interval inside"); 
                                     }else{
@@ -128,7 +128,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 <span>{seconds < 10 ? '0' + seconds : seconds} </span>
             </div>
             <div id = "timerCurrentVals">
-                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft.current}></GenOptionDisplayer>
+                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
             </div>
             <div id="testingDiv">
                 <h2> Testing buttons below </h2>

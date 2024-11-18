@@ -2,42 +2,7 @@ import React, { useState, Fragment } from "react";
 import OptionDisplay from "./OptionDisplay";
 import {useForm} from "react-hook-form";
 
-function TTform( {passTimeData}){
 
-    let {register, handleSubmit, getValues} = useForm();
-    //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form
-
-    //!potentially gonna break everything
-    let [displayOption, updateDisplayOption] = useState(0);
-    
-    function optionLoader(data){
-        console.log('launching TToption module with data: ', data);
-        updateDisplayOption(1);
-        return false;
-    }
-
-    if(!displayOption){
-        return (
-            <Fragment>
-                <form id="studyForm" onSubmit={handleSubmit(optionLoader)}>
-                    <div className="inputDiv" id="TTdiv">
-                        <label htmlFor="totalTime" id="totalTimeLB"> Enter total time available</label> <br></br>
-                        <input type="number" id="totalTime" name="totalTime" min="35" max="1440" value="120"  {...register("totalTime")}></input> <br></br>
-                        <button type="submit" id="TToptions">See options</button> 
-                    </div>
-                </form>
-            </Fragment>       
-        );
-    }else{
-        return(
-            <Fragment>
-                <button type="submit" id="TTfullSubmit">Register Data </button>
-            </Fragment>
-        );
-    }
-}
-
-export {TTform};
 
 
 function CyclesForm ( {passTimeData}){
@@ -74,5 +39,41 @@ function CyclesForm ( {passTimeData}){
         
     );
 }
-
 export {CyclesForm};
+
+function TTform( {passTimeData}){
+
+    let {register, handleSubmit, getValues} = useForm();
+    //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form
+
+    //!potentially gonna break everything
+    let [displayOption, updateDisplayOption] = useState(0);
+    
+    function optionLoader(data){
+        console.log('launching TToption module with data: ', data);
+        updateDisplayOption(1);
+        return false;
+    }
+
+    if(!displayOption){
+        return (
+            <Fragment>
+                <form id="studyForm" onSubmit={handleSubmit(optionLoader)}>
+                    <div className="inputDiv" id="TTdiv">
+                        <label htmlFor="totalTime" id="totalTimeLB"> Enter total time available</label> <br></br>
+                        <input type="number" id="totalTime" name="totalTime" min="35" max="1440" value="120"  {...register("totalTime")}></input> <br></br>
+                        <button type="submit" id="TToptions">See options</button> 
+                    </div>
+                </form>
+            </Fragment>       
+        );
+    }else{
+        return(
+            <Fragment>
+                <button type="submit" id="TTfullSubmit">Register Data </button>
+            </Fragment>
+        );
+    }
+}
+
+export {TTform};

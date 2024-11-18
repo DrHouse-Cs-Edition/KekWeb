@@ -6,8 +6,6 @@ body {
     height: 100vh;
     flex-direction: column;
     z-index: 2;
-    overflow: hidden;
-
   }
 
   #studyForm {
@@ -25,7 +23,7 @@ body {
 
   #TTbox{
       position: absolute;
-      overflow: auto;
+      overflow: scroll;
       margin: auto;
       max-width: 100%;
       max-height: 100%;
