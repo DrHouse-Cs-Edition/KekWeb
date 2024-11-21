@@ -6,3 +6,4 @@ app/server/node_modules/
 
 # Ignora la cartella build
 app/client/build
+node_modules
