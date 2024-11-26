@@ -1,5 +1,4 @@
 import React, { useState, Fragment, useRef } from "react";
-import OptionDisplay from "./OptionDisplay";
 import {useForm} from "react-hook-form";
 
 
@@ -42,26 +41,21 @@ function CyclesForm ( {passTimeData}){
 export {CyclesForm};
 
 function TTform( {passTimeData}){
+    
+    let {register, getValues} = useForm();
 
     const [studyTime, setStudyTime] = useState(30); //min = 30, max = 45
     const [breakTime, setBreakTime] = useState(5);  //min = 5, max = 15
     const hasComputed = useRef(0);
     const tt = useRef(0);       //tt
-
-    let {register, handleSubmit, getValues} = useForm();
-    //useForm ritorna un oggetto che comprende il metodo register, il quale a sua volta ritorna  un oggetto che contiene i metodi per registrare i campi del form
-
-    //!potentially gonna break everything
-    let [displayOption, updateDisplayOption] = useState(0);
-
-    let tmpStudy = 30, tmpBreak = 5;
+    const tmpStudy = useRef(30), tmpBreak = useRef(5);
 
     /**
      * Function return the number of cycles that can be run with the current settings, trunc to the nearest val
      * @returns {Int}
      */
     function calcCycles (){
-        return Math.floor(tt.current / (tmpStudy + tmpBreak));
+        return Math.floor(tt.current / (tmpStudy.current + tmpBreak.current));
     }
 
     const initOptions = ()=>{
@@ -70,27 +64,28 @@ function TTform( {passTimeData}){
         tt.current = getValues("totalTime");
         tt.current = tt.current - (tt.current % 5);         //normalize total time to a multiple of 5 minutes
         
-        while( tt.current % (tmpStudy + tmpBreak) != 0 ){   //until we can safely provide a valid option
-            if( tmpStudy === 45 && tmpBreak === 15 ){    //if max vals have been reached, return default option
-                tmpStudy = 30 ; 
-                tmpBreak = 5;
+        while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 ){   //until we can safely provide a valid option
+            if( tmpStudy.current === 45 && tmpBreak.current === 15 ){    //if max vals have been reached, return default option
+                tmpStudy.current = 30 ; 
+                tmpBreak.current = 5;
                 console.log("FormSelector.jsx->initOptions: resorting to default option");
                 break;
-            }else if( tmpStudy === 45 ){
-                tmpBreak += 5;
-                tmpStudy = 30;
+            }else if( tmpStudy.current === 45 ){
+                tmpBreak.current += 5;
+                tmpStudy.current = 30;
                 console.log("FormSelector.jsx->initOptions: incrementing break time");
             }else {
-                tmpStudy += 5;
+                tmpStudy.current += 5;
                 console.log("FormSelector.jsx->initOptions: incrementing study time");
             }
         }
 
-        setStudyTime( tmpStudy );
-        setBreakTime( tmpBreak );
+        setStudyTime( tmpStudy.current );
+        setBreakTime( tmpBreak.current );
     }
 
     const nextOption = ()=>{
+
         console.log('nextOption function called');
         if ( !hasComputed.current ){
             alert("Warning: insert a time value and compute the possible options first");
@@ -98,24 +93,25 @@ function TTform( {passTimeData}){
         }
         
         do{   //until we can safely provide a valid option
-            if( tmpStudy === 45 && tmpBreak === 15 ){    //if max vals have been reached, return default option
-                tmpStudy = 30 ; 
-                tmpBreak = 5;
+            if( tmpStudy.current === 45 && tmpBreak.current === 15 ){    //if max vals have been reached, return default option
+                tmpStudy.current = 30 ; 
+                tmpBreak.current = 5;
                 console.log("FormSelector.jsx->nextOption: restoring initial option");
                 break;
-            }else if( tmpStudy === 45 ){
-                tmpBreak += 5;
-                tmpStudy = 30;
+            }else if( tmpStudy.current === 45 ){
+                tmpBreak.current += 5;
+                tmpStudy.current = 30;
                 console.log("FormSelector.jsx->nextOption: incrementing break time");
             }else {
-                tmpStudy += 5;
+                console.log("what the hell : ", tmpStudy.current);
+                tmpStudy.current += 5;
                 console.log("FormSelector.jsx->nextOption: incrementing study time");
             }
-        } while( tt.current % (tmpStudy + tmpBreak) != 0 );
+        } while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 );
 
-        console.log("FormSelector.jsx->nextOption: set new options")
-        setStudyTime( tmpStudy );
-        setBreakTime( tmpBreak );
+        console.log("FormSelector.jsx->nextOption: set new options: ", tmpStudy.current, " ", tmpBreak.current);
+        setStudyTime( tmpStudy.current );
+        setBreakTime( tmpBreak.current );
     }
 
     const registerOptions = ()=>{
@@ -125,8 +121,8 @@ function TTform( {passTimeData}){
             return;
         }
 
-        console.log("FormSelector.jsx->registerOptions: registering options; study=", studyTime, ", break=", breakTime, ", cycles=", calcCycles );
-        passTimeData(studyTime, breakTime, calcCycles);
+        console.log("FormSelector.jsx->registerOptions: registering options; study=", studyTime, ", break=", breakTime, ", cycles=", calcCycles() );
+        passTimeData(studyTime, breakTime, calcCycles());
     }
 
 
@@ -137,11 +133,19 @@ function TTform( {passTimeData}){
                     <div className="inputDiv" id="TTdiv">
                         <label htmlFor="totalTime" id="totalTimeLB"> Enter total time available</label> <br></br>
                         <input type="number" id="totalTime" min="35" max="1440" placeholder="120"  {...register("totalTime")}></input> <br></br>
-                        <button  id="TToptions" onClick={initOptions}>See options</button> 
-                        <button id="nextOption" onClick={nextOption}>Next Option </button>
-                        <button id="registerOptions" onClick={registerOptions}> Register Options</button>
+                        <button type="button" id="TToptions" onClick={initOptions}>See options</button> 
+                        <div>
+                            <span> Study Time = {studyTime} </span>
+                            <span> Break Time = {breakTime} </span>
+                            <span> cycles = {calcCycles()} </span>
+                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>
+                        </div>
+
+                        <button type="button" id="registerOptions" onClick={registerOptions}> Register Options</button>
                     </div> 
                 </form>
             </Fragment>       
         );
 }
+
+export {TTform};

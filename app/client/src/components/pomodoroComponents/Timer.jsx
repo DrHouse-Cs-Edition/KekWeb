@@ -1,6 +1,6 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
 import {GenOptionDisplayer} from "../GeneralOptionDisplayer.jsx"
-import {TTform, CyclesForm, OptionDisplay} from "./FormSelector.jsx";
+import {TTform, CyclesForm} from "./FormSelector.jsx";
 import style from "./Timer.module.css"
 
 //*TMP for animation testing
@@ -48,7 +48,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*to access a component i use a similar syntax to that of arrays. I can use a different component based on the index
     //*of the object (i'm accessing the component stored in the attribute)
     let formComponents = {
-        TT : <OptionDisplay ></OptionDisplay>,
+        TT : <TTform passTimeData={passTimeData} ></TTform>,
         //TT : <p> componente del TT</p>,
         Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
     }
