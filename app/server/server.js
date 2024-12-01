@@ -151,6 +151,35 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 });
 
+// ESEMPIO DI API per il Pomodoro (ricevo e salvo su mongoDB i dati di un ciclo di studio ppomodoro)
+
+const PomodoroDataset = require("./PomodoroDataset.js") // importo il "modello" mongoDB per usare le funzioni mongoDB
+app.post('/api/pomodoro/timer', async (request,response)=>{ // non ricevo id perché verra creato con mongoDB
+    
+    // data una struttura creata per mongoDB chiamata tomatoDATA
+    const pippo = new PomodoroDataset({
+        // _id: "dbkbjblhjbadasdawj" NON SERVE perché ci pensa mongoDB
+        time: request.body.tempo,
+        cycles: request.body.cicli,
+
+    });
+
+    try{
+        await pippo.save(); // salva sul DB 
+        response.json({ // invio risposta al POST
+            success: true,
+            message: "tomato saved"
+        });
+    }
+    catch(e){
+        console.log(e.message);
+        response.json({
+            success: false,
+            message: "SPLAT! Errore durante il salvataggio sul DB",
+        });
+    }
+
+}); 
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
