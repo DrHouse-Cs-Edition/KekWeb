@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Prewiew from '../components/Note/Prewiew.jsx';
 import { useNavigate } from "react-router-dom";
-//import './Note_navigation.css'
+// import Style from './Note_navigation.module.css'
 
 function NoteNavigation() {
 

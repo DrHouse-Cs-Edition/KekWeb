@@ -1,8 +1,9 @@
+/*
 body{
     margin: 0px;
 }
 html {
-    font-size: 16px; /* Set the root font size to 16px */
+    font-size: 16px; /* Set the root font size to 16px *//*
 }
 main {
     padding: 2vw;
@@ -14,14 +15,14 @@ header {
     font-size: 2rem;
     background-color: rgb(102, 167, 228);
     color: #fff;
-    padding: 1rem; /* padding del testo su tutti i lati*/
+    padding: 1rem; /* padding del testo su tutti i lati*//*
 }
 footer{
     font-size: 1rem;
     background-color: rgb(102, 167, 228);
     color: #fff;
     padding: 0.5rem;
-}
+}*/
 .container{
     display: flex;
 }

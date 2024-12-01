@@ -8,7 +8,6 @@ const Giorno = ({ date , selected, events, handleClick}) => {
         <div
         key={date.format('YYYY-MM-DD')}
         className={` ${Style.day} ${selected ? Style.selected : ''} `}
-        // "selectedDate && ..." controlla che selectedDate sia definito -> esegue condizione per applicare nome classe dinamico Style.selected
         onClick={() => handleClick(date)}
         >
             {date.date()}
