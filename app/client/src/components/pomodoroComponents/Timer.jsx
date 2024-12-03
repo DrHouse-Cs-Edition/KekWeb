@@ -61,7 +61,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                     if(cyclesLeft > 0){
                         if(seconds == 0){
                             if(minutes == 0){
-                                if(curTimer.current){//study timer initialization
+                                if(curTimer.current){//break timer ended, initializing study timer
                                     setCyclesLeft(cyclesLeft-1);
                                     console.log("-1 Cycles");
                                     if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
