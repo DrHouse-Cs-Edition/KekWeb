@@ -22,7 +22,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
     const [cyclesLeft, setCyclesLeft] = useState(Cycles);          //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
-    
+
     const curTimer = useRef(0);     //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
 
     //function used for switching the form used for recording StudyTime, BreakTime and Cycles
@@ -48,33 +48,36 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*to access a component i use a similar syntax to that of arrays. I can use a different component based on the index
     //*of the object (i'm accessing the component stored in the attribute)
     let formComponents = {
-        TT : <TTform passTimeData={passTimeData}></TTform>,
+        TT : <TTform passTimeData={passTimeData} ></TTform>,
+        //TT : <p> componente del TT</p>,
         Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
     }
 
-    let pomodoroInterval;   //used for storing the setTimeout return value. 
+    let pomodoroInterval;   //used for storing the setTimeout return value.
 
         const timer = useEffect(()=>{
             if(runTimer){   //normal update of the timer
-                pomodoroInterval = setTimeout(()=>{ 
+                pomodoroInterval = setTimeout(()=>{
                     if(cyclesLeft > 0){
                         if(seconds == 0){
                             if(minutes == 0){
-                                if(curTimer.current){//study timer initialization
-                                    cyclesLeft = setCyclesLeft(cyclesLeft-1); 
+                                if(curTimer.current){//break timer ended, initializing study timer
+                                    setCyclesLeft(cyclesLeft-1);
                                     console.log("-1 Cycles");
                                     if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                         clearTimeout(pomodoroInterval); //immediate clear of Cycles
-                                        console.log("clearing interval inside"); 
+                                        console.log("clearing interval inside");
                                     }else{
                                         setSeconds(Math.trunc(StudyTime%60));
                                         setMinutes(Math.trunc(StudyTime/60%60));
-                                    }     
+                                        console.log("initializing study timer");
+                                    }
                                 } else{ //break timer initialization
                                     setSeconds(Math.trunc(BreakTime%60));
                                     setMinutes(Math.trunc(BreakTime/60%60));
+                                    console.log("initializing break timer");
                                 }
-                                curTimer.current = !curTimer.current; 
+                                curTimer.current = !curTimer.current;
                                 console.log("cur time is now ", curTimer.current);
                                 }else
                                 {
@@ -85,7 +88,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                         setSeconds(seconds - 1);
                     }else { clearTimeout(pomodoroInterval); console.log("clearing interval"); } //failsafe clear of Cycles
                 }, 1000);
-            }                
+            }
     }, [minutes, seconds, runTimer]);
 
     const stopTimer = ()=>{
@@ -93,20 +96,20 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         setRunTimer(false); //stops further updates, still running the useEffect
     }
 
-    /* 
+    /*
     *function used for restarting the current Cycles
     *If studyTime was running, it just resets.
     *If  breakTime was running, it switches to studyTime and begins anew
     *Calling this function stops the  current timer and resets the Cycles
     */
-    const CyclesReset = ()=>{    
+    const CyclesReset = ()=>{
         setRunTimer(0);
         clearInterval(pomodoroInterval);
         setMinutes(Math.trunc(StudyTime/60%60));
         setSeconds(Math.trunc(StudyTime%60));
     }
 
-    /* 
+    /*
     *Function used for skipping the current Cycles.
     *It doesn't stop the current Cycles, differently from the reset currently implemented
     *by setting both minutes and seconds to 0, it will skip the current timer
@@ -121,7 +124,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     }
 
 
-      
+
     return(
         <Fragment>
             <div className={style.timerDiv}>
