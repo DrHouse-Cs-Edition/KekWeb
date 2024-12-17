@@ -130,7 +130,7 @@ function Note() {
         
         <input
           id="noteName"
-          class="title"
+          className="title"
           type="text"
           value={noteName} // val iniziale è quello dentro noteName
           onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)

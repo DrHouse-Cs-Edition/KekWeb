@@ -15,9 +15,12 @@ const app = express();
 
 const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
-const Note = require ("./Note.js");
+const {Note} = require ("./mongoSchemas.js");
 
 //*************************************************************
+
+//*IMPORTING ROUTES WRITTEN IN OTHER FILES
+let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
@@ -25,6 +28,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.get('/', (request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
+    console.log("connection perhaps created idk");
 });
 
 app.post('/api/notes/save', async (request,response)=>{
@@ -151,7 +155,13 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 });
 
+//************* POMODORO METHODS **************************** */
 
+app.post("api/Pomodoro/saveP/:id", pomodoroRoutes.saveP);
+
+
+
+//* BASIC METHOD FOR LISTENING TO THE RIGHT PORT
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

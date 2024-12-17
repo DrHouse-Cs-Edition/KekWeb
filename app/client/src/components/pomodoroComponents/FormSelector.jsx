@@ -10,7 +10,7 @@ function CyclesForm ( {passTimeData}){
     let formMethods = useForm();
 
     const onSubmit = ( data =>{
-        console.log('submitting form for cycles with data = ', data.studyTime);
+        console.log('submitting form for cycles with study = ', data.studyTime, ", break ", data.breakTime, ", cycles ",data.cycles);
         passTimeData(data.studyTime, data.breakTime, data.cycles );
         return false;
     })

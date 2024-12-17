@@ -1,34 +1,67 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
+import { useParams } from 'react-router-dom';
 import {GenOptionDisplayer} from "../GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "./FormSelector.jsx";
+import {Input} from "../Input.jsx";
 import style from "./Timer.module.css"
+import {FormProvider, useForm} from "react-hook-form";
+
 
 //*TMP for animation testing
-import paper1 from "../../pages/images/paper/paperPile1.png"
-import paper2 from "../../pages/images/paper/paperPile2.png"
-import cat1 from "../../pages/images/cat/cat1.png"
-import cat2 from "../../pages/images/cat/cat2.png"
 
 //! for the animation, sycnh some interval on 1000ms and two frames of an animation with the timer
 function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in seconds
-    //these values are used to store the timer parameters and keep them "safe"
-    const [StudyTime, updateStudyTime] = useState(0);   //TODO choose format (seconds, milliseconds)
-    const [BreakTime, updateBreakTime] = useState(0);   //TODO choose format (seconds, milliseconds)
-    const [Cycles, updateCycles] = useState(0);         //indicates the number of full Cycles
+    const { id } = useParams(); // id come Parametro di percorso ( Note/:id )
+    const formMethods = useForm();
+ 
+    //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
+    //* THEY ARE NOT USED FOR THE TIMER ITSELF */
+    const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
+    const [BreakTime, updateBreakTime] = useState(0);           //TODO choose format (seconds, milliseconds)
+    const [Cycles, updateCycles] = useState(0);                 //indicates the number of full Cycles
+    const [PomodoroTitle, updatePomodoroTitle]= useState('');   //title of the current Pomodoro
+    //********************************************************************* */
 
+    //*THIS STATE CONTAINS THE CURRENT FORM SELECTED
     const [formType, updateFormType] = useState('Cycles');
+    //* VAR USED FOR ALTERNATING BETWEEN THE SAVE BUTTON PLACEHOLDER AND THE BUTTON ITSELF
+    const [saveButton, setSaveButton] = useState("no"); //true = save button visible, false = save button ivisible and substituted with a placeholder   
 
+    //* THESE STATES CONTAIN THE CURRENT TIME AND CYCLES LEFT TO RUN
+    //* THEY ARE NOT THE SETTINGS FOR THE POMODORO, THEY ARE EFFECTIVELY THE RUNNING CLOCK + OTHER TOOLS
     const [minutes, setMinutes] = useState(Math.trunc(StudyTime/60%60));        //current timer minutes value
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
-    const [cyclesLeft, setCyclesLeft] = useState(Cycles);          //variable used for storing current, running timer cycles left to do
+    const [cyclesLeft, setCyclesLeft] = useState(Cycles);                       //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
-
-    const curTimer = useRef(0);     //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    const curTimer = useRef(0);                                                 //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    //********************************************************************* */
 
     //function used for switching the form used for recording StudyTime, BreakTime and Cycles
     const changeForm = ()=>{
         formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
+    } 
+
+    let saveButtonComponent = {
+        no : <p> please fill and register the fields in order to save the pomodoro</p>,
+        yes : <FormProvider {...formMethods} >
+            <Input
+            label = {"Pomodoro Title"}
+            type = "string"
+            id = "PomodoroTitle"
+            placeholder={"my Pomodoro"}
+            validationMessage={"please enter a title"}
+            ></Input>
+        </FormProvider>
     }
+
+    useEffect(()=>{
+            //* FUNCTION USED FOR SHOWING THE REGISTER POMODORO BUTTON IF THE FIELDS ARE FILLED
+            if ( StudyTime && BreakTime && Cycles ){
+                setSaveButton("yes");            
+            }else{
+                setSaveButton("no");
+            }
+    }, [StudyTime, BreakTime, Cycles])
 
     //*function given to the forms for recording StudyTime, BreakTime, Cycles
     const passTimeData = (sData, bData, cData)=>{
@@ -49,9 +82,8 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*of the object (i'm accessing the component stored in the attribute)
     let formComponents = {
         TT : <TTform passTimeData={passTimeData} ></TTform>,
-        //TT : <p> componente del TT</p>,
         Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
-    }
+    }   
 
     let pomodoroInterval;   //used for storing the setTimeout return value.
 
@@ -96,12 +128,10 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         setRunTimer(false); //stops further updates, still running the useEffect
     }
 
-    /*
-    *function used for restarting the current Cycles
-    *If studyTime was running, it just resets.
-    *If  breakTime was running, it switches to studyTime and begins anew
-    *Calling this function stops the  current timer and resets the Cycles
-    */
+    //*function used for restarting the current Cycles
+    //*If studyTime was running, it just resets.
+    //*If  breakTime was running, it switches to studyTime and begins anew
+    //*Calling this function stops the  current timer and resets the Cycles
     const CyclesReset = ()=>{
         setRunTimer(0);
         clearInterval(pomodoroInterval);
@@ -109,12 +139,10 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         setSeconds(Math.trunc(StudyTime%60));
     }
 
-    /*
-    *Function used for skipping the current Cycles.
-    *It doesn't stop the current Cycles, differently from the reset currently implemented
-    *by setting both minutes and seconds to 0, it will skip the current timer
-    *by also setting curTimer to 1, it then  switches to the next Cycles and start the StudyCycles
-    */
+    //*Function used for skipping the current Cycles.
+    //*It doesn't stop the current Cycles, differently from the reset currently implemented
+    //*by setting both minutes and seconds to 0, it will skip the current timer
+    //*by also setting curTimer to 1, it then  switches to the next Cycles and start the StudyCycles
     const skipCycles = ()=>{
         alert("skipping Cycles");
         clearInterval(pomodoroInterval);
@@ -123,7 +151,36 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         curTimer.current = 1;
     }
 
+    //*FUNCTION CALLED WHEN THE USER ASKS TO SAVE THE CURRENT POMODORO SETTINGS
+    //*IT CAN BE CALLED ONLY WHENE ALL PREVIOUS DATA HAS BEEN SET
+    //saveP
+    //TODO check for pomodoro title
+    const onSubmit = async (data)=>{
+        try{
+            const response = await fetch('http://localhost:5000/api/Pomodoro/saveP/' + id, {
+                method : 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body : JSON.stringify({
+                    title : PomodoroTitle,
+                    study : StudyTime,
+                    break : BreakTime,
+                    cycles : Cycles
+                })
+            })
+            console.log("response to savePomodoro was ", response.status);
+        } catch (e){
+            console.log("savePomodoro was unsuccesfull; error: ", e);
+        }   
+    }
 
+    //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL
+    const onError = ()=>{
+        console.log("error in saving the pomodoro detected");
+    }
 
     return(
         <Fragment>
@@ -146,6 +203,11 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
             </div>
 
             <button onClick={changeForm}>Change Format</button>
+
+            <br></br>
+            {saveButtonComponent[saveButton]}                
+            <button onClick={formMethods.handleSubmit(onSubmit, onError)} > Save Pomodoro settings </button>
+
             </div>
         </Fragment>
     )

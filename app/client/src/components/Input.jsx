@@ -1,10 +1,10 @@
 import { useForm, useFormContext } from "react-hook-form"
 import { findInputError, isFormInvalid } from "../utils";
-export const Input = ({ label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght }) => {
+export const Input = ({ label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght, isRequired = true }) => {
     const {
         register,
-        formState: { errors },  //formState contains all the form errors that have been registered
-      } = useFormContext();
+        formState: { errors },
+      } = useFormContext()
 
       const inputError = findInputError(errors, label); //pass the form errors and the label of the input to find the error
       const isInvalid = isFormInvalid(inputError); //returns true if the input is invalid
@@ -23,7 +23,7 @@ export const Input = ({ label, type, id, placeholder, validationMessage, min, ma
             placeholder={placeholder}
             {...register(label, {
                 required : {
-                    value : true,
+                    value : isRequired,
                     message: validationMessage,
                 },
                 max : {
