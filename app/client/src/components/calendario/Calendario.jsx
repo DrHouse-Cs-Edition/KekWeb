@@ -37,6 +37,11 @@ const Calendario = () => {
         }
     };
 
+    const handleDeleteEvent = (eventId) => {
+        setEvents(events.filter(event => event.id !== eventId));
+    };
+    
+
     const generateCalendar = () => {
         const calendar = []; // calendario = unico array di "giorni" (componenti)
         let date = startOfWeek;
@@ -47,7 +52,12 @@ const Calendario = () => {
             else{
                 const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day')); // filtra quelli che accadono nel giorno date
                 calendar.push(
-                    <Giorno date = {date} events={dayEvents} selected={date.isSame(selectedDate, 'day')} handleClick={handleDateClick}>
+                    <Giorno 
+                        date = {date} 
+                        events={dayEvents} 
+                        selected={date.isSame(selectedDate, 'day')} 
+                        handleClick={handleDateClick} 
+                        onDeleteEvent={handleDeleteEvent}>
                     </Giorno>
                 );
             }
