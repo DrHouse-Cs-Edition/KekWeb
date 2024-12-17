@@ -1,14 +1,5 @@
-# Ignora la cartella node_modules per Node.js
-app/client/node_modules/
-
-# Ignora la cartella node_modules per Node.js
-app/server/node_modules/
+# Ignora la cartella node_modules ovunque sia
+node_modules
 
 # Ignora la cartella build
 app/client/build
-node_modules
-#per qualche ragione questi file continuano a disturbare nonostante siano stati eliminati
-app/client/node_modules/.cache/default-development/0.pack
-app/client/node_modules/.cache/default-development/1.pack
-app/client/node_modules/.cache/default-development/index.pack
-app/client/node_modules/.cache/default-development/index.pack.old
