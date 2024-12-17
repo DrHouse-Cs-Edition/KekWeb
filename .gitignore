@@ -1,5 +1,5 @@
-# Ignora la cartella node_modules per Node.js
-app/client/node_modules/
+# Ignora la cartella node_modules ovunque sia
+node_modules
 
 # Ignora la cartella node_modules per Node.js
 app/server/node_modules/

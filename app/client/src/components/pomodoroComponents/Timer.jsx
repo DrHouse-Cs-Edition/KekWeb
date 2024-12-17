@@ -1,6 +1,7 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
 import {GenOptionDisplayer} from "../GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "./FormSelector.jsx";
+import style from "./Timer.module.css"
 
 //*TMP for animation testing
 import paper1 from "../../pages/images/paper/paperPile1.png"
@@ -10,16 +11,18 @@ import cat2 from "../../pages/images/cat/cat2.png"
 
 //! for the animation, sycnh some interval on 1000ms and two frames of an animation with the timer
 function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in seconds
+    //these values are used to store the timer parameters and keep them "safe"
     const [StudyTime, updateStudyTime] = useState(0);   //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);   //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);         //indicates the number of full Cycles
 
-    const [formType, updateFormType] = useState('TT');
+    const [formType, updateFormType] = useState('Cycles');
 
     const [minutes, setMinutes] = useState(Math.trunc(StudyTime/60%60));        //current timer minutes value
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
+    const [cyclesLeft, setCyclesLeft] = useState(Cycles);          //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
-    
+
     const curTimer = useRef(0);     //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
 
     //function used for switching the form used for recording StudyTime, BreakTime and Cycles
@@ -27,8 +30,9 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
     }
 
-    //function given to the forms for recording StudyTime, BreakTime, Cycles
+    //*function given to the forms for recording StudyTime, BreakTime, Cycles
     const passTimeData = (sData, bData, cData)=>{
+        //inside this function, use the data passed as parameters instead of renewed vals as they'll be updated after a rerender
         updateStudyTime(sData);
         updateBreakTime(bData);
         updateCycles(cData);
@@ -37,39 +41,43 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         curTimer.current = 0;
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
+        setCyclesLeft(cData);
     }
 
     //*formComponents is an object, and TT and Cycles it's attributes. To the TT/Cycles attribute i assign a component
     //*to access a component i use a similar syntax to that of arrays. I can use a different component based on the index
     //*of the object (i'm accessing the component stored in the attribute)
     let formComponents = {
-        TT : <TTform passTimeData={passTimeData}></TTform>,
+        TT : <TTform passTimeData={passTimeData} ></TTform>,
+        //TT : <p> componente del TT</p>,
         Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
     }
 
-    let pomodoroInterval;   //used for storing the setTimeout return value. 
+    let pomodoroInterval;   //used for storing the setTimeout return value.
 
         const timer = useEffect(()=>{
             if(runTimer){   //normal update of the timer
-                pomodoroInterval = setTimeout(()=>{ 
-                    if(Cycles > 0){
+                pomodoroInterval = setTimeout(()=>{
+                    if(cyclesLeft > 0){
                         if(seconds == 0){
                             if(minutes == 0){
-                                if(curTimer.current){//study timer initialization
-                                    updateCycles(Cycles-1); 
+                                if(curTimer.current){//break timer ended, initializing study timer
+                                    setCyclesLeft(cyclesLeft-1);
                                     console.log("-1 Cycles");
-                                    if(Cycles <= 1 ){ //set to 1 because of latency from useState
+                                    if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                         clearTimeout(pomodoroInterval); //immediate clear of Cycles
-                                        console.log("clearing interval inside"); 
+                                        console.log("clearing interval inside");
                                     }else{
                                         setSeconds(Math.trunc(StudyTime%60));
                                         setMinutes(Math.trunc(StudyTime/60%60));
-                                    }     
+                                        console.log("initializing study timer");
+                                    }
                                 } else{ //break timer initialization
                                     setSeconds(Math.trunc(BreakTime%60));
                                     setMinutes(Math.trunc(BreakTime/60%60));
+                                    console.log("initializing break timer");
                                 }
-                                curTimer.current = !curTimer.current; 
+                                curTimer.current = !curTimer.current;
                                 console.log("cur time is now ", curTimer.current);
                                 }else
                                 {
@@ -80,7 +88,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                         setSeconds(seconds - 1);
                     }else { clearTimeout(pomodoroInterval); console.log("clearing interval"); } //failsafe clear of Cycles
                 }, 1000);
-            }                
+            }
     }, [minutes, seconds, runTimer]);
 
     const stopTimer = ()=>{
@@ -88,20 +96,20 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         setRunTimer(false); //stops further updates, still running the useEffect
     }
 
-    /* 
+    /*
     *function used for restarting the current Cycles
     *If studyTime was running, it just resets.
     *If  breakTime was running, it switches to studyTime and begins anew
     *Calling this function stops the  current timer and resets the Cycles
     */
-    const CyclesReset = ()=>{    
+    const CyclesReset = ()=>{
         setRunTimer(0);
         clearInterval(pomodoroInterval);
         setMinutes(Math.trunc(StudyTime/60%60));
         setSeconds(Math.trunc(StudyTime%60));
     }
 
-    /* 
+    /*
     *Function used for skipping the current Cycles.
     *It doesn't stop the current Cycles, differently from the reset currently implemented
     *by setting both minutes and seconds to 0, it will skip the current timer
@@ -116,15 +124,14 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     }
 
 
-      
+
     return(
         <Fragment>
-            <div id= "timerDiv">
-                <span>{minutes < 10 ? '0' + minutes : minutes} </span>
-                <span>{seconds < 10 ? '0' + seconds : seconds} </span>
-            </div>
+            <div className={style.timerDiv}>
+                <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
+                <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
             <div id = "timerCurrentVals">
-                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={Cycles}></GenOptionDisplayer>
+                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
             </div>
             <div id="testingDiv">
                 <h2> Testing buttons below </h2>
@@ -139,6 +146,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
             </div>
 
             <button onClick={changeForm}>Change Format</button>
+            </div>
         </Fragment>
     )
 }
