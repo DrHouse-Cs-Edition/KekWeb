@@ -1,0 +1,8 @@
+per far build delle pagine react:
+    "cd app/client"
+    "npm run build"
+
+per far partire il server:
+    "cd app/server"
+    "npm start" oppure "node server.js" per aprire con node
+    "npm dev" per aprire con nodemon (node dinamico)
