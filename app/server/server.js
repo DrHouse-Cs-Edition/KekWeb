@@ -159,7 +159,9 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 
-
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 
 //* BASIC METHOD FOR LISTENING TO THE RIGHT PORT
 app.listen(PORT, () => {
