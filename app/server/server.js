@@ -15,7 +15,7 @@ const app = express();
 
 const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
-const {Note} = require ("./mongoSchemas.js");
+const Note = require ("./mongoSchemas/Note.js");
 
 //*************************************************************
 
@@ -157,7 +157,7 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 //************* POMODORO METHODS **************************** */
 
-app.post("api/Pomodoro/saveP/:id", pomodoroRoutes.saveP);
+app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 
 
 

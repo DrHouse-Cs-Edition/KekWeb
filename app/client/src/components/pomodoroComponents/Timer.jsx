@@ -19,7 +19,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);                 //indicates the number of full Cycles
-    const [PomodoroTitle, updatePomodoroTitle]= useState('');   //title of the current Pomodoro
+    //const [PomodoroTitle, updatePomodoroTitle]= useState('');   //title of the current Pomodoro
     //********************************************************************* */
 
     //*THIS STATE CONTAINS THE CURRENT FORM SELECTED
@@ -45,9 +45,9 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         no : <p> please fill and register the fields in order to save the pomodoro</p>,
         yes : <FormProvider {...formMethods} >
             <Input
-            label = {"Pomodoro Title"}
+            label = {"PomodoroTitle"}
             type = "string"
-            id = "PomodoroTitle"
+            id = "Pomodoro Title"
             placeholder={"my Pomodoro"}
             validationMessage={"please enter a title"}
             ></Input>
@@ -156,27 +156,28 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //saveP
     //TODO check for pomodoro title
     const onSubmit = async (data)=>{
-        try{
-            const response = await fetch('http://localhost:5000/api/Pomodoro/saveP/' + id, {
-                method : 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body : JSON.stringify({
-                    title : PomodoroTitle,
-                    study : StudyTime,
-                    break : BreakTime,
-                    cycles : Cycles
-                })
+        console.log("title is :", data.PomodoroTitle);
+        fetch('http://localhost:5000/api/Pomodoro/saveP', {
+            method : 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body : JSON.stringify({
+                title : data.PomodoroTitle,
+                studyTime : StudyTime,
+                breakTime : BreakTime,
+                cycles : Cycles
             })
-            console.log("response to savePomodoro was ", response.status);
-        } catch (e){
-            console.log("savePomodoro was unsuccesfull; error: ", e);
-        }   
+        }).then( res => res.json())
+        .then( json => {
+            console.log(json);
+            console.log("response to savePomodoro was ", json)
+        })
+        .catch(error => console.log(" Timer.onSubmit: error is "+ error));
     }
-
+    
     //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL
     const onError = ()=>{
         console.log("error in saving the pomodoro detected");
