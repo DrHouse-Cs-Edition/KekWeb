@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { marked } from 'marked';
-import styles from './Note.module.css'
+import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
 
@@ -130,15 +130,15 @@ function Note() {
         
         <input
           id="noteName"
-          className="title"
+          classNameName={Style.title}
           type="text"
           value={noteName} // val iniziale è quello dentro noteName
           onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
         />
 
-        <div className="container">
-            <textarea id="noteText" className="text" value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>
-            <p id="outputText" className="output"></p>
+        <div className= {Style.container}>
+            <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>
+            <p id="outputText" className={Style.output}></p>
         </div>
 
         <button onClick={handleDelete}>Delete</button>
