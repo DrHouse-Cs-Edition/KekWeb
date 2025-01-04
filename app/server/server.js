@@ -16,6 +16,7 @@ const app = express();
 const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
 const Note = require ("./mongoSchemas/Note.js");
+const User = require ("./mongoSchemas/User.js");
 
 //*************************************************************
 
@@ -36,11 +37,21 @@ app.post('/api/notes/save', async (request,response)=>{
     const nota1 = new Note({
         title: note.title,
         text: note.text,
-        date: note.date
+        date: note.date,
+        // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
+    /*
+    const user1 = new User({
+        name: "Gino",
+        password: "psw!", // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
+        email: "gino@io.com",
+        bio: "sono Gino",
+        birthday: note.date,
+    });*/
 
     try{
         await nota1.save();
+        //await user1.save();
         response.json({
             success: true,
             message: "Note saved"
