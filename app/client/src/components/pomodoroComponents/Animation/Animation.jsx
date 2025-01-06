@@ -17,36 +17,33 @@ import style from './Animation.module.css';
 // .<whatever> to modify the style element. It might not show up in the dev tools
 // reference.current.style.margin
 //  */
-
-export const Animation = ({currentTimer, studyTime, breakTime, run})=>{
+//!REQUIREMENTS
+//cuurentTimer is a state, updated via syntax (a => a + 1) as it updates without the need for a rerender
+//studyTime, breakTime and run too
+//resetFlag is a state that is used to reset the timer when the user clicks the reset button; it restores the animation to a 0% progress
+export const Animation = ({currentTimer, studyTime, breakTime, run, resetFlag})=>{
     //testing
-    const [runn, setRun] = useState(1);
-    const [current, setCurrent] = useState(0);
-    console.log("timer :", current, ", study: ", studyTime, ", break: ", breakTime, ", run: ", runn);
-
-    const animationDiv = useState(null);
+    // const [runn, setRun] = useState(1);
+    // const [current, setCurrent] = useState(0);
+    
+    const animationDiv = useRef(null);
     const animationDiv_outher = useRef(null);
     const animationDiv_inner = useRef(null);
-
     let loadingBar = {
-        0 : <StudyAnimation duration = {"5s"} run = {runn && !current}></StudyAnimation>,
-        1 : <BreakAnimation duration = {"5s"} run = {runn && current}></BreakAnimation>
+        0 : <StudyAnimation duration = {studyTime + "s"} run = {run && !currentTimer} resetFlag = {resetFlag}></StudyAnimation>,
+        1 : <BreakAnimation duration = {breakTime + "s"} run = {run && currentTimer} resetFlag = {resetFlag}></BreakAnimation>
     } 
 
-    useEffect(function initializeAnimation (){
-        console.log("Animation.jsx: initialization start");
-        setTimeout(()=>{
-            setCurrent(current^1);
-            console.log("currentTimer is: ", current, " and run is: ", runn );
-        }, 6000)
-        },[])
+    useEffect(function initializeAnimation (){  console.log("Animation.jsx: initialization start"); },[])
+    
+    useEffect(()=>{ console.log("currentTimer is: ", currentTimer, " and thus animation changes");    },[currentTimer])
 
     return(
         <div className={style.animationDiv} ref={animationDiv} >
             <div className={[style.loadingBar, style.outherBar].join(" ")} ref={animationDiv_outher}>
                     {/* {currentTimer ? <StudyAnimation duration = {"5s"} run = {run && currentTimer}></StudyAnimation> :
                     <BreakAnimation duration = {"5s"} run = {run && !currentTimer}></BreakAnimation>} */}
-                    {loadingBar[current]}
+                    {loadingBar[currentTimer]}
             </div>
             <br></br>
         </div>
@@ -58,12 +55,20 @@ export const Animation = ({currentTimer, studyTime, breakTime, run})=>{
 //  
 // 
 //  */
-const StudyAnimation = ({duration, run})=>{
+const StudyAnimation = ({duration, run, resetFlag})=>{
+    const reference = useRef();
     useEffect(()=>{
         console.log("StudyAnimation");
     },[])
-    const reference = useRef();
+    
 
+    useEffect(function resetAnimation(){
+        reference.current.style.animationName = "none";
+        setTimeout(()=>{
+            reference.current.style.animationName = "";
+            console.log("animation reset to",reference.current.style );
+        }, 100);
+    },[resetFlag])
 
     return(
         <div className={[style.loadingBar, style.studyBar].join(" ")} 
@@ -77,16 +82,26 @@ const StudyAnimation = ({duration, run})=>{
 //  
 // 
 //  */
-const BreakAnimation = ({duration, run})=>{
+const BreakAnimation = ({duration, run, resetFlag})=>{
     const reference = useRef();
     useEffect(()=>{
         console.log("BreakAnimation");
     },[])
 
+    useEffect(function resetAnimation(){
+        reference.current.style.animationName = "none";
+        setTimeout(()=>{
+            reference.current.style.animationName = "";
+            console.log("animation reset to",reference.current.style );
+        }, 100);
+    },[resetFlag])
+
     return(
         <div className={[style.loadingBar, style.breakBar].join(" ")} 
             ref={reference}
-            style={{animationDuration : duration, animationPlayState : run ? "running" : "paused"}}>
+            style={{animationDuration : duration, animationPlayState : run ? "running" : "paused", animation : ()=> {
+                //! TODO change style for reset
+            }}} >
         </div>
     )
 }

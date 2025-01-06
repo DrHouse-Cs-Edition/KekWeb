@@ -29,8 +29,18 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
     const [cyclesLeft, setCyclesLeft] = useState(Cycles);                       //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
-    const curTimer = useRef(0);      //0 = study, 1 = break                                           //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    const [curTimer, updateCurTimer] = useState(0);      //0 = study, 1 = break                                           //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    const [resetFlag, setResetFlag] = useState(0); //flag used for resetting the timer when a cycle is finished
     //********************************************************************* */
+
+    //*REFERENCES TO THE HTML ELEMENTS
+    const runButtonRef = useRef(null);
+    const stopButtonRef = useRef(null);
+    const resetButtonRef = useRef(null);
+    const skipButtonRef = useRef(null);
+    const registerButtonRef = useRef(null);
+    const formatButtonRef = useRef(null);
+    const saveButtonRef = useRef(null);
 
     //function used for switching the form used for recording StudyTime, BreakTime and Cycles
     const changeForm = ()=>{
@@ -62,10 +72,13 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         updateCycles(cData);
         //options have changed
         setRunTimer(0);
-        curTimer.current = 0;
+        updateCurTimer (curTimer => 0);
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
+
+        console.log("Timer: data has been recieved, showing timer options ");
+        runButtonRef.current.style.visibility = "visible";
     }
 
     //*FORMCOMPONENTS IS AN OBJECT USED FOR STORING THE FORMCOMPONENTS USED FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
@@ -80,7 +93,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 if(cyclesLeft > 0){
                     if(seconds == 0){
                         if(minutes == 0){
-                            if(curTimer.current){//break timer ended, initializing study timer
+                            if(curTimer){//break timer ended, initializing study timer
                                 setCyclesLeft(cyclesLeft-1);
                                 console.log("-1 Cycles");
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
@@ -96,8 +109,8 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                                 setMinutes(Math.trunc(BreakTime/60%60));
                                 console.log("initializing break timer");
                             }
-                                curTimer.current = !curTimer.current;
-                                console.log("cur time is now ", curTimer.current);
+                            updateCurTimer (curTimer => curTimer ^ 1);
+                                console.log("cur time is now ", curTimer);
                             }else
                             {
                                 setSeconds(59);
@@ -112,7 +125,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
 
     const stopTimer = ()=>{
         clearTimeout(pomodoroInterval); //stops the timer from updating preemtively (no lag since pressing the button)
-        setRunTimer(false); //stops further updates, still running the useEffect
+        setRunTimer(0); //stops further updates, still running the useEffect
     }
 
     //*function used for restarting the current Cycles
@@ -121,9 +134,11 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*Calling this function stops the  current timer and resets the Cycles
     const CyclesReset = ()=>{
         setRunTimer(0);
+        updateCurTimer(curTimer => 0);
         clearInterval(pomodoroInterval);
         setMinutes(Math.trunc(StudyTime/60%60));
         setSeconds(Math.trunc(StudyTime%60));
+        setResetFlag(resetFlag => resetFlag ^ 1);
     }
 
     //*Function used for skipping the current Cycles.
@@ -135,7 +150,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         clearInterval(pomodoroInterval);
         setSeconds(0);
         setMinutes(0);
-        curTimer.current = 1;
+        updateCurTimer (curTimer => 1)
     }
 
     //*FUNCTION CALLED WHEN THE USER ASKS TO SAVE THE CURRENT POMODORO SETTINGS
@@ -182,22 +197,22 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
             </div>
             <div id={style.buttonsDiv} >
                 <h2> Testing buttons below </h2>
-                <button onClick={()=>{setRunTimer(1)}}> run timer </button>
-                <button onClick={stopTimer}> Stop timer </button>
-                <button onClick={CyclesReset}> Reset Cycles </button>
-                <button onClick={skipCycles}> Skip Cycles</button>
+                <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} style={{visibility : 'hidden'}}> run timer </button>
+                <button onClick={stopTimer} ref={stopButtonRef}> Stop timer </button>
+                <button onClick={CyclesReset} ref={resetButtonRef}> Reset Cycles </button>
+                <button onClick={skipCycles} ref={skipButtonRef}> Skip Cycles</button>
             </div>
 
             <div id= "FormDiv" style={{textAlign : 'center'}}>
                 {formComponents[formType]}
-                <button onClick={changeForm}>Change Format</button>
+                <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
             </div>
 
             <br></br>
             {saveButtonComponent[saveButton]}                
-            <button onClick={formMethods.handleSubmit(onSubmit, onError)} > Save Pomodoro settings </button>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} > Save Pomodoro settings </button>
 
-            <Animation currentTimer = {curTimer.current} studyTime = {StudyTime} breakTime = {BreakTime} cycles = {Cycles} run = {runTimer}/>
+            <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
         </div>
     )
 }
