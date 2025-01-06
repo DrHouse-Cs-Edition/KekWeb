@@ -32,12 +32,14 @@ app.get('/', (request,response)=>{
     console.log("connection perhaps created idk");
 });
 
-app.post('/api/notes/save', async (request,response)=>{
-    const note = request.body;
-    const nota1 = new Note({
-        title: note.title,
-        text: note.text,
-        date: note.date,
+app.post('/api/notes/save', async (request,response)=>{ // app.metodo('url_aggiuntivo') gestisce richiesta fatta all'url del server + url_aggiuntivo
+//                                                       es: 'localhost3000/api/notes/save' 
+    const notaInput = request.body;
+    const notaDB = new Note({
+        // user: note.user, = possibile altro parametro
+        title: notaInput.title,
+        text: notaInput.text,
+        date: notaInput.date,
         // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
     /*
@@ -50,10 +52,10 @@ app.post('/api/notes/save', async (request,response)=>{
     });*/
 
     try{
-        await nota1.save();
-        //await user1.save();
+        await notaDB.save(); // comunicazione con mongoDB
         response.json({
             success: true,
+            id: notaDB._id, // può servire(?)
             message: "Note saved"
         });
     }
@@ -69,13 +71,14 @@ app.post('/api/notes/save', async (request,response)=>{
 
 app.put('/api/notes/update/:id', async (request,response)=>{
     const id = request.params.id;
-    const note = request.body;
+    const notaInput = request.body;
 
     try{
         await Note.findByIdAndUpdate(id,{
-            title: note.title,
-            text: note.text,
-            date: note.date,
+            // user non va cambiato
+            title: notaInput.title,
+            text: notaInput.text,
+            date: notaInput.date,
         });
         response.json({
             success: true,
@@ -121,6 +124,7 @@ app.get('/api/notes/load/:id', async (request,response)=>{ // richiesta: api/not
     try{
         const nota = await Note.findById(id).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
         // nota: find ritorna un ARRAY ma non findById
+        // Note.find({user:"Gino"})    =    ritornrebbe le note scritte dall'urtente Gino
         response.json({
             success: true,
             id: nota.id,
@@ -142,12 +146,12 @@ app.get('/api/notes/load/:id', async (request,response)=>{ // richiesta: api/not
 app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/load?noteName=NOTA1 ->dopo ? è una query
 
     try {
-        const note = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
+        const listaNote = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
         
-        if (note.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
+        if (listaNote.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
             response.json({
                 success: true,
-                list: note, // Restituisce l'intero array di note
+                list: listaNote, // Restituisce l'intero array di note
             });
         } else {
             // Se nessuna nota viene trovata, restituisce 404
