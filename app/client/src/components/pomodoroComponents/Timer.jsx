@@ -98,6 +98,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                                 console.log("-1 Cycles");
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
+                                    setRunTimer(0);
                                     console.log("clearing interval inside");
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));

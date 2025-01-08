@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home.jsx";
@@ -7,8 +7,18 @@ import Note from "./pages/Note.jsx";
 import NoteNavigation from "./pages/NoteNavigation.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
 import Utente from "./pages/Utente.jsx";
+import Login from "./components/login_signup/Login.jsx";
 
 function App() {
+  
+  const [token, setToken] = useState(0);
+  
+  console.log("checking for credentials");
+  if(!token){
+    console.log("sending login page");
+    return (<Login setToken = {setToken} />)
+  }
+
   return (
     <div>
       <Navbar />

@@ -83,11 +83,6 @@ function TTform( {passTimeData}){
     }
 
     /**
-     * IT
-     * funzione che prende in input i dati elaborati dal form e seleziona i primi valori per studyTime, breakTime e cicli
-     * i valori sono salvati negli stati qui sopra (study e break) o calcolati (cycles)
-     * 
-     * ENG
      * function that takes the processed data from the form as input and selects the first values for studyTime, breakTime and cycles
      * values are stored in the state variables above (study and break) or calculated (cycles)
      * @param {data} data object 

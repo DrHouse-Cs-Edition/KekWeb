@@ -1,12 +1,18 @@
 const express = require ('express');
 const path = require ('path');
-//const { fileURLToPath } = require ('url');
 const bodyParser = require('body-parser');
 const fs = require('fs')
-
+//const { fileURLToPath } = require ('url');
 // Get the directory name of the current module
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
+
+//*MODULE IMPORTS
+// import path from 'path';
+// import express from 'express';
+// import fs from 'fs'
+// import bodyParser from 'body-parser';
+// import React, { useState } from 'react';
 
 const PORT = 5000;
 const app = express();
@@ -16,17 +22,15 @@ const app = express();
 const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
 const Note = require ("./mongoSchemas/Note.js");
-
+const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
+const LoginRoutes = require ("./pagesMethods/login.js");
 //*************************************************************
-
-//*IMPORTING ROUTES WRITTEN IN OTHER FILES
-let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
 
-app.get('/', (request,response)=>{
+app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
     console.log("connection perhaps created idk");
 });
@@ -158,6 +162,9 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 //************* POMODORO METHODS **************************** */
 
 app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
+
+//************* login METHODS ******************************* */
+app.post("/api/login/sendLogin", LoginRoutes.login);
 
 //*********************************************************** */
 
