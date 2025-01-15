@@ -4,11 +4,13 @@ import Style from './Evento.module.css';
 const Evento = ({ title, onDelete }) => {
     return (
         <div className={Style.event}>
-            <span>{title}</span>
+            <h1>{title}</h1>
+            <p>start:</p>
+            <p>end:</p>
             <button 
-                className={Style.deleteButton} 
+                className={Style.deleteButton}
                 onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering the day click
+                    e.stopPropagation(); // evita che il click attivi anche l'elemento padre (che contiene Evento)
                     onDelete();
                 }}
             >

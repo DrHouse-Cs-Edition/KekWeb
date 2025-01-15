@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from  'react-router-dom'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+//const user_id = fai_login_e_ottieni_id()
 root.render(
   <React.StrictMode>
     <BrowserRouter>

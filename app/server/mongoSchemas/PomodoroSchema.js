@@ -3,7 +3,11 @@ const Schema = mongoose.Schema;
 const path = require ('path');
 
 const pomodoroSchema = new Schema({
-    //User : String,
+    user: { 
+        type: Schema.Types.ObjectId, // Specifica che è un ObjectId
+        ref: 'User', // Nome del modello a cui fa riferimento
+        // required: true, // OBBLIGA ad avere un campo user alle note
+    },
     title: String,
     studyTime : Number,
     breakTime : Number,
