@@ -8,6 +8,8 @@ const fs = require('fs')
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 
+const eventRoutes = require('./routes/events');
+
 const PORT = 5000;
 const app = express();
 
@@ -31,6 +33,9 @@ app.get('/', (request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
     console.log("connection perhaps created idk");
 });
+
+// gestione api eventi
+app.use('/api/events', eventRoutes);
 
 app.post('/api/notes/save', async (request,response)=>{ // app.metodo('url_aggiuntivo') gestisce richiesta fatta all'url del server + url_aggiuntivo
 //                                                       es: 'localhost3000/api/notes/save' 
