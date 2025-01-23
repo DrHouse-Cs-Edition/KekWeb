@@ -2,7 +2,7 @@ const mongoose = require ('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    name: String,
+    username: String,
     password: String, // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
     email: String,
     bio: String,

@@ -23,7 +23,7 @@ const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
 const Note = require ("./mongoSchemas/Note.js");
 const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
-const LoginRoutes = require ("./pagesMethods/login.js");
+const UserRoutes = require ("./pagesMethods/Users.js");
 //*************************************************************
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
@@ -158,7 +158,7 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
             });
         } else {
             // Se nessuna nota viene trovata, restituisce 404
-            response.status(404).json({
+            response.status(403).json({
                 success: false,
                 message: "Nessuna nota trovata",
             });
@@ -178,8 +178,8 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 
 //************* login METHODS ******************************* */
-app.post("/api/login/sendLogin", LoginRoutes.login);
-
+app.post("/api/user/reqLogin", UserRoutes.login);
+app.post("/api/user/sendRegistration", UserRoutes.registration);
 //*********************************************************** */
 
 app.get('*', (req, res) => {
