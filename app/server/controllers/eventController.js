@@ -1,3 +1,5 @@
+const User = require('../mongoSchemas/User.js');
+
 const saveEvent = async (request, response) => {
   const eventInput = {title: "titoloTest", text: "just a test", start: [],} // request.body;
   const eventDB = new Event({

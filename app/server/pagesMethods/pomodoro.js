@@ -1,6 +1,3 @@
-const mongoose = require ('mongoose');
-const express = require ('express');
-const path = require ('path');
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
 const { error } = require('console');
 const { exitCode } = require('process');
