@@ -175,7 +175,6 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
             })
         }).then( res => res.json())
         .then( json => {
-            console.log(json);
             console.log("response to savePomodoro was ", json)
         })
         .catch(error => console.log(" Timer.onSubmit: error is "+ error));

@@ -1,12 +1,12 @@
 import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
-import { Navigate, useNavigate } from "react-router-dom";
+import { json, Navigate, useNavigate } from "react-router-dom";
 
-async function loginAttempt(username, password, updateToken) {
+function loginAttempt(username, password, setToken) {
     console.log("sending login request for user ", username, "pw: ", password);
     try {
-        return await fetch("http://localhost:5000/api/user/reqLogin",{
+        return fetch("http://localhost:5000/api/user/reqLogin",{
         method : "POST",
         headers:{
             'content-type' : "application/json"
@@ -19,8 +19,8 @@ async function loginAttempt(username, password, updateToken) {
     .then(response => {
         switch(response.status){
             case 200:
-                updateToken(username);
-                console.log("LOGIN SUCCESSFUL: token is set to: ", username);
+                console.log("LOGIN PROGRESSING");
+                return(response.json());
         break;
             case 401:
                 console.log("LOGIN UNSUCCESSFUL: invalid username or password");
@@ -41,10 +41,15 @@ async function loginAttempt(username, password, updateToken) {
 const LoginPage = ({updateToken})=>{
 
     const onSubmit = async (data)=>{
+        console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
         try{
-            console.log("Submit of login credentials ", data.name , " " , data.password);
-            let {name, password} = data;
-            await loginAttempt(name, password, updateToken);
+            console.log("Submit of login credentials ", data.username , " " , data.password);
+            let {username, password} = data;
+            let tmpKek = await loginAttempt(username, password, updateToken);
+                console.log("response to login request is: ", tmpKek)
+                updateToken(tmpKek);
+                // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
+                // : console.log("LOGIN UNSUCCESSFUL");
         }catch(e){
             console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
@@ -58,9 +63,9 @@ const LoginPage = ({updateToken})=>{
             <h2>Login</h2>
             <FormProvider {...formMethods} >
                 <form>
-                    <Input label = {"name"}
+                    <Input label = {"username"}
                     type = "string"
-                    id = "name"
+                    id = "username"
                     placeholder={"insert username"}
                     validationMessage={"please enter your username"}
                     maxLenght={32}

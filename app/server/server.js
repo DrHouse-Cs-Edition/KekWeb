@@ -24,11 +24,13 @@ mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1"
 const Note = require ("./mongoSchemas/Note.js");
 const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const UserRoutes = require ("./pagesMethods/Users.js");
+require("dotenv").config();
 //*************************************************************
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
+console.log("envvar_Server:", process.env.JWT_KEY);
 
 app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );

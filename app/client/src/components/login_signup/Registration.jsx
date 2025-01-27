@@ -14,6 +14,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 async function registerUser(data) {
     console.log("registration data is: ", data);
+    console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
     try {
         await fetch("http://localhost:5000/api/user/sendRegistration",{
         method : "POST",
@@ -25,7 +26,9 @@ async function registerUser(data) {
             password : data.password,
             email : data.email,
             bio : data.bio,
-            birthday : data.birthday
+            birthday : data.birthday,
+            realName : data.realName,
+            realSurname : data.realSurname
             })
         }).then(res => res.json())
         .then(json => {console.log("response to create user was ", json);})
@@ -67,7 +70,7 @@ function Registration({setToken}){
                     label={"password"}
                     type={"password"}
                     id={"password"}
-                    placeholder={"please insert your password"}
+                    placeholder={"insert your password"}
                     validationMessage={"please enter your password"}
                     minLenght={8}
                     >
@@ -77,9 +80,9 @@ function Registration({setToken}){
                     label={"email"}
                     type={"email"}
                     id={"email"}
-                    placeholder={"please insert your password"}
-                    validationMessage={"please enter your password"}
-                    minLenght={8}
+                    placeholder={"insert your email"}
+                    validationMessage={"please enter your email"}
+                    isRequired = {0}
                     >
                     </Input>
 
@@ -87,9 +90,9 @@ function Registration({setToken}){
                     label={"bio"}
                     type={"string"}
                     id={"bio"}
-                    placeholder={"please insert your password"}
-                    validationMessage={"please enter your password"}
-                    minLenght={8}
+                    placeholder={"enter bio"}
+                    validationMessage={"please enter some personal information"}
+                    isRequired = {0}
                     >
                     </Input>
 
@@ -97,9 +100,27 @@ function Registration({setToken}){
                     label={"birthday"}
                     type={"date"}
                     id={"birthday"}
-                    placeholder={"please insert your password"}
-                    validationMessage={"please enter your password"}
-                    minLenght={8}
+                    placeholder={"insert your birthday"}
+                    validationMessage={"please enter your birthday"}
+                    isRequired = {0}
+                    >
+                    </Input>
+
+                    <Input 
+                    label={"realName"}
+                    type={"string"}
+                    id={"realName"}
+                    placeholder={"insert your real name"}
+                    validationMessage={"please enter your real name"}
+                    >
+                    </Input>
+
+                    <Input 
+                    label={"realSurname"}
+                    type={"string"}
+                    id={"realSurname"}
+                    placeholder={"insert your real surname"}
+                    validationMessage={"please enter your surname"}
                     >
                     </Input>
 

@@ -7,6 +7,8 @@ const userSchema = new Schema({
     email: String,
     bio: String,
     birthday: Date,
+    realName : String,
+    realSurname : String,
     // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
 });
 

@@ -1,21 +1,25 @@
-const mongoose = require ('mongoose');
-const express = require ('express');
 const path = require ('path');
-const { error } = require('console');
-const { exitCode } = require('process');
-const Users = require ("../mongoSchemas/UserSchemas.js")
+const Users = require ("../mongoSchemas/UserSchemas.js");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const findUser = (username, password)=>{
+    return Users.find({username : username, password : password}, {username : 1, password : 1})
+}
 
 exports.login = async function (req, res){
-    let reqBody = req.body;
-    console.log("recieved login request with body", reqBody.username, " ", reqBody.password);
+    let {username, password} = req.body;
+    console.log("recieved login request with body", username, " ", password);
     try{ 
-        Users.find({username : reqBody.username, password : reqBody.password}, {username : 1, password : 1})
+        findUser(username, password)
         .then( result =>{
             console.log("user find result: ",result);
             if(result.length){
+                console.log("creating session token from envVar: ", process.env.JWT_KEY);
+                const token = jwt.sign({username : username}, process.env.JWT_KEY, { expiresIn: 60 * 30});
                 res.status(200).json({
                     message : "login successful",
-                    username: reqBody.username
+                    token: token 
                 })
             }else{
                 res.status(401).json({
