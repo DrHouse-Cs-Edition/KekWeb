@@ -12,4 +12,4 @@ const eventSchema = new mongoose.Schema({ // uso standard Icalendar (per poter c
     // geo: Object = coordinate
 });
 
-module.exports = new mongoose.model("Note", eventSchema)
+module.exports = new mongoose.model("Event", eventSchema)

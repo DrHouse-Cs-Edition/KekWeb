@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home.jsx";
-import Calendario from "./components/calendario/Calendario.jsx";
+import Calendar from "./pages/Calendar.jsx";
 import Note from "./pages/Note.jsx";
 import NoteNavigation from "./pages/NoteNavigation.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
@@ -15,7 +15,7 @@ function App() {
       <div className="content">
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/calendario" element={<Calendario />} />
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/note/:id" element={<Note />} />
           <Route path="/noteNavigation" element={<NoteNavigation />} />
           <Route path="/pomodoro" element={<Pomodoro />} />

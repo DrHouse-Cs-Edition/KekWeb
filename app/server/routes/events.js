@@ -1,10 +1,11 @@
 const express = require('express');
-const { saveEvent, getEvent, removeEvent, updateEvent } = require('../controllers/eventController');
+const { saveEvent, updateEvent, removeEvent, getEvent, allEvent } = require('../controllers/eventController');
 const eventRouter = express.Router();
 
-eventRouter.get('/save', saveEvent);
-eventRouter.post('/get', getEvent);
-eventRouter.post('/remove', removeEvent);
-eventRouter.put('/update', updateEvent);
+eventRouter.post('/save', saveEvent);
+eventRouter.put('/update/:id', updateEvent);
+eventRouter.delete('/remove/:id', removeEvent);
+eventRouter.get('/get/:id', getEvent);
+eventRouter.get('/all', allEvent);
 
 module.exports = eventRouter;

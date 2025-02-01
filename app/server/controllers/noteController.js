@@ -68,23 +68,20 @@ const updateNote = async (request,response)=>{
 const removeNote = async (request,response)=>{
     id = request.params.id;
 
-    async function remove(id) { // Remove the file
-        try{ 
-            await Note.deleteOne({_id: id});
-            response.json({
-                success: true,
-                message: "Note removed",
-            });
-        }
-        catch(e){
-            console.log(e.message);
-            response.json({
-                success: false,
-                message: "Errore durante la rimozione dal DB",
-            });
-        }
+    try{
+        await Note.deleteOne({_id: id});
+        response.json({
+            success: true,
+            message: "Note removed",
+        });
     }
-    remove(request.params.id);
+    catch(e){
+        console.log(e.message);
+        response.json({
+            success: false,
+            message: "Errore durante la rimozione dal DB",
+        });
+    }
 
 }
 
@@ -94,7 +91,7 @@ const loadNote = async (request,response)=>{
 
     try{
         const nota = await Note.findById(id).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
-        // nota: find ritorna un ARRAY ma non findById
+        // annota: find ritorna un ARRAY ma findById solo un elemento
         // Note.find({user:"Gino"})    =    ritornrebbe le note scritte dall'urtente Gino
         response.json({
             success: true,
