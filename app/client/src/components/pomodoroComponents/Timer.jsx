@@ -7,10 +7,11 @@ import {FormProvider, useForm} from "react-hook-form";
 import React from 'react';
 import { Animation } from "./Animation/Animation.jsx";
 import style from "./Timer.module.css"
+import {UseToken} from '../login_signup/UserHooks.jsx';
 
 function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
- 
+    const {token, setToken} = UseToken();
     //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
@@ -151,7 +152,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         clearInterval(pomodoroInterval);
         setSeconds(0);
         setMinutes(0);
-        updateCurTimer (curTimer => 1)
+        updateCurTimer (1)
     }
 
     //*FUNCTION CALLED WHEN THE USER ASKS TO SAVE THE CURRENT POMODORO SETTINGS
@@ -160,7 +161,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //TODO check for pomodoro title
     const onSubmit = async (data)=>{
         console.log("title is :", data.PomodoroTitle);
-        fetch('http://localhost:5000/api/Pomodoro/saveP', {
+        fetch('/api/Pomodoro/saveP', {
             method : 'POST',
             mode: 'cors',
             headers: {
@@ -168,6 +169,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 'Accept': 'application/json',
             },
             body : JSON.stringify({
+                token : token,
                 title : data.PomodoroTitle,
                 studyTime : StudyTime,
                 breakTime : BreakTime,

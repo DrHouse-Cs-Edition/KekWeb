@@ -41,20 +41,10 @@ app.post('/api/notes/save', async (request,response)=>{ // app.metodo('url_aggiu
 //                                                       es: 'localhost3000/api/notes/save' 
     const notaInput = request.body;
     const notaDB = new Note({
-        // user: note.user, = possibile altro parametro
         title: notaInput.title,
         text: notaInput.text,
         date: notaInput.date,
-        // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
-    /*
-    const user1 = new User({
-        name: "Gino",
-        password: "psw!", // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
-        email: "gino@io.com",
-        bio: "sono Gino",
-        birthday: note.date,
-    });*/
 
     try{
         await notaDB.save(); // comunicazione con mongoDB
@@ -177,7 +167,7 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 //************* POMODORO METHODS **************************** */
 
-app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
+app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
 
 //************* login METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);

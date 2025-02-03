@@ -7,7 +7,6 @@ import { BrowserRouter } from  'react-router-dom'
 import DisableDevtool from 'disable-devtool';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-console.log("envvar1: ", process.env.REACT_APP_JWT_KEY);
 
 if(process.env.NODE_ENV === 'production'){
   console.log("disabling devTools");

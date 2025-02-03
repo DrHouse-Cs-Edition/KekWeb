@@ -2,8 +2,10 @@ import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { json, Navigate, useNavigate } from "react-router-dom";
+import { useUsername } from "./UserHooks";
 
-function loginAttempt(username, password, setToken) {
+function loginAttempt(username, password) {
+
     console.log("sending login request for user ", username, "pw: ", password);
     try {
         return fetch("http://localhost:5000/api/user/reqLogin",{
@@ -39,6 +41,7 @@ function loginAttempt(username, password, setToken) {
 }
 
 const LoginPage = ({updateToken})=>{
+    const {setUsername} = useUsername();
 
     const onSubmit = async (data)=>{
         console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
@@ -48,6 +51,8 @@ const LoginPage = ({updateToken})=>{
             let tmpKek = await loginAttempt(username, password, updateToken);
                 console.log("response to login request is: ", tmpKek)
                 updateToken(tmpKek);
+                password = null;
+                setUsername(username);
                 // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
                 // : console.log("LOGIN UNSUCCESSFUL");
         }catch(e){

@@ -7,7 +7,7 @@ import Note from "./pages/Note.jsx";
 import NoteNavigation from "./pages/NoteNavigation.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
 import Signup from "./components/login_signup/Signup.jsx";
-import UseToken from "./components/login_signup/UseToken.jsx"
+import {UseToken} from "./components/login_signup/UserHooks.jsx"
 
 function App() {
   

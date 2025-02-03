@@ -23,4 +23,28 @@ const UseToken = ()=>{
     }
 }
 
-export default UseToken;
+export {UseToken};
+
+const useUsername = ()=>{
+    const getUsername = () => {
+        const username = sessionStorage.getItem("username");
+        console.log("username is: ", username);
+        return username;    //as getToken is called upon rendering, first time the object is undefined
+    }
+
+    const [username, setUsername] = useState(getUsername());
+
+    const updateUsername = (username)=>{
+        sessionStorage.setItem("username", username);
+        setUsername(username);
+        console.log("username is now", sessionStorage.getItem("username"));
+        return getUsername();
+    }
+
+    return {
+        setUsername: updateUsername,
+        username
+    }
+}
+
+export {useUsername};
