@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #333;
+  background-color: seagreen;
   color: white;
 }
 
@@ -44,13 +44,9 @@
 }
 
 .navbar {
-  display: none;
-  flex-direction: column;
-  width: 100%;
-  background-color: #333;
-  position: absolute;
-  top: 60px;
-  left: 0;
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
 }
 
 .navbarActive {
@@ -61,6 +57,9 @@
   text-decoration: none;
   color: white;
   padding: 10px 20px;
+  font-size: 1.2em;
+  flex-grow: 1;
+  text-align: center;
   transition: background-color 0.3s;
 }
 
@@ -68,37 +67,27 @@
   background-color: #555;
 }
 
-.closeButton {
-  align-self: flex-end;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.5em;
-  cursor: pointer;
-  padding: 10px 20px;
-}
-
 @media (max-width: 768px) {
-  .hamburger {
-    display: flex;
-  }
-
   .navbar {
     display: none;
     flex-direction: column;
     width: 100%;
-    background-color: #333;
+    background-color: seagreen;
     position: absolute;
     top: 60px;
     left: 0;
   }
-
+  .hamburger {
+    display: flex;
+  }
   .navbarActive {
     display: flex;
   }
 
   .navLink {
-    padding: 15px 20px;
+    padding: 20px;
     border-top: 1px solid #444;
+    margin: 0;
+    flex-grow: 0;
   }
 }
