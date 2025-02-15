@@ -23,7 +23,7 @@ const saveNote = async (request,response)=>{ // app.metodo('url_aggiuntivo') ges
         await notaDB.save(); // comunicazione con mongoDB
         response.json({
             success: true,
-            id: notaDB._id, // può servire(?)
+            id: notaDB._id,
             message: "Note saved"
         });
     }
@@ -113,9 +113,27 @@ const loadNote = async (request,response)=>{
 
 
 const allNote = async (request,response)=>{
+    const sort = request.query.sort || false;
 
     try {
-        const listaNote = await Note.find({}).lean();  // Prende tutte le note (come oggetti)
+        let listaNote;
+        if(!sort){
+            listaNote = await Note.find({}).lean(); // Prende tutte le note (come oggetti)
+        }
+        else{
+            switch (sort){
+                case "asc":
+                    listaNote = await Note.find({}).sort({ title: 1 }).collation({ locale: 'it'}).lean(); // collation = per definire come ordinare (regole lingua it)
+                    break;
+                case "desc":
+                    listaNote = await Note.find({}).sort({ title: -1 }).collation({ locale: 'it'}).lean(); 
+                    break;
+                case "date":
+                    listaNote = await Note.find({}).sort({ date: -1 }).lean(); // da piu recente
+                    break;
+            }
+            
+        }
         
         if (listaNote.length > 0) { // Se sono presenti delle note, le restituisce nel JSON
             response.json({

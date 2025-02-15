@@ -82,8 +82,6 @@ function Note() {
       .then(json => {
         if (!json.success)
           alert(json.message);
-        else
-          alert("nota aggiornata");
       })
       .catch(err => console.error('Failed to save note:', err));
     }
@@ -104,7 +102,6 @@ function Note() {
       if (json.success) {
         setNoteName(json.title);
         setNoteText(json.text);
-        alert("Note loaded");
       } else {
         alert(json.message);
       }
