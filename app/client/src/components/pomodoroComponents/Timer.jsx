@@ -179,7 +179,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         .then( json => {
             console.log("response to savePomodoro was ", json)
         })
-        .catch(error => console.log(" Timer.onSubmit: error is "+ error));
+        .catch(error => console.log(" Timer.onSubmit: error is " + error));
     }
     
     //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL

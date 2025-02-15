@@ -26,7 +26,7 @@ function Navbar() {
         <Link to="/calendario" className="nav-link">Calendario</Link>
         <Link to="/noteNavigation" className="nav-link">Note</Link>
         <Link to="/pomodoro" className="nav-link">Pomodoro</Link>
-        <Link to="/utente" className="nav-link">Utente</Link>
+        <Link to="/User" className="nav-link">User</Link>
       </nav>
     </header>
   );

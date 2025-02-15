@@ -26,7 +26,7 @@ const UseToken = ()=>{
 export {UseToken};
 
 const useUsername = ()=>{
-    const getUsername = () => {
+        const getUsername = () => {
         const username = sessionStorage.getItem("username");
         console.log("username is: ", username);
         return username;    //as getToken is called upon rendering, first time the object is undefined

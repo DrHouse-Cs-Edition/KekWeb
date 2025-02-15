@@ -1,13 +1,11 @@
-const mongoose = require ('mongoose');
-const express = require ('express');
-const path = require ('path');
+
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
-const { error } = require('console');
-const { exitCode } = require('process');
+
 
 //*SAVE POMODORO SETTINGS
 exports.saveP = async function (req, res){
     const newPomodoroBody = req.body;
+    console.log("pomodoro body recieved is ", newPomodoroBody);
     console.log(newPomodoroBody);
     try{
         Pomodoro.find({title: newPomodoroBody.title}, {projection : {title : 1}})

@@ -15,12 +15,11 @@ exports.login = async function (req, res){
         .then( result =>{
             console.log("user find result: ",result);
             if(result.length){
-                const name = {username : username};
 
-                const token = jwt.sign(name, process.env.JWT_KEY,{ expiresIn: 60 * 30});
-                const R_token = jwt.sign(name, process.env.JWT_REFRESH);
+                const token = jwt.sign({username : username}, process.env.JWT_KEY,{ expiresIn: "15s"});
+                const R_token = jwt.sign({username : username}, process.env.JWT_REFRESH);
 
-                tokenSchema.create({username : name, token : R_token});
+                tokenSchema.create({username, token : token});
                 console.log("created a new refresh token")
 
                 res.status(200).json({
@@ -83,12 +82,12 @@ exports.authToken = function (req, res, next){
     })}
 
     jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
-        console.log("user ", decoded.username, "has been succesfully authenticated with return ", decoded);
         if(err)
             return res.status(403).json({
                 success: false,
                 message: "Invalid token"
             });
+    console.log("user ", decoded.username, "has been succesfully authenticated with return ", decoded);
         next(); 
         }   
     )
@@ -113,29 +112,35 @@ exports.refreshToken = function (req, res){
         console.log("refresh token has been succesfully verified");
          return newToken = jwt.sign({name : result[0].username}, process.env.JWT_KEY, {expiresIn: '30m'});
         })
-        .then( newToken =>{
-            res.status(200).json({token : newToken, 
-                message : "Token has been refreshed"
-            })
+    .then( newToken =>{
+        res.status(200).json({token : newToken, 
+            message : "Token has been refreshed"
         })
+    })
 }
 
-exports.deleteToken = function (req, res){
+exports.logout = function (req, res){
     const body = req.body;
-    const refreshToken = body?.token;
+    username = body.username;
+    console.log("provided username for delete is: ", username);
 
-    if(!refreshToken)
-        return res.status(401).json({
-            message: "No token provided",
+    if(!username)
+        res.status(401).json({
+            message: "No username provided",
             success : false
         })
-    tokenSchema.remove({token : refreshToken})
+    console.log("token exists, searching");
+    tokenSchema.deleteMany({username : username})
     .then(result => {
         if(result.length === 0)
-            return res.status(403).json({
+            res.status(403).json({
             success: false,
-            message: "Invalid token"
+            message: "Invalid username"
             })
         console.log("refresh token has been succesfully deleted: ", result);
+        res.status(200).json({
+            success: true,
+            message: "You have been logged out"
+        })
     })
 }
