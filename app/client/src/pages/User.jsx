@@ -21,6 +21,7 @@ const User = ()=>{
                 console.log("logout res ", res);
                 setToken({token : ""});
                 setUsername("");  
+                window.location.reload(false);
             })
         }catch(e){
             console.log(e);
