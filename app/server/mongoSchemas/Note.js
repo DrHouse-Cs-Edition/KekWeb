@@ -5,7 +5,7 @@ const noteSchema = new mongoose.Schema({
     title: String,
     categories: Array, // di stringhe
     text: String,
-    date: Date,
+    createdAt: Date,
     lastModified: Date,
     user: { 
         type: Schema.Types.ObjectId, // Specifica che è un ObjectId

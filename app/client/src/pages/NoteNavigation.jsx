@@ -15,9 +15,11 @@ function NoteNavigation() {
   const loadNotes = (newNotesArray) => {
     setNotes([...newNotesArray.map(note => ({
       id: note._id,
+      categories: note.categories,
       title: note.title,
       text: note.text,
-      date: note.date
+      createdAt: note.createdAt,
+      lastModified: note.lastModified
       }))
     ]);
   }
@@ -29,7 +31,7 @@ function NoteNavigation() {
 
   const handleSortChange = (event) => {  // Quando un utente seleziona un'opzione nel <select>, il browser genera un evento che contiene informazioni sull'azione compiuta
     const value = event.target.value;
-    setSortOption(value);
+    setSortOption(value); // è importante che il value nel select (html) sia il valore che vogliamo mettere nella variabile sortOption (js react) 
     handleLoad(value);
   };
 
@@ -81,7 +83,7 @@ function NoteNavigation() {
       title: "insert title",
       categories: [],
       text: "",
-      date: time, // Use current date in ISO format
+      createdAt: time, // Use current date in ISO format
       lastModified: time,
       // user
     };
@@ -122,6 +124,7 @@ function NoteNavigation() {
         <option value="asc">Alfabetico A-Z</option>
         <option value="desc">Alfabetico Z-A</option>
         <option value="date">Per data</option>
+        <option value="length">Per lunghezza</option>
       </select>
 
       <button onClick={()=>handleAdd()}>
@@ -129,7 +132,7 @@ function NoteNavigation() {
       </button>
 
       <div>
-        {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} text={note.text} date={note.date} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
+        {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
       </div>
       <footer>Footer: Note V2.0</footer>
     </>

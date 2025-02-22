@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
+import CategoriesList from '../components/Note/CategoriesList.jsx';
 
 function Note() {
 
@@ -12,7 +13,9 @@ function Note() {
 
   const [noteName, setNoteName] = useState(''); // utile perché con setNoteName cambia ogni istanza della variabile nel DOM con nuovo valore
   const [noteText, setNoteText] = useState('');
-
+  const [noteCategories, setNoteCategories] = useState([]);
+  //const [noteLastModified,...]
+  //const [noteCreatedAt,...]
 
   marked.setOptions({
     breakkggs: true,  // converte `\n` in `<br>` IN TEORIA
@@ -20,10 +23,7 @@ function Note() {
 
   
   useEffect(() => { // possibile alternativa: usare OnChange()?
-    //console.log(marked.getOptions());
-    //console.log('NoteText:', noteText);
-    //console.log('Textarea value:', JSON.stringify(noteText));
-    
+
     marked.use({ // anche questo converte `\n` in `<br>` IN TEORIA
       gfm: true,
       breaks: true,
@@ -66,9 +66,10 @@ function Note() {
   const handleSave = () => {
     if (getName()) { // se c'é un titolo
       const note = {
-        title: noteName,
+        title: noteName.trim(),
+        categories: noteCategories,
         text: noteText,
-        date: new Date().toISOString(), // Use current date in ISO format
+        lastModified: new Date().toISOString(), // Use current date in ISO format
       };
 
       fetch('http://localhost:5000/api/notes/update/' + id, {
@@ -102,6 +103,7 @@ function Note() {
       if (json.success) {
         setNoteName(json.title);
         setNoteText(json.text);
+        setNoteCategories(json.categories)
       } else {
         alert(json.message);
       }
@@ -132,6 +134,8 @@ function Note() {
           value={noteName} // val iniziale è quello dentro noteName
           onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
         />
+
+        <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
 
         <div className= {Style.container}>
             <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>

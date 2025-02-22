@@ -6,8 +6,10 @@ const saveNote = async (request,response)=>{ // app.metodo('url_aggiuntivo') ges
     const notaDB = new Note({
         // user: note.user, = possibile altro parametro
         title: notaInput.title,
+        categories: notaInput.categories,
         text: notaInput.text,
-        date: notaInput.date,
+        createdAt: notaInput.createdAt,
+        lastModified: notaInput.lastModified
         // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
     /*
@@ -24,14 +26,14 @@ const saveNote = async (request,response)=>{ // app.metodo('url_aggiuntivo') ges
         response.json({
             success: true,
             id: notaDB._id,
-            message: "Note saved"
+            message: "Nota salvata"
         });
     }
     catch(e){
         console.log(e.message);
         response.json({
             success: false,
-            message: "Errore durante il salvataggio sul DB",
+            message: "Errore durante il salvataggio sul DB: "+e,
         });
     }
 
@@ -46,8 +48,9 @@ const updateNote = async (request,response)=>{
         await Note.findByIdAndUpdate(id,{
             // user non va cambiato
             title: notaInput.title,
+            categories: notaInput.categories,
             text: notaInput.text,
-            date: notaInput.date,
+            lastModified: notaInput.lastModified,
         });
         response.json({
             success: true,
@@ -58,7 +61,7 @@ const updateNote = async (request,response)=>{
         console.log(e.message);
         response.json({
             success: false,
-            message: "Errore durante il salvataggio sul DB",
+            message: "Errore durante il salvataggio sul DB: "+e,
         });
     }
 
@@ -72,14 +75,14 @@ const removeNote = async (request,response)=>{
         await Note.deleteOne({_id: id});
         response.json({
             success: true,
-            message: "Note removed",
+            message: "Nota eliminata",
         });
     }
     catch(e){
         console.log(e.message);
         response.json({
             success: false,
-            message: "Errore durante la rimozione dal DB",
+            message: "Errore durante la rimozione dal DB: "+e,
         });
     }
 
@@ -96,16 +99,17 @@ const loadNote = async (request,response)=>{
         response.json({
             success: true,
             id: nota.id,
-            title: nota.title,
+            tilte: nota.title,
+            categories: nota.categories,
             text: nota.text,
-            date: nota.date,
+            createdAt: nota.createdAt,
+            lastModified: nota.lastModified,
         });
     }
     catch(e){
-        console.log("errore load:" + e.message);
         response.json({
             success: false,
-            message: "Errore durante il caricamento dal DB:"+e,
+            message: "Errore durante il caricamento dal DB: "+e,
         });
     }
 
@@ -121,7 +125,7 @@ const allNote = async (request,response)=>{
             listaNote = await Note.find({}).lean(); // Prende tutte le note (come oggetti)
         }
         else{
-            switch (sort){
+            switch (sort){ // in mongoose: 1 = crescente  e  -1 = decrescente
                 case "asc":
                     listaNote = await Note.find({}).sort({ title: 1 }).collation({ locale: 'it'}).lean(); // collation = per definire come ordinare (regole lingua it)
                     break;
@@ -129,7 +133,19 @@ const allNote = async (request,response)=>{
                     listaNote = await Note.find({}).sort({ title: -1 }).collation({ locale: 'it'}).lean(); 
                     break;
                 case "date":
-                    listaNote = await Note.find({}).sort({ date: -1 }).lean(); // da piu recente
+                    listaNote = await Note.find({}).sort({ lastModified: -1 }).lean(); // da piu recente
+                    break;
+                case "length":
+                    listaNote = await Note.aggregate([ // query avanzata che usa l'Aggregation Pipeline
+                        {
+                            $addFields: { // aggiungiamo campi temporanei (qui solo 1)
+                                stringLength: { $strLenCP: "$text" } // $strLenCP è un aggregation operator che calcola lunghezza stringa
+                            }
+                        },
+                        {
+                            $sort: { stringLength: -1 }
+                        }
+                    ])
                     break;
             }
             
@@ -150,7 +166,7 @@ const allNote = async (request,response)=>{
         console.log(e.message);
         response.json({
             success: false,
-            message: "Errore durante il caricamento dal DB",
+            message: "Errore durante il caricamento dal DB: "+e,
         });
     }
 
