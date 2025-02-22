@@ -1,12 +1,18 @@
 const express = require ('express');
 const path = require ('path');
-//const { fileURLToPath } = require ('url');
 const bodyParser = require('body-parser');
 const fs = require('fs')
-
+//const { fileURLToPath } = require ('url');
 // Get the directory name of the current module
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
+
+//*MODULE IMPORTS
+// import path from 'path';
+// import express from 'express';
+// import fs from 'fs'
+// import bodyParser from 'body-parser';
+// import React, { useState } from 'react';
 
 const PORT = 5000;
 const app = express();
@@ -16,18 +22,17 @@ const app = express();
 const mongoose = require ('mongoose');
 mongoose.connect("mongodb://127.0.0.1/test1") //"mongodb://localhost:2017/test1" NON funziona
 const Note = require ("./mongoSchemas/Note.js");
-const User = require ("./mongoSchemas/User.js");
-
+const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
+const UserRoutes = require ("./pagesMethods/Users.js");
+require("dotenv").config();
 //*************************************************************
-
-//*IMPORTING ROUTES WRITTEN IN OTHER FILES
-let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
+console.log("envvar_Server:", process.env.JWT_KEY);
 
-app.get('/', (request,response)=>{
+app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
     console.log("connection perhaps created idk");
 });
@@ -36,20 +41,10 @@ app.post('/api/notes/save', async (request,response)=>{ // app.metodo('url_aggiu
 //                                                       es: 'localhost3000/api/notes/save' 
     const notaInput = request.body;
     const notaDB = new Note({
-        // user: note.user, = possibile altro parametro
         title: notaInput.title,
         text: notaInput.text,
         date: notaInput.date,
-        // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
-    /*
-    const user1 = new User({
-        name: "Gino",
-        password: "psw!", // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
-        email: "gino@io.com",
-        bio: "sono Gino",
-        birthday: note.date,
-    });*/
 
     try{
         await notaDB.save(); // comunicazione con mongoDB
@@ -155,7 +150,7 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
             });
         } else {
             // Se nessuna nota viene trovata, restituisce 404
-            response.status(404).json({
+            response.status(403).json({
                 success: false,
                 message: "Nessuna nota trovata",
             });
@@ -172,7 +167,13 @@ app.get('/api/notes/all', async (request,response)=>{ // richiesta: api/notes/lo
 
 //************* POMODORO METHODS **************************** */
 
-app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
+app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
+
+//************* login METHODS ******************************* */
+app.post("/api/user/reqLogin", UserRoutes.login);
+app.post("/api/user/sendRegistration", UserRoutes.registration);
+app.delete("/api/user/logout", UserRoutes.logout);
+//*********************************************************** */
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));

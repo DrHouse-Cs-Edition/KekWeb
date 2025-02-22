@@ -1,25 +1,22 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
 import { useParams } from 'react-router-dom';
-import {GenOptionDisplayer} from "../GeneralOptionDisplayer.jsx"
+import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "./FormSelector.jsx";
-import {Input} from "../Input.jsx";
-import style from "./Timer.module.css"
+import {Input} from "../utils/Input.jsx";
 import {FormProvider, useForm} from "react-hook-form";
+import React from 'react';
+import { Animation } from "./Animation/Animation.jsx";
+import style from "./Timer.module.css"
+import {UseToken} from '../login_signup/UserHooks.jsx';
 
-
-//*TMP for animation testing
-
-//! for the animation, sycnh some interval on 1000ms and two frames of an animation with the timer
 function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in seconds
-    const { id } = useParams(); // id come Parametro di percorso ( Note/:id )
     const formMethods = useForm();
- 
+    const {token, setToken} = UseToken();
     //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);                 //indicates the number of full Cycles
-    //const [PomodoroTitle, updatePomodoroTitle]= useState('');   //title of the current Pomodoro
     //********************************************************************* */
 
     //*THIS STATE CONTAINS THE CURRENT FORM SELECTED
@@ -33,14 +30,24 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     const [seconds, setSeconds] = useState(Math.trunc(StudyTime%60));           //current timer seconds value
     const [cyclesLeft, setCyclesLeft] = useState(Cycles);                       //variable used for storing current, running timer cycles left to do
     const [runTimer, setRunTimer] = useState(autoStart);                        //the timer is running? 1=yes, 0=no
-    const curTimer = useRef(0);                                                 //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    const [curTimer, updateCurTimer] = useState(0);      //0 = study, 1 = break                                           //code for identifing current timer, if 0 it's the study timer, if 1 it's the break timer
+    const [resetFlag, setResetFlag] = useState(0); //flag used for resetting the timer when a cycle is finished
     //********************************************************************* */
+
+    //*REFERENCES TO THE HTML ELEMENTS
+    const runButtonRef = useRef(null);
+    const stopButtonRef = useRef(null);
+    const resetButtonRef = useRef(null);
+    const skipButtonRef = useRef(null);
+    const registerButtonRef = useRef(null);
+    const formatButtonRef = useRef(null);
+    const saveButtonRef = useRef(null);
 
     //function used for switching the form used for recording StudyTime, BreakTime and Cycles
     const changeForm = ()=>{
         formType == 'TT' ? updateFormType('Cycles') : updateFormType('TT');
     } 
-
+    //object with two items: no and yes, used for toggling the save button visibility
     let saveButtonComponent = {
         no : <p> please fill and register the fields in order to save the pomodoro</p>,
         yes : <FormProvider {...formMethods} >
@@ -54,16 +61,11 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         </FormProvider>
     }
 
-    useEffect(()=>{
-            //* FUNCTION USED FOR SHOWING THE REGISTER POMODORO BUTTON IF THE FIELDS ARE FILLED
-            if ( StudyTime && BreakTime && Cycles ){
-                setSaveButton("yes");            
-            }else{
-                setSaveButton("no");
-            }
-    }, [StudyTime, BreakTime, Cycles])
 
-    //*function given to the forms for recording StudyTime, BreakTime, Cycles
+    //* FUNCTION USED FOR SHOWING THE REGISTER POMODORO BUTTON IF THE FIELDS ARE FILLED
+    useEffect(()=>{ StudyTime && BreakTime && Cycles ? setSaveButton("yes") : setSaveButton("no")}, [StudyTime, BreakTime, Cycles])
+
+    //*FUNCTION GIVEN TO THE FORM FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
     const passTimeData = (sData, bData, cData)=>{
         //inside this function, use the data passed as parameters instead of renewed vals as they'll be updated after a rerender
         updateStudyTime(sData);
@@ -71,61 +73,61 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         updateCycles(cData);
         //options have changed
         setRunTimer(0);
-        curTimer.current = 0;
+        updateCurTimer (curTimer => 0);
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
+
+        console.log("Timer: data has been recieved, showing timer options ");
+        runButtonRef.current.style.visibility = "visible";
     }
 
-    //*formComponents is an object, and TT and Cycles it's attributes. To the TT/Cycles attribute i assign a component
-    //*to access a component i use a similar syntax to that of arrays. I can use a different component based on the index
-    //*of the object (i'm accessing the component stored in the attribute)
-    let formComponents = {
-        TT : <TTform passTimeData={passTimeData} ></TTform>,
-        Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm>
-    }   
+    //*FORMCOMPONENTS IS AN OBJECT USED FOR STORING THE FORMCOMPONENTS USED FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
+    //It is possible to access it's fields as if it was an array using the square brackets []
+    let formComponents = { TT : <TTform passTimeData={passTimeData} ></TTform>, Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm> }   
 
-    let pomodoroInterval;   //used for storing the setTimeout return value.
-
-        const timer = useEffect(()=>{
-            if(runTimer){   //normal update of the timer
-                pomodoroInterval = setTimeout(()=>{
-                    if(cyclesLeft > 0){
-                        if(seconds == 0){
-                            if(minutes == 0){
-                                if(curTimer.current){//break timer ended, initializing study timer
-                                    setCyclesLeft(cyclesLeft-1);
-                                    console.log("-1 Cycles");
-                                    if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
-                                        clearTimeout(pomodoroInterval); //immediate clear of Cycles
-                                        console.log("clearing interval inside");
-                                    }else{
-                                        setSeconds(Math.trunc(StudyTime%60));
-                                        setMinutes(Math.trunc(StudyTime/60%60));
-                                        console.log("initializing study timer");
-                                    }
-                                } else{ //break timer initialization
-                                    setSeconds(Math.trunc(BreakTime%60));
-                                    setMinutes(Math.trunc(BreakTime/60%60));
-                                    console.log("initializing break timer");
+    //*USE FOR STORING THE SETTIMEOUT RETURN VALUE
+    let pomodoroInterval;
+    const timer = useEffect(()=>{
+        if(runTimer){   //normal update of the timer
+            pomodoroInterval = setTimeout(()=>{
+                if(cyclesLeft > 0){
+                    if(seconds == 0){
+                        if(minutes == 0){
+                            if(curTimer){//break timer ended, initializing study timer
+                                setCyclesLeft(cyclesLeft-1);
+                                console.log("-1 Cycles");
+                                if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
+                                    clearTimeout(pomodoroInterval); //immediate clear of Cycles
+                                    setRunTimer(0);
+                                    console.log("clearing interval inside");
+                                }else{
+                                    setSeconds(Math.trunc(StudyTime%60));
+                                    setMinutes(Math.trunc(StudyTime/60%60));
+                                    console.log("initializing study timer");
                                 }
-                                curTimer.current = !curTimer.current;
-                                console.log("cur time is now ", curTimer.current);
-                                }else
-                                {
-                                    setSeconds(59);
-                                    setMinutes(minutes-1);
-                                }
-                        }else
-                        setSeconds(seconds - 1);
-                    }else { clearTimeout(pomodoroInterval); console.log("clearing interval"); } //failsafe clear of Cycles
-                }, 1000);
-            }
+                            } else{ //break timer initialization
+                                setSeconds(Math.trunc(BreakTime%60));
+                                setMinutes(Math.trunc(BreakTime/60%60));
+                                console.log("initializing break timer");
+                            }
+                            updateCurTimer (curTimer => curTimer ^ 1);
+                                console.log("cur time is now ", curTimer);
+                            }else
+                            {
+                                setSeconds(59);
+                                setMinutes(minutes-1);
+                            }
+                    }else
+                    setSeconds(seconds - 1);
+                }else { clearTimeout(pomodoroInterval); console.log("clearing interval"); } //failsafe clear of Cycles
+            }, 1000);
+        }
     }, [minutes, seconds, runTimer]);
 
     const stopTimer = ()=>{
         clearTimeout(pomodoroInterval); //stops the timer from updating preemtively (no lag since pressing the button)
-        setRunTimer(false); //stops further updates, still running the useEffect
+        setRunTimer(0); //stops further updates, still running the useEffect
     }
 
     //*function used for restarting the current Cycles
@@ -134,9 +136,11 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*Calling this function stops the  current timer and resets the Cycles
     const CyclesReset = ()=>{
         setRunTimer(0);
+        updateCurTimer(curTimer => 0);
         clearInterval(pomodoroInterval);
         setMinutes(Math.trunc(StudyTime/60%60));
         setSeconds(Math.trunc(StudyTime%60));
+        setResetFlag(resetFlag => resetFlag ^ 1);
     }
 
     //*Function used for skipping the current Cycles.
@@ -148,16 +152,16 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         clearInterval(pomodoroInterval);
         setSeconds(0);
         setMinutes(0);
-        curTimer.current = 1;
+        updateCurTimer (1)
     }
 
     //*FUNCTION CALLED WHEN THE USER ASKS TO SAVE THE CURRENT POMODORO SETTINGS
     //*IT CAN BE CALLED ONLY WHENE ALL PREVIOUS DATA HAS BEEN SET
-    //saveP
+    //!it references saveP in pomodoro.js
     //TODO check for pomodoro title
     const onSubmit = async (data)=>{
         console.log("title is :", data.PomodoroTitle);
-        fetch('http://localhost:5000/api/Pomodoro/saveP', {
+        fetch('/api/Pomodoro/saveP', {
             method : 'POST',
             mode: 'cors',
             headers: {
@@ -165,6 +169,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 'Accept': 'application/json',
             },
             body : JSON.stringify({
+                token : token,
                 title : data.PomodoroTitle,
                 studyTime : StudyTime,
                 breakTime : BreakTime,
@@ -172,10 +177,9 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
             })
         }).then( res => res.json())
         .then( json => {
-            console.log(json);
             console.log("response to savePomodoro was ", json)
         })
-        .catch(error => console.log(" Timer.onSubmit: error is "+ error));
+        .catch(error => console.log(" Timer.onSubmit: error is " + error));
     }
     
     //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL
@@ -184,33 +188,34 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     }
 
     return(
-        <Fragment>
-            <div className={style.timerDiv}>
+        <div className={style.mainDiv} id='mainDiv' >
+            <div className={style.headerDiv}>
                 <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
                 <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
-            <div id = "timerCurrentVals">
+            </div>
+                
+            <div id = {style.timerCurrentVals}>
                 <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
             </div>
-            <div id="testingDiv">
+            <div id={style.buttonsDiv} >
                 <h2> Testing buttons below </h2>
-                <button onClick={()=>{setRunTimer(1)}}> run timer </button>
-                <button onClick={stopTimer}> Stop timer </button>
-                <button onClick={CyclesReset}> Reset Cycles </button>
-                <button onClick={skipCycles}> Skip Cycles</button>
+                <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} style={{visibility : 'hidden'}}> run timer </button>
+                <button onClick={stopTimer} ref={stopButtonRef}> Stop timer </button>
+                <button onClick={CyclesReset} ref={resetButtonRef}> Reset Cycles </button>
+                <button onClick={skipCycles} ref={skipButtonRef}> Skip Cycles</button>
             </div>
 
-            <div id= "FormDiv" style={{ textAlign : 'center'}}>
+            <div id= "FormDiv" style={{textAlign : 'center'}}>
                 {formComponents[formType]}
+                <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
             </div>
-
-            <button onClick={changeForm}>Change Format</button>
 
             <br></br>
             {saveButtonComponent[saveButton]}                
-            <button onClick={formMethods.handleSubmit(onSubmit, onError)} > Save Pomodoro settings </button>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} > Save Pomodoro settings </button>
 
-            </div>
-        </Fragment>
+            <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
+        </div>
     )
 }
 
