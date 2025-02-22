@@ -30,7 +30,7 @@ function App() {
           <Route path="/note/:id" element={<Note />} />
           <Route path="/noteNavigation" element={<NoteNavigation />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
-          <Route path="/User" element={<User />} />
+          <Route path="/user" element={<User />} />
         </Routes>
       </div>
     </div>

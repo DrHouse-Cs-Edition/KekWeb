@@ -30,7 +30,7 @@ function Navbar() {
         <Link to="/calendario" className={Style.navLink}>Calendario</Link>
         <Link to="/noteNavigation" className={Style.navLink}>Note</Link>
         <Link to="/pomodoro" className={Style.navLink}>Pomodoro</Link>
-        <Link to="/utente" className={Style.navLink}>Utente</Link>
+        <Link to="/user" className={Style.navLink}>Utente</Link>
       </nav>
     </header>
   );
