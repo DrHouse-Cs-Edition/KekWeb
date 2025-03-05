@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     username: String,
     password: String, // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
     email: String,
