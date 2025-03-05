@@ -1,6 +1,18 @@
 const express = require ('express');
 const path = require ('path');
 const bodyParser = require('body-parser');
+const fs = require('fs')
+//const { fileURLToPath } = require ('url');
+// Get the directory name of the current module
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+//*MODULE IMPORTS
+// import path from 'path';
+// import express from 'express';
+// import fs from 'fs'
+// import bodyParser from 'body-parser';
+// import React, { useState } from 'react';
 
 const PORT = 5000;
 const app = express();
@@ -10,16 +22,20 @@ const connectDB = require('./config/database.js');
 connectDB();
 
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
-let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
+
+const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
+const UserRoutes = require ("./pagesMethods/Users.js");
+require("dotenv").config();
+
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
+console.log("envvar_Server:", process.env.JWT_KEY);
 
-// pagina di default
-app.get('/', (request,response)=>{
+app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
     console.log("connection perhaps created idk");
 });

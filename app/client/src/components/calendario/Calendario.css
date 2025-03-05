@@ -1,21 +1,74 @@
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background-color: #ddd;
+    gap: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.calendar-header, .calendar-day {
-    background-color: white;
-    padding: 10px;
+.calendar-header {
     text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 5px;
 }
 
-.calendar-day:hover {
-    background-color: #e0f7fa; 
+.giorno {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.calendar-day.selected {
-    background-color: #80deea;
+.giorno:hover {
+    background-color: #f1f1f1;
+}
+
+.giorno.selected {
+    background-color: #4caf50;
+    color: white;
+}
+
+.event-form {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-form h3 {
+    margin-bottom: 10px;
+}
+
+.event-form input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.event-form button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.event-form button:hover {
+    background-color: #45a049;
 }
