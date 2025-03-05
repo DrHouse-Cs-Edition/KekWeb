@@ -1,13 +1,13 @@
 // import Style from "./categories.module.css";
 import { useState } from "react";
 
-function CategoriesList(categories, setCategories) {
+function CategoriesList({categories, setCategories}) { // {} servono per destructuring delle prop
 
     const [inputValue, setInputValue] = useState("");
 
     // Aggiunge una categoria all'array
     const addCategory = () => {
-        if (inputValue.trim() && categories.length>0 && !categories.includes(inputValue.trim())) { // trim per rimuovere spazi bianchi extra
+        if (inputValue.trim() && !categories.includes(inputValue.trim())) { // trim per rimuovere spazi bianchi extra
         setCategories([...categories, inputValue.trim()]);
         setInputValue(""); // Pulisce il campo dopo l'aggiunta
         }
@@ -39,7 +39,7 @@ function CategoriesList(categories, setCategories) {
             <div>
                 {categories && categories.length && categories.map((category, index) => ( // controllo prima se esiste
                     <div key={index}>
-                        {category}
+                        {category + " "}
                         <button onClick={() => removeCategory(category)}>
                             ✕
                         </button>

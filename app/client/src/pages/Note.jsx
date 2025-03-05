@@ -3,7 +3,7 @@ import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
-import CategoriesList from '../components/Note/CategoriesList.jsx';
+import CategoriesList from '../components/NoteEditor/CategoriesList.jsx';
 
 function Note() {
 
@@ -138,7 +138,7 @@ function Note() {
         <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
 
         <div className= {Style.container}>
-            <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>
+            <textarea id="noteText" className={Style.text} value={noteText} onChange={setNoteCategories}></textarea> 
             <p id="outputText" className={Style.output}></p>
         </div>
 

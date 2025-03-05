@@ -99,7 +99,7 @@ const loadNote = async (request,response)=>{
         response.json({
             success: true,
             id: nota.id,
-            tilte: nota.title,
+            title: nota.title,
             categories: nota.categories,
             text: nota.text,
             createdAt: nota.createdAt,
