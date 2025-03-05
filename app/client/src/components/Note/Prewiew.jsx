@@ -21,10 +21,10 @@ function Prewiew({id, title, categories, text, modified, handleDelete, handleCli
 
   return (
     <>
-
+      {console.log(categories)}
       <div className={Style.div}>
         <h1>{title}</h1>
-        <p>categories {categories}</p>
+        <p>categories: { categories?.map( (cat,index)=> (index+1 < categories.length)? cat+", " : cat ) } </p>
         <p dangerouslySetInnerHTML={ {__html: marker(text)} } ></p>
         <p>ultima modifica: {modified}</p>
         <button onClick={handleClick}>Open</button>
