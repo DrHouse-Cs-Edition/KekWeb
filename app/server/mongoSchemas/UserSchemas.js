@@ -1,11 +1,13 @@
 const mongoose = require ('mongoose');
 
-const userSchema = new mongoose.Schema({
-    name: String,
+const userSchema = new Schema({
+    username: String,
     password: String, // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
     email: String,
     bio: String,
     birthday: Date,
+    realName : String,
+    realSurname : String,
     // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
 });
 

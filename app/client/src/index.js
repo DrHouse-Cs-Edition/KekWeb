@@ -4,8 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from  'react-router-dom'
+import DisableDevtool from 'disable-devtool';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+if(process.env.NODE_ENV === 'production'){
+  console.log("disabling devTools");
+  //DisableDevtool();
+}
 //const user_id = fai_login_e_ottieni_id()
 root.render(
   <React.StrictMode>
