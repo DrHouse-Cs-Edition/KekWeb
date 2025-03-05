@@ -138,7 +138,7 @@ function Note() {
         <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
 
         <div className= {Style.container}>
-            <textarea id="noteText" className={Style.text} value={noteText} onChange={setNoteCategories}></textarea> 
+            <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea> 
             <p id="outputText" className={Style.output}></p>
         </div>
 

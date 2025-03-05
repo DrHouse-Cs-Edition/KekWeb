@@ -26,7 +26,7 @@ function App() {
       <div className="content">
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/calendario" element={<Calendar />} />
           <Route path="/note/:id" element={<Note />} />
           <Route path="/noteNavigation" element={<NoteNavigation />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
