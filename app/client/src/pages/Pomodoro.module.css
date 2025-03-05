@@ -1,9 +1,11 @@
-.mainDiv {
+/* body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
     flex-direction: column;
     z-index: 2;
     overflow-y: scroll;
-  }
+    background-color: aqua;
+  } */

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import './Calendario.css';
 import Evento from './Evento.jsx';
@@ -12,51 +12,51 @@ const Calendario = () => {
     const [events, setEvents] = useState([]);
     const [eventTitle, setEventTitle] = useState('');
 
-    const startOfMonth = useMemo(() => currentDate.startOf('month'), [currentDate]);
-    const endOfMonth = useMemo(() => currentDate.endOf('month'), [currentDate]);
-    const startOfWeek = useMemo(() => startOfMonth.startOf('week'), [startOfMonth]);
-    const endOfWeek = useMemo(() => endOfMonth.endOf('week'), [endOfMonth]);
+    const startOfMonth = currentDate.startOf('month');
+    const endOfMonth = currentDate.endOf('month');
+    const startOfWeek = startOfMonth.startOf('week'); // primo giorno settimana contenente il primo giorno del mese (NOTA: comincia dalla domenica)
+    const endOfWeek = endOfMonth.endOf('week'); // ultimo giorno settimana contenente l'ultimo giorno del mese
 
-    const handlePrevMonth = useCallback(() => {
+    const handlePrevMonth = () => {
         setCurrentDate(currentDate.subtract(1, 'month'));
-    }, [currentDate]);
+    };
 
-    const handleNextMonth = useCallback(() => {
+    const handleNextMonth = () => {
         setCurrentDate(currentDate.add(1, 'month'));
-    }, [currentDate]);
+    };
 
-    const handleDateClick = useCallback((date) => {
-        setSelectedDate(date);
-    }, []);
+    const handleDateClick = (date) => {
+        setSelectedDate(date); // giorno selezionato = giorno su cui hai cliccato
+    };
 
-    const handleAddEvent = useCallback((e) => {
+    const handleAddEvent = (e) => {
         e.preventDefault();
         if (eventTitle.trim() !== '') {
             setEvents([...events, { date: selectedDate, title: eventTitle }]);
             setEventTitle('');
         }
-    }, [eventTitle, events, selectedDate]);
+    };
 
-    const handleDeleteEvent = useCallback((eventId) => {
+    const handleDeleteEvent = (eventId) => {
         setEvents(events.filter(event => event.id !== eventId));
-    }, [events]);
+    };
+    
 
-    const generateCalendar = useMemo(() => {
-        const calendar = [];
+    const generateCalendar = () => {
+        const calendar = []; // calendario = unico array di "giorni" (componenti)
         let date = startOfWeek;
 
-        while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day')) {
-            if (date.isBefore(startOfMonth, 'day'))
-                calendar.push(<div key={date.toString()}></div>);
-            else {
-                const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day'));
+        while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day') ) { // isBefore(endOfWeek) mostra invece pezzo settimana prossimo mese
+            if(date.isBefore(startOfMonth, 'day')) // facoltativo per eliminare giorni mese precedente
+                calendar.push(<div></div>);
+            else{
+                const dayEvents = events.filter(event => dayjs(event.date).isSame(date, 'day')); // filtra quelli che accadono nel giorno date
                 calendar.push(
-                    <Giorno
-                        key={date.toString()}
-                        date={date}
-                        events={dayEvents}
-                        selected={date.isSame(selectedDate, 'day')}
-                        handleClick={handleDateClick}
+                    <Giorno 
+                        date = {date} 
+                        events={dayEvents} 
+                        selected={date.isSame(selectedDate, 'day')} 
+                        handleClick={handleDateClick} 
                         onDeleteEvent={handleDeleteEvent}>
                     </Giorno>
                 );
@@ -65,7 +65,7 @@ const Calendario = () => {
         }
 
         return calendar;
-    }, [startOfWeek, endOfMonth, startOfMonth, events, selectedDate, handleDateClick, handleDeleteEvent]);
+    };
 
     return (
         <div>
@@ -76,15 +76,15 @@ const Calendario = () => {
             </div>
 
             <div className="calendar">
-                {daysOfWeek.map((day) => (
+                {daysOfWeek.map((day) => ( // scrive i giorni della settimana (lun,mar,mer,...)
                     <div key={day} className="calendar-header">
                         {day}
                     </div>
                 ))}
-                {generateCalendar}
+                {generateCalendar() /*inserisce array di "giorni" html*/}
             </div>
-
-            {selectedDate && (
+            
+            {selectedDate && ( // se selectedDate non è null allora carica html
                 <form className="event-form" onSubmit={handleAddEvent}>
                     <h3>Add Event for {selectedDate.format('MMMM DD, YYYY')}</h3>
                     <input

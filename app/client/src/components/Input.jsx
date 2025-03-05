@@ -1,5 +1,5 @@
 import { useForm, useFormContext } from "react-hook-form"
-import { findInputError, isFormInvalid } from "./utils.jsx";
+import { findInputError, isFormInvalid } from "../utils";
 export const Input = ({ label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght, isRequired = true }) => {
     const {
         register,
