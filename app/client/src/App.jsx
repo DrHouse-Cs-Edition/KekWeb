@@ -14,9 +14,7 @@ function App() {
   
   const {token, setToken} = UseToken();
   
-  console.log("checking for credentials: ", !token);
   if(!token){
-    console.log("sending login page");
     return (<Signup updateToken = {setToken}/>)
   }
 

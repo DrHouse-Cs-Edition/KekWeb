@@ -34,10 +34,6 @@ export const Animation = ({currentTimer, studyTime, breakTime, run, resetFlag})=
         1 : <BreakAnimation duration = {breakTime + "s"} run = {run && currentTimer} resetFlag = {resetFlag}></BreakAnimation>
     } 
 
-    useEffect(function initializeAnimation (){  console.log("Animation.jsx: initialization start"); },[])
-    
-    useEffect(()=>{ console.log("currentTimer is: ", currentTimer, " and thus animation changes");    },[currentTimer])
-
     return(
         <div className={style.animationDiv} ref={animationDiv} >
             <div className={[style.loadingBar, style.outherBar].join(" ")} ref={animationDiv_outher}>
@@ -58,7 +54,6 @@ export const Animation = ({currentTimer, studyTime, breakTime, run, resetFlag})=
 const StudyAnimation = ({duration, run, resetFlag})=>{
     const reference = useRef();
     useEffect(()=>{
-        console.log("StudyAnimation");
     },[])
     
 
@@ -66,7 +61,6 @@ const StudyAnimation = ({duration, run, resetFlag})=>{
         reference.current.style.animationName = "none";
         setTimeout(()=>{
             reference.current.style.animationName = "";
-            console.log("animation reset to",reference.current.style );
         }, 100);
     },[resetFlag])
 
@@ -85,14 +79,12 @@ const StudyAnimation = ({duration, run, resetFlag})=>{
 const BreakAnimation = ({duration, run, resetFlag})=>{
     const reference = useRef();
     useEffect(()=>{
-        console.log("BreakAnimation");
     },[])
 
     useEffect(function resetAnimation(){
         reference.current.style.animationName = "none";
         setTimeout(()=>{
             reference.current.style.animationName = "";
-            console.log("animation reset to",reference.current.style );
         }, 100);
     },[resetFlag])
 

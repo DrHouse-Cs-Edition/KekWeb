@@ -21,7 +21,6 @@ function Prewiew({id, title, categories, text, modified, handleDelete, handleCli
 
   return (
     <>
-      {console.log(categories)}
       <div className={Style.div}>
         <h1>{title}</h1>
         <p>categories: { categories?.map( (cat,index)=> (index+1 < categories.length)? cat+", " : cat ) } </p>
