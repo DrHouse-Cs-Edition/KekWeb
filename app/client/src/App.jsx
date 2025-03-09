@@ -11,7 +11,7 @@ import {UseToken} from "./components/login_signup/UserHooks.jsx"
 import User from "./pages/User.jsx";
 
 function App() {
-  
+  /*
   const {token, setToken} = UseToken();
   
   console.log("checking for credentials: ", !token);
@@ -19,7 +19,7 @@ function App() {
     console.log("sending login page");
     return (<Signup updateToken = {setToken}/>)
   }
-
+*/
   return (
     <div>
       <Navbar />
