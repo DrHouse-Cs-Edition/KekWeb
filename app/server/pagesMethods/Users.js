@@ -82,7 +82,7 @@ exports.authToken = function (req, res, next){
                 message: "Invalid token"
             });
         // salvare nome utente e id per API
-        req.user = { ...decoded.id }; // Aggiunge username alla req passata dopo middleware
+        req.user = decoded.id; // Aggiunge username alla req passata dopo middleware
         
         next(); 
         }   
