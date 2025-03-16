@@ -10,7 +10,6 @@ function CyclesForm ( {passTimeData}){
     let formMethods = useForm();
 
     const onSubmit = ( data =>{
-        console.log('submitting form for cycles with study = ', data.studyTime, ", break ", data.breakTime, ", cycles ",data.cycles);
         passTimeData(data.studyTime, data.breakTime, data.cycles );
         return false;
     })
@@ -88,7 +87,6 @@ function TTform( {passTimeData}){
      * @param {data} data object 
      */
     function initOptions(data){
-        console.log('initOptions function called, normalizing tt');
         hasComputed.current = 1;    //makes certain actions now possible, given that they required the computation of the time first
         tt.current = data.TotalTime;
         tt.current = tt.current - (tt.current % 5);                             //normalize total time to a multiple of 5 minutes
@@ -97,15 +95,12 @@ function TTform( {passTimeData}){
             if( tmpStudy.current === 45 && tmpBreak.current === 15 ){           //if max vals have been reached, return default option
                 tmpStudy.current = 30 ; 
                 tmpBreak.current = 5;
-                console.log("FormSelector.jsx->initOptions: resorting to default option");
                 break;
             }else if( tmpStudy.current === 45 ){                                //max study reached, increment break and start over with study
                 tmpBreak.current += 5;
                 tmpStudy.current = 30;
-                console.log("FormSelector.jsx->initOptions: incrementing break time");
             }else {                                                             //increment study time 
                 tmpStudy.current += 5;
-                console.log("FormSelector.jsx->initOptions: incrementing study time");
             }
         }
         setStudyTime( tmpStudy.current );
@@ -121,7 +116,6 @@ function TTform( {passTimeData}){
      * @returns void
      */
     const nextOption = ()=>{
-        console.log('nextOption function called');
         if ( !hasComputed.current ){
             alert("Warning: insert a time value and compute the possible options first");
             return;}
@@ -129,37 +123,31 @@ function TTform( {passTimeData}){
         do{   //until we can safely provide a valid option
             if( tmpStudy.current === 45 && tmpBreak.current === 15 ){    //if max vals have been reached, return default option
                 tmpStudy.current = 30 ; 
-                tmpBreak.current = 5;
-                console.log("FormSelector.jsx->nextOption: restoring initial option");
+                tmpBreak.current = 5; 
                 break;
             }else if( tmpStudy.current === 45 ){
                 tmpBreak.current += 5;
-                tmpStudy.current = 30;
-                console.log("FormSelector.jsx->nextOption: incrementing break time");
-            }else {
-                console.log("what the hell : ", tmpStudy.current);
-                tmpStudy.current += 5;
-                console.log("FormSelector.jsx->nextOption: incrementing study time");
+                tmpStudy.current = 30;     
+            }else {      
+                tmpStudy.current += 5;  
             }
         } while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 );
 
-        console.log("FormSelector.jsx->nextOption: set new options: ", tmpStudy.current, " ", tmpBreak.current);
         setStudyTime( tmpStudy.current );
         setBreakTime( tmpBreak.current );
     }
 
     const TThandleSubmit = (data)=>{
-        console.log('registerOptions function called');
         if ( !hasComputed.current ){
             alert("Warning: insert a time value and compute the possible options first");
             return;
         }
-        console.log("FormSelector.jsx->registerOptions: registering options; study=", studyTime, ", break=", breakTime, ", cycles=", calcCycles() );
+        
         passTimeData(studyTime, breakTime, calcCycles());
     }
 
     const TThandleError = ()=>{
-        console.log('TThandleError function called')
+        
     }
 
     const TTformMethods = useForm()
@@ -182,12 +170,10 @@ function TTform( {passTimeData}){
                         </Input> <br/>
 
                         <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
-                            (data) => { //onSubmit
-                                console.log("see option called with data ", data.TotalTime);
+                            (data) => { //onSubmit 
                                 initOptions(data);
                             }
-                        , () => {   //onError
-                            console.log("see option returned error")
+                        , () => {   //onError                
                         })}>See options</button>
                         
                         <div>

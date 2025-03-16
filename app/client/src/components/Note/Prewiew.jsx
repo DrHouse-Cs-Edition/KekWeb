@@ -1,16 +1,10 @@
-import React, { useEffect } from 'react';
+// import React, { useEffect } from 'react';
 import Trash from './Trash.png'
 import Style from "./Prewiew.module.css";
 import { marked } from 'marked';
 // import DOMPurify from 'dompurify'; lo mettiamo?
 
-function Prewiew({id, title, text, date, handleDelete, handleClick}) {
-/*
-  const [noteText, setNoteText] = useState('');
-
-  useEffect(() => { // possibile alternativa: usare OnChange()?
-    
-  }, []);  // funzione viene applicato ogni volta che cambia noteText*/
+function Prewiew({id, title, categories, text, modified, handleDelete, handleClick}) {
 
   const marker = (txt) =>{
     if(txt != '' && txt != null){
@@ -24,19 +18,14 @@ function Prewiew({id, title, text, date, handleDelete, handleClick}) {
     else return ('');
     //document.getElementById('outputText').innerHTML = txt;
   }
-/*
-  useEffect(() => {
-    marker(text);
-  }, []);*/
 
   return (
     <>
-
       <div className={Style.div}>
         <h1>{title}</h1>
-        <p>id: {id}</p>
+        <p>categories: { categories?.map( (cat,index)=> (index+1 < categories.length)? cat+", " : cat ) } </p>
         <p dangerouslySetInnerHTML={ {__html: marker(text)} } ></p>
-        <p>ultima modifica: {date}</p>
+        <p>ultima modifica: {modified}</p>
         <button onClick={handleClick}>Open</button>
         <img src={Trash} alt='trash bin' className={Style.bin} onClick={ ()=>handleDelete() }></img>
       </div>

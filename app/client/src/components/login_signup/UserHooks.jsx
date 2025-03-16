@@ -4,7 +4,6 @@ import { json } from 'react-router-dom';
 const UseToken = ()=>{
     const getToken = () => {
         const tokenString = sessionStorage.getItem("token");
-        console.log("token is: ", tokenString);
         return tokenString;    //as getToken is called upon rendering, first time the object is undefined
     }
 
@@ -13,7 +12,6 @@ const UseToken = ()=>{
     const setToken = (userToken)=>{
         sessionStorage.setItem("token", userToken.token);
         updateToken(userToken.token);
-        console.log("token is now", sessionStorage.getItem("token"));
         return getToken();
     }
 
@@ -28,7 +26,6 @@ export {UseToken};
 const useUsername = ()=>{
         const getUsername = () => {
         const username = sessionStorage.getItem("username");
-        console.log("username is: ", username);
         return username;    //as getToken is called upon rendering, first time the object is undefined
     }
 
@@ -37,7 +34,6 @@ const useUsername = ()=>{
     const updateUsername = (username)=>{
         sessionStorage.setItem("username", username);
         setUsername(username);
-        console.log("username is now", sessionStorage.getItem("username"));
         return getUsername();
     }
 

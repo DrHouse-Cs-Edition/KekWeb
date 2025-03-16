@@ -30,7 +30,6 @@ const User = ()=>{
 
     const logout = ()=>{
         try{
-        console.log("token is-s-s ", username);
             fetch("/api/user/logout", {
             method: "DELETE",
             mode: 'cors',
@@ -41,14 +40,12 @@ const User = ()=>{
             body: JSON.stringify({username : username})
         })
             .then(res => res.json())
-            .then( (res)=>{
-                console.log("logout res ", res);
+            .then( (res)=>{              
                 setToken({token : ""});
                 setUsername("");  
                 window.location.reload(false);
             })
         }catch(e){
-            console.log(e);
         }  
     }
 

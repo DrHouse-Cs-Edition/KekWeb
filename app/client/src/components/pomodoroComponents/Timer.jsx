@@ -78,7 +78,6 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
 
-        console.log("Timer: data has been recieved, showing timer options ");
         runButtonRef.current.style.visibility = "visible";
     }
 
@@ -96,10 +95,10 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                         if(minutes == 0){
                             if(curTimer){//break timer ended, initializing study timer
                                 setCyclesLeft(cyclesLeft-1);
-                                console.log("-1 Cycles");
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
+<<<<<<< HEAD
                                     console.log("clearing interval inside");
                                     alert("Congratulation! You are done for the day!");
                                 }else{
@@ -107,15 +106,22 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                                     setMinutes(Math.trunc(StudyTime/60%60));
                                     console.log("initializing study timer");
                                     alert("Back to studing");
+=======
+                                }else{
+                                    setSeconds(Math.trunc(StudyTime%60));
+                                    setMinutes(Math.trunc(StudyTime/60%60));
+>>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));
                                 setMinutes(Math.trunc(BreakTime/60%60));
+<<<<<<< HEAD
                                 console.log("initializing break timer");
                                 alert("Time for a break!");
+=======
+>>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
                             }
                             updateCurTimer (curTimer => curTimer ^ 1);
-                                console.log("cur time is now ", curTimer);
                             }else
                             {
                                 setSeconds(59);
@@ -123,7 +129,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                             }
                     }else
                     setSeconds(seconds - 1);
-                }else { clearTimeout(pomodoroInterval); console.log("clearing interval"); } //failsafe clear of Cycles
+                }else { clearTimeout(pomodoroInterval); } //failsafe clear of Cycles
             }, 1000);
         }
     }, [minutes, seconds, runTimer]);
@@ -166,7 +172,6 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //!it references saveP in pomodoro.js
     //TODO check for pomodoro title
     const onSubmit = async (data)=>{
-        console.log("title is :", data.PomodoroTitle);
         fetch('/api/Pomodoro/saveP', {
             method : 'POST',
             mode: 'cors',
@@ -182,9 +187,6 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 cycles : Cycles
             })
         }).then( res => res.json())
-        .then( json => {
-            console.log("response to savePomodoro was ", json)
-        })
         .catch(error => console.log(" Timer.onSubmit: error is " + error));
     }
     

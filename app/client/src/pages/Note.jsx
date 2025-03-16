@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
+import CategoriesList from '../components/NoteEditor/CategoriesList.jsx';
 
 function Note() {
 
@@ -12,7 +13,9 @@ function Note() {
 
   const [noteName, setNoteName] = useState(''); // utile perché con setNoteName cambia ogni istanza della variabile nel DOM con nuovo valore
   const [noteText, setNoteText] = useState('');
-
+  const [noteCategories, setNoteCategories] = useState([]);
+  //const [noteLastModified,...]
+  //const [noteCreatedAt,...]
 
   marked.setOptions({
     breakkggs: true,  // converte `\n` in `<br>` IN TEORIA
@@ -20,10 +23,7 @@ function Note() {
 
   
   useEffect(() => { // possibile alternativa: usare OnChange()?
-    //console.log(marked.getOptions());
-    //console.log('NoteText:', noteText);
-    //console.log('Textarea value:', JSON.stringify(noteText));
-    
+
     marked.use({ // anche questo converte `\n` in `<br>` IN TEORIA
       gfm: true,
       breaks: true,
@@ -39,6 +39,7 @@ function Note() {
   const handleDelete = () => {
     fetch('http://localhost:5000/api/notes/remove/' + id, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       }
@@ -66,13 +67,15 @@ function Note() {
   const handleSave = () => {
     if (getName()) { // se c'é un titolo
       const note = {
-        title: noteName,
+        title: noteName.trim(),
+        categories: noteCategories,
         text: noteText,
-        date: new Date().toISOString(), // Use current date in ISO format
+        lastModified: new Date().toISOString(), // Use current date in ISO format
       };
 
       fetch('http://localhost:5000/api/notes/update/' + id, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -82,8 +85,6 @@ function Note() {
       .then(json => {
         if (!json.success)
           alert(json.message);
-        else
-          alert("nota aggiornata");
       })
       .catch(err => console.error('Failed to save note:', err));
     }
@@ -95,6 +96,8 @@ function Note() {
   // riceve dati dal server (li prende da mongoDB) e li carica sulla pagina.
   const handleLoad = () => {
     fetch(`http://localhost:5000/api/notes/load/` + id, {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       },
@@ -104,7 +107,7 @@ function Note() {
       if (json.success) {
         setNoteName(json.title);
         setNoteText(json.text);
-        alert("Note loaded");
+        setNoteCategories(json.categories)
       } else {
         alert(json.message);
       }
@@ -136,8 +139,10 @@ function Note() {
           onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
         />
 
+        <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
+
         <div className= {Style.container}>
-            <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea>
+            <textarea id="noteText" className={Style.text} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea> 
             <p id="outputText" className={Style.output}></p>
         </div>
 

@@ -5,7 +5,6 @@ import { SimpleTimer } from "../components/pomodoroComponents/Timer.jsx"
 
 import styles from "./Pomodoro.module.css"
 function Pomodoro(){
-  console.log("render check Pomodoro");
   return(
     <div className="mainDiv">
       <SimpleTimer/>

@@ -28,9 +28,9 @@ function Navbar() {
       <nav className={`${Style.navbar} ${isMenuOpen ? Style.navbarActive : ""}`}>
         <Link to="/home" className={Style.navLink}>Home</Link>
         <Link to="/calendario" className={Style.navLink}>Calendario</Link>
-        <Link to="/noteNavigation" className={Style.navLink}>Note</Link>
+        <Link to="/note" className={Style.navLink}>Note</Link>
         <Link to="/pomodoro" className={Style.navLink}>Pomodoro</Link>
-        <Link to="/user" className={Style.navLink}>Utente</Link>
+        <Link to="/utente" className={Style.navLink}>Utente</Link>
       </nav>
     </header>
   );

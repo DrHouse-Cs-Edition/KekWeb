@@ -4,7 +4,11 @@ import {FormProvider, useForm} from "react-hook-form";
 import { useUsername, getPersonalData } from "./UserHooks";
 
 function loginAttempt(username, password) {
+<<<<<<< HEAD
     console.log("sending login request for user ", username, "pw: ", password);
+=======
+
+>>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
     try {
         return fetch("http://localhost:5000/api/user/reqLogin",{
         method : "POST",
@@ -19,17 +23,13 @@ function loginAttempt(username, password) {
     .then(response => {
         switch(response.status){
             case 200:
-                console.log("LOGIN PROGRESSING");
                 return(response.json());
         break;
             case 401:
-                console.log("LOGIN UNSUCCESSFUL: invalid username or password");
         break;
             case 500:
-                console.log("LOGIN UNSUCCESSFUL: internal server error");
         break;
             default:
-            console.log("ah shit");
         break;
         }
     }).catch(console.log( "error in login attempt" ));
@@ -48,9 +48,9 @@ const LoginPage = ({updateToken})=>{
     }
 
     const onSubmit = async (data)=>{
-        console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
         try{
             let {username, password} = data;
+<<<<<<< HEAD
             let tmpKek = await loginAttempt(username, password);
             updateToken(tmpKek);
             password = null;
@@ -58,6 +58,12 @@ const LoginPage = ({updateToken})=>{
 
             // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
             // : console.log("LOGIN UNSUCCESSFUL");
+=======
+            let tmpKek = await loginAttempt(username, password, updateToken);
+                updateToken(tmpKek);
+                password = null;
+                setUsername(username);
+>>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
         }catch(e){
             console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
