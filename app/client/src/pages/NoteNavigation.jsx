@@ -116,7 +116,7 @@ function NoteNavigation() {
   }, []);
 
   const openNote = (id)=>{
-    navigate(`/note/${id}`);
+    navigate(`/noteEditor/${id}`);
   }
 
   return (

@@ -36,13 +36,11 @@ const loginCookies =  require ("./controllers/cookiesLogin.js");
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
-console.log("envvar_Server:", process.env.JWT_KEY);
 
 app.use(cookieParser());
 
 app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
-    console.log("connection perhaps created idk");
 });
 
 //************* login API ******************************* */

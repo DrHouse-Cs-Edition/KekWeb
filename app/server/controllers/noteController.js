@@ -110,12 +110,11 @@ const loadNote = async (request,response)=>{
 
 const allNote = async (request,response)=>{
     const sort = request.query.sort || false;
-    console.log(request.user)
 
     try {
         let listaNote;
         if(!sort){
-            listaNote = await Note.find({ user: request.user }).lean(); // Prende tutte le note (come oggetti)
+            listaNote = await Note.find({ user: request.user }).lean(); // Prende tutte le note dell'utente (come oggetti)
         }
         else{
             switch (sort){ // in mongoose: 1 = crescente  e  -1 = decrescente
