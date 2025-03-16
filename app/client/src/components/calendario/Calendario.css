@@ -38,30 +38,68 @@
     color: white;
 }
 
-.event-form {
-    margin-top: 20px;
-    padding: 20px;
+.event {
+    background-color: #d9534f;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-top: 2px;
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.event-modal {
     background-color: white;
-    border: 1px solid #ddd;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
 }
 
-.event-form h3 {
+.event-modal h3 {
     margin-bottom: 10px;
 }
 
-.event-form input {
+.event-modal .form-group {
+    margin-bottom: 10px;
+}
+
+.event-modal .form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.event-modal .form-group input,
+.event-modal .form-group textarea,
+.event-modal .form-group select {
     width: calc(100% - 20px);
     padding: 10px;
-    margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
-.event-form button {
+.event-modal .modal-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.event-modal .modal-actions button {
     padding: 10px 20px;
-    background-color: #4caf50;
+    background-color: seagreen;
     color: white;
     border: none;
     border-radius: 5px;
@@ -69,6 +107,6 @@
     transition: background-color 0.3s;
 }
 
-.event-form button:hover {
-    background-color: #45a049;
+.event-modal .modal-actions button:hover {
+    background-color: #265a88;
 }
