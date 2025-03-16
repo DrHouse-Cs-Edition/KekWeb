@@ -40,6 +40,7 @@ function NoteNavigation() {
   const handleRemove = (index) => {
     fetch('http://localhost:5000/api/notes/remove/' + notes[index].id, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       }
@@ -61,6 +62,8 @@ function NoteNavigation() {
     if( sorting && sorting.localeCompare("") != 0)
       requestUrl = 'http://localhost:5000/api/notes/all' + '?sort=' + sorting;
     fetch(requestUrl , {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       },
@@ -90,6 +93,7 @@ function NoteNavigation() {
 
     fetch('http://localhost:5000/api/notes/save', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },

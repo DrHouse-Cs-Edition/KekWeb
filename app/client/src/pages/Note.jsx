@@ -39,6 +39,7 @@ function Note() {
   const handleDelete = () => {
     fetch('http://localhost:5000/api/notes/remove/' + id, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       }
@@ -74,6 +75,7 @@ function Note() {
 
       fetch('http://localhost:5000/api/notes/update/' + id, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -94,6 +96,8 @@ function Note() {
   // riceve dati dal server (li prende da mongoDB) e li carica sulla pagina.
   const handleLoad = () => {
     fetch(`http://localhost:5000/api/notes/load/` + id, {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'text/plain; charset=UTF-8',
       },
