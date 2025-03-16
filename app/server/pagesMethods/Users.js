@@ -1,11 +1,11 @@
 const path = require ('path');
 const Users = require ("../mongoSchemas/UserSchemas.js");
 const jwt = require("jsonwebtoken");
-const tokenSchema = require("../mongoSchemas/RTokenSchema.js")
+// const tokenSchema = require("../mongoSchemas/RTokenSchema.js")
 require("dotenv").config();
 
-const findUser = (username, password)=>{
-    return Users.find({username : username, password : password}, {username : 1, password : 1})
+const findUser = (username)=>{
+    return Users.find({username : username}, {username : 1})
 }
 
 exports.login = async function (req, res){
@@ -16,16 +16,15 @@ exports.login = async function (req, res){
             console.log("user find result: ",result);
             if(result.length){
 
-                const token = jwt.sign({username : username}, process.env.JWT_KEY,{ expiresIn: "15s"});
-                const R_token = jwt.sign({username : username}, process.env.JWT_REFRESH);
+                const token = jwt.sign({username : username}, process.env.JWT_KEY);
+                // const R_token = jwt.sign({username : username}, process.env.JWT_REFRESH);
 
-                tokenSchema.create({username, token : token});
-                console.log("created a new refresh token")
+                // tokenSchema.create({username, token : token});
+                // console.log("created a new refresh token")
 
                 res.status(200).json({
                     message : "login successful",
                     token: token,
-                    refreshToken : R_token 
                 })
             }else{
                 res.status(401).json({
@@ -49,7 +48,7 @@ exports.registration = async function (req, res){
     let {username, password} = reqBody;
 
     try{
-        findUser(username, password)   //find same user
+        findUser(username)   //find same user
         .then(result =>{
             console.log("result of user search yielded ", result);
             if(result.length){
@@ -61,8 +60,10 @@ exports.registration = async function (req, res){
             }else{
                 console.log("registration in process");
                 Users.create(reqBody);
+                const token = jwt.sign({username : username}, process.env.JWT_KEY);
                 res.json({
                     success: true,
+                    token : token,
                     message: "User created successfully"
                 })
             }
@@ -93,31 +94,31 @@ exports.authToken = function (req, res, next){
     )
 }
 
-exports.refreshToken = function (req, res){
-    const body = req.body;
-    const refreshToken = body?.token;
+// exports.refreshToken = function (req, res){
+//     const body = req.body;
+//     const refreshToken = body?.token;
 
-    if(!refreshToken)
-        return res.status(401).json({
-            message: "No token provided",
-            success : false
-        })
-    tokenSchema.find({token : refreshToken}, {token : 1})
-    .then(result => {
-        if(result.length === 0)
-            return res.status(403).json({
-            success: false,
-            message: "Invalid token"
-            })
-        console.log("refresh token has been succesfully verified");
-         return newToken = jwt.sign({name : result[0].username}, process.env.JWT_KEY, {expiresIn: '30m'});
-        })
-    .then( newToken =>{
-        res.status(200).json({token : newToken, 
-            message : "Token has been refreshed"
-        })
-    })
-}
+//     if(!refreshToken)
+//         return res.status(401).json({
+//             message: "No token provided",
+//             success : false
+//         })
+//     tokenSchema.find({token : refreshToken}, {token : 1})
+//     .then(result => {
+//         if(result.length === 0)
+//             return res.status(403).json({
+//             success: false,
+//             message: "Invalid token"
+//             })
+//         console.log("refresh token has been succesfully verified");
+//          return newToken = jwt.sign({name : result[0].username}, process.env.JWT_KEY, {expiresIn: '30m'});
+//         })
+//     .then( newToken =>{
+//         res.status(200).json({token : newToken, 
+//             message : "Token has been refreshed"
+//         })
+//     })
+// }
 
 exports.logout = function (req, res){
     const body = req.body;
@@ -142,5 +143,20 @@ exports.logout = function (req, res){
             success: true,
             message: "You have been logged out"
         })
+    })
+}
+
+exports.userData = function (req, res){
+    //*function uses request parameters for sending desired user data to client. Request tpye: GET
+    const query = req.query;
+    const user = Users.find(req.user);
+
+    res.json({
+        success: true,
+        email : Users.find({username : username}, {username : 1})
+        bio : b, 
+        birthday : bd, 
+        realName : rn, 
+        realSurname : rs
     })
 }

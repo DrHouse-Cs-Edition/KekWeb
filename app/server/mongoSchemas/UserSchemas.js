@@ -1,4 +1,5 @@
 const mongoose = require ('mongoose');
+const PomodoroSchema = require("./PomodoroSchema.js");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({

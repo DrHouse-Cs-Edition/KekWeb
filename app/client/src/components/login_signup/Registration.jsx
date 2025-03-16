@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useUsername } from "./UserHooks";
 
 // const userSchema = new Schema({
 //     name: String,
@@ -16,7 +17,7 @@ async function registerUser(data) {
     console.log("registration data is: ", data);
     console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
     try {
-        await fetch("http://localhost:5000/api/user/sendRegistration",{
+        return fetch("http://localhost:5000/api/user/sendRegistration",{
         method : "POST",
         headers:{
             'Content-Type': 'application/json',
@@ -31,20 +32,32 @@ async function registerUser(data) {
             realSurname : data.realSurname
             })
         }).then(res => res.json())
-        .then(json => {console.log("response to create user was ", json);})
+        .then(json => {
+            if(!json.success){
+                console.log("registration failed");
+                alert(json.message);
+            }
+            console.log("response to create user was ", json);
+            return json;
+
+        })
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
+        alert("Error when recording new user");
         console.log("registration fetch error: ", e);
     }
 }
 
-function Registration({setToken}){
+function Registration({updateToken}){
+    const {username, setUsername} = useUsername();
     // const [username, setUsername] = useState("");
     // const [password, setPassword] = useState("");
 
     const onSubmit = (async data=>{
         try{
-            registerUser(data);
+            let response = await registerUser(data);
+            updateToken(response);
+            setUsername(data.username);
         }catch(e){
             console.log("error in login form: ", e);
         }

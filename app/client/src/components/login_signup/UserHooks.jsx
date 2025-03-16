@@ -48,3 +48,29 @@ const useUsername = ()=>{
 }
 
 export {useUsername};
+
+const getPersonalData = (params)=>{   
+    //*params is a URLsearchParams object
+    console.log("parameters are ", params);
+    try{
+        return fetch(`/api/user/getData?${params}`, {
+         method: "GET", 
+         mode: "cors",
+         headers:{
+             'Content-Type': 'application/json',
+             'Accept': 'application/json',
+         }})
+    .then(data => data.json())
+    }catch(e){
+        console.log(e);
+        return {
+        email : "defaultMail@lezzo.kek",
+        bio : "chemical weapon",
+        birthday : "1/9/1939",
+        realName : "Orazio",
+        realSurname : "Grinzosi"
+        }
+    }
+}
+
+export {getPersonalData};

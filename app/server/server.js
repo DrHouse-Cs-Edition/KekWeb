@@ -173,6 +173,7 @@ app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
 app.post("/api/user/reqLogin", UserRoutes.login);
 app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
+app.get("/api/user/getData", UserRoutes.userData );
 //*********************************************************** */
 
 app.get('*', (req, res) => {

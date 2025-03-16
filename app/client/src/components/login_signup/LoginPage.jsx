@@ -1,11 +1,9 @@
 import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
-import { json, Navigate, useNavigate } from "react-router-dom";
-import { useUsername } from "./UserHooks";
+import { useUsername, getPersonalData } from "./UserHooks";
 
 function loginAttempt(username, password) {
-
     console.log("sending login request for user ", username, "pw: ", password);
     try {
         return fetch("http://localhost:5000/api/user/reqLogin",{
@@ -43,18 +41,23 @@ function loginAttempt(username, password) {
 const LoginPage = ({updateToken})=>{
     const {setUsername} = useUsername();
 
+    const [showPassword, setShowPassword] = useState(0);
+
+    const alternateShowPassword = () => {
+        setShowPassword(showPassword => showPassword ^ 1);
+    }
+
     const onSubmit = async (data)=>{
         console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
         try{
-            console.log("Submit of login credentials ", data.username , " " , data.password);
             let {username, password} = data;
-            let tmpKek = await loginAttempt(username, password, updateToken);
-                console.log("response to login request is: ", tmpKek)
-                updateToken(tmpKek);
-                password = null;
-                setUsername(username);
-                // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
-                // : console.log("LOGIN UNSUCCESSFUL");
+            let tmpKek = await loginAttempt(username, password);
+            updateToken(tmpKek);
+            password = null;
+            setUsername(username);
+
+            // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
+            // : console.log("LOGIN UNSUCCESSFUL");
         }catch(e){
             console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
@@ -77,12 +80,14 @@ const LoginPage = ({updateToken})=>{
                     ></Input>
 
                     <Input label = {"password"}
-                    type={"password"}
+                    type= {showPassword ? "text" : "password"}
                     id={"password"}
                     placeholder={"please insert your password"}
                     validationMessage={"please enter your password"}
                     minLenght={8}
                     ></Input>
+
+                    <button id="showPassowrdButton" type="button" onClick={alternateShowPassword }> {showPassword ? "Hide Password" :"Show Password"}</button>
 
                     <button id="loginSend" type="button" onClick={formMethods.handleSubmit(onSubmit)}>Login</button>
                 </form>
