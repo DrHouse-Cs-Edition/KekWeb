@@ -6,7 +6,10 @@ const saveEvent = async (request, response) => {
       title: eventInput.title,
       description: eventInput.description,
       location: eventInput.location,
-      //start: eventInput.start,
+      start: eventInput.start,
+      end: eventInput.end,
+      recurrenceRule: eventInput.recurrenceRule,
+      alarms: eventInput.alarms,
   });
 
   try{
