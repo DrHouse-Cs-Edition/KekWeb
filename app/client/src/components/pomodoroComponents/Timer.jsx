@@ -98,28 +98,15 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
-<<<<<<< HEAD
-                                    console.log("clearing interval inside");
-                                    alert("Congratulation! You are done for the day!");
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));
                                     setMinutes(Math.trunc(StudyTime/60%60));
-                                    console.log("initializing study timer");
-                                    alert("Back to studing");
-=======
-                                }else{
-                                    setSeconds(Math.trunc(StudyTime%60));
-                                    setMinutes(Math.trunc(StudyTime/60%60));
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
+                                    alert("ugh, back to studying huh?")
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));
                                 setMinutes(Math.trunc(BreakTime/60%60));
-<<<<<<< HEAD
-                                console.log("initializing break timer");
                                 alert("Time for a break!");
-=======
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
                             }
                             updateCurTimer (curTimer => curTimer ^ 1);
                             }else

@@ -30,6 +30,9 @@ const noteRoutes = require('./routes/notes');
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
+app.get('/utente', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html')); // se utente cerca pagina di login senza token non lo blocco
+}); 
 // altro login ma con cookies:
 const loginCookies =  require ("./controllers/cookiesLogin.js");
 
@@ -58,17 +61,14 @@ app.use('/api/notes', noteRoutes);
 
 //************* POMODORO METHODS **************************** */
 
-app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
+app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 
-<<<<<<< HEAD
-//************* login METHODS ******************************* */
+//************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);
 app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
 //*********************************************************** */
-=======
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
 
 // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)
 app.get('*', (req, res) => {

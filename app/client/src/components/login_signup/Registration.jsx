@@ -31,7 +31,6 @@ async function registerUser(data) {
             realSurname : data.realSurname
             })
         }).then(res => res.json())
-<<<<<<< HEAD
         .then(json => {
             if(!json.success){
                 console.log("registration failed");
@@ -41,8 +40,6 @@ async function registerUser(data) {
             return json;
 
         })
-=======
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
         alert("Error when recording new user");

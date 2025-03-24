@@ -45,18 +45,17 @@ const useUsername = ()=>{
 
 export {useUsername};
 
-const getPersonalData = (params)=>{   
+const getPersonalData = async (params)=>{   
     //*params is a URLsearchParams object
-    console.log("parameters are ", params);
+    //console.log("parameters are ", params.toString());
     try{
-        return fetch(`/api/user/getData?${params}`, {
+        return await fetch(`/api/user/getData?${params.toString()}`, {
          method: "GET", 
          mode: "cors",
          headers:{
              'Content-Type': 'application/json',
              'Accept': 'application/json',
          }})
-    .then(data => data.json())
     }catch(e){
         console.log(e);
         return {

@@ -15,18 +15,11 @@ exports.login = async function (req, res){
         .then( result =>{
             if(result.length){
 
-<<<<<<< HEAD
                 const token = jwt.sign({username : username}, process.env.JWT_KEY);
                 // const R_token = jwt.sign({username : username}, process.env.JWT_REFRESH);
 
                 // tokenSchema.create({username, token : token});
                 // console.log("created a new refresh token")
-=======
-                const token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_KEY,{ expiresIn: "15s"});
-                const R_token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_REFRESH);
-
-                tokenSchema.create({username, token : token});
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
 
                 res.status(200).json({
                     message : "login successful",
@@ -102,7 +95,6 @@ exports.authToken = function (req, res, next){
 //     const body = req.body;
 //     const refreshToken = body?.token;
 
-<<<<<<< HEAD
 //     if(!refreshToken)
 //         return res.status(401).json({
 //             message: "No token provided",
@@ -124,28 +116,6 @@ exports.authToken = function (req, res, next){
 //         })
 //     })
 // }
-=======
-    if(!refreshToken)
-        return res.status(401).json({
-            message: "No token provided",
-            success : false
-        })
-    tokenSchema.find({token : refreshToken}, {token : 1})
-    .then(result => {
-        if(result.length === 0)
-            return res.status(403).json({
-            success: false,
-            message: "Invalid token"
-            })
-         return newToken = jwt.sign({name : result[0].username}, process.env.JWT_KEY, {expiresIn: '30m'});
-        })
-    .then( newToken =>{
-        res.status(200).json({token : newToken, 
-            message : "Token has been refreshed"
-        })
-    })
-}
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
 
 exports.logout = function (req, res){
     const body = req.body;
@@ -173,14 +143,23 @@ exports.logout = function (req, res){
 exports.userData = function (req, res){
     //*function uses request parameters for sending desired user data to client. Request tpye: GET
     const query = req.query;
-    const user = Users.find(req.user);
-
-    res.json({
-        success: true,
-        email : Users.find({username : username}, {username : 1})
-        bio : b, 
-        birthday : bd, 
-        realName : rn, 
-        realSurname : rs
+    //!can't find user yet
+    console.log("user data requested by ", req.user);
+    Users.findById(req.user).lean()
+    .then(result => {
+        console.log(result.email || 0);
+        const email = query.email ? result.email : null;
+        const bio = query.bio ? result.bio : null; 
+        const birthday = query.birthday ? result.birthday : null;
+        const realName = query.realName ? result.realName : null;
+        const realSurname = query.realSurname ? result.realSurname : null;
+        res.status(200).json({
+            success: true,
+            email : email,
+            bio : bio, 
+            birthday : birthday, 
+            realName : realName, 
+            realSurname : realSurname,
+        })
     })
 }

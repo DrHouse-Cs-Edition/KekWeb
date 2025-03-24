@@ -4,11 +4,6 @@ import {FormProvider, useForm} from "react-hook-form";
 import { useUsername, getPersonalData } from "./UserHooks";
 
 function loginAttempt(username, password) {
-<<<<<<< HEAD
-    console.log("sending login request for user ", username, "pw: ", password);
-=======
-
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
     try {
         return fetch("http://localhost:5000/api/user/reqLogin",{
         method : "POST",
@@ -32,7 +27,7 @@ function loginAttempt(username, password) {
             default:
         break;
         }
-    }).catch(console.log( "error in login attempt" ));
+    });
     }catch(e){
         console.log("client side login error ", e);
     }
@@ -50,20 +45,10 @@ const LoginPage = ({updateToken})=>{
     const onSubmit = async (data)=>{
         try{
             let {username, password} = data;
-<<<<<<< HEAD
-            let tmpKek = await loginAttempt(username, password);
-            updateToken(tmpKek);
-            password = null;
-            setUsername(username);
-
-            // setToken(response.body) ? console.log("LOGIN SUCCESSFUL: token is set to: ", username)
-            // : console.log("LOGIN UNSUCCESSFUL");
-=======
             let tmpKek = await loginAttempt(username, password, updateToken);
                 updateToken(tmpKek);
                 password = null;
                 setUsername(username);
->>>>>>> d21309f2f7ab9209edf05986fc3477eff8a8ca86
         }catch(e){
             console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
