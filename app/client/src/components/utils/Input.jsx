@@ -10,8 +10,10 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
       const inputError = findInputError(errors, label); //pass the form errors and the label of the input to find the error
       const isInvalid = isFormInvalid(inputError); //returns true if the input is invalid
 
-      const val = useRef(value);
-      const [inputValue, setInputValue] = useState(val.current);
+      const [val, setVal] = useState();
+      useEffect(()=>{
+        setVal(value);
+      },[])
     return (
         <div>
             <label htmlFor={id} className="font-semibold capitalize">
@@ -24,14 +26,11 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
             <input id={id}
             type={type}
             //className="w-full p-5 font-medium border rounded-md border-slate-300 placeholder:opacity-60"
-            placeholder={val.current ? "" : placeholder}
-            value = {val.current ? inputValue : null}
+            value = {val ? val : value}
 
-            onInput={(e)=>{val.current = e.target.value;
-                setInputValue(e.target.value);
-                console.log("lezzo cambio");
-            }
-            }
+            onInput={(e)=>{
+                setVal(val => e.target.value);
+            }}
 
             readOnly={readonly}
 
