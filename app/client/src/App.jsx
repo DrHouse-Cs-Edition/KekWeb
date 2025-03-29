@@ -11,13 +11,13 @@ import {UseToken} from "./components/login_signup/UserHooks.jsx"
 import User from "./pages/User.jsx";
 
 function App() {
-  
+  /*
   const {token, setToken} = UseToken();
   
   if(!token){
     return (<Signup updateToken = {setToken}/>)
   }
-
+  */
   return (
     <div>
       <Navbar />
