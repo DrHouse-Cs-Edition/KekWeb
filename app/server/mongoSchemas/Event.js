@@ -1,7 +1,7 @@
 const mongoose = require ('mongoose');
 
 const eventSchema = new mongoose.Schema({ // uso standard Icalendar (per conversione in ics usa libreria ics.js)
-    subject: String,
+    title: String,
     description: String,
     location: String,
     start: Date,
