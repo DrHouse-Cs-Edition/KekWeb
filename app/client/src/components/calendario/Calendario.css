@@ -1,112 +1,163 @@
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+.calendar-container {
+    height: 100vh;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.calendar-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px 0;
-    background-color: #4caf50;
-    color: white;
-    border-radius: 5px;
-}
-
-.giorno {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+  }
+  
+  .calendar {
+    height: 90%;
+  }
+  
+  /* Add to Calendar.css */
+  .rbc-month-view {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .rbc-selected-cell {
+    background-color: rgba(49, 116, 173, 0.1);
+    transition: background-color 0.2s;
+  }
+  
+  .rbc-day-bg:hover {
+    background-color: rgba(49, 116, 173, 0.1);
+    transition: background-color 0.2s;
+  }
+  
+  .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .rbc-show-time-selection .rbc-time-gutter .rbc-time-slot {
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.giorno:hover {
-    background-color: #f1f1f1;
-}
-
-.giorno.selected {
-    background-color: #4caf50;
+  }
+  
+  .rbc-time-content {
+    scrollbar-width: thin;
+  }
+  
+  .delete-btn {
+    background: #ff4444;
     color: white;
-}
-
-.event {
-    background-color: #d9534f;
-    color: white;
-    padding: 2px 5px;
-    border-radius: 3px;
-    margin-top: 2px;
-    font-size: 12px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.modal-overlay {
+    margin-right: auto;
+  }
+  
+  .delete-btn:hover {
+    background: #cc0000;
+  }
+  .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.event-modal {
-    background-color: white;
+    z-index: 9999;
+  }
+  
+  .rbc-time-view,
+  .rbc-month-view {
+    z-index: 0 !important;
+  }
+  
+  .modal {
+    background: white;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
-}
-
-.event-modal h3 {
-    margin-bottom: 10px;
-}
-
-.event-modal .form-group {
-    margin-bottom: 10px;
-}
-
-.event-modal .form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.event-modal .form-group input,
-.event-modal .form-group textarea,
-.event-modal .form-group select {
-    width: calc(100% - 20px);
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-
-.event-modal .modal-actions {
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header {
     display: flex;
     justify-content: space-between;
-}
-
-.event-modal .modal-actions button {
-    padding: 10px 20px;
-    background-color: seagreen;
-    color: white;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .modal-header button {
+    background: none;
     border: none;
-    border-radius: 5px;
+    font-size: 24px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.event-modal .modal-actions button:hover {
-    background-color: #265a88;
-}
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+  }
+  
+  .form-group input:hover,
+  .form-group select:hover,
+  .form-group textarea:hover {
+    border-color: #888;
+  }
+  
+  .modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .cancel-btn {
+    background: #f44336;
+    color: white;
+  }
+  
+  .save-btn:hover,
+  .cancel-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .form-group input[type="text"],
+  .form-group select {
+    height: 38px;
+  }
+  
+  .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  

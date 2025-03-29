@@ -1,250 +1,262 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import dayjs from 'dayjs';
+import { useState, useEffect } from 'react';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format } from 'date-fns';import parse from 'date-fns/parse';
+import startOfWeek from 'date-fns/startOfWeek';
+import getDay from 'date-fns/getDay';
+import { v4 as uuidv4 } from 'uuid';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendario.css';
-import Evento from './Evento.jsx';
-import Giorno from './Giorno.jsx';
 
-const daysOfWeek = ['DOM', 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB'];
+const locales = {
+  'en-US': require('date-fns/locale/en-US')
+};
 
-const Calendario = () => {
-  const [currentDate, setCurrentDate] = useState(dayjs());
-  const [selectedDate, setSelectedDate] = useState(null);
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: date => startOfWeek(date, { weekStartsOn: 1 }),
+  getDay,
+  locales,
+});
+
+export default function CalendarApp() {
   const [events, setEvents] = useState([]);
-  const [evento, setEvento] = useState({
+  const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    id: '',
     title: '',
-    description: '',
+    start: new Date(),
+    end: new Date(),
     location: '',
-    start: '',
-    end: '',
     recurrenceRule: '',
-    alarms: []
+    desc: '', // Maps to 'description' in backend
   });
 
-  const startOfMonth = useMemo(() => currentDate.startOf('month'), [currentDate]);
-  const endOfMonth = useMemo(() => currentDate.endOf('month'), [currentDate]);
-  const startOfWeek = useMemo(() => startOfMonth.startOf('week'), [startOfMonth]);
-  const endOfWeek = useMemo(() => endOfMonth.endOf('week'), [endOfMonth]);
-
-  const handlePrevMonth = useCallback(() => {
-    setCurrentDate(currentDate.subtract(1, 'month'));
-  }, [currentDate]);
-
-  const handleNextMonth = useCallback(() => {
-    setCurrentDate(currentDate.add(1, 'month'));
-  }, [currentDate]);
-
-  const handleDateClick = useCallback((date) => {
-    setSelectedDate(date);
+  useEffect(() => {
+    fetchAllEvents();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEvento(prev => ({ ...prev, [name]: value }));
+  const fetchAllEvents = () => {
+    fetch('http://localhost:5000/api/events/all')
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          const formattedEvents = json.list.map(event => ({
+            id: event._id, // MongoDB uses _id
+            title: event.title,
+            start: new Date(event.start),
+            end: new Date(event.end),
+            location: event.location,
+            recurrenceRule: event.recurrenceRule,
+            desc: event.description, // Map backend 'description' to frontend 'desc'
+          }));
+          setEvents(formattedEvents);
+        }
+      })
+      .catch(err => console.error(err));
   };
 
-  const handleAddEvent = useCallback((e) => {
-    e.preventDefault();
-    const { title, description, location, start, end, recurrenceRule, alarms } = evento;
+  const handleSelectSlot = ({ start, end }) => {
+    setIsEditing(false);
+    setNewEvent(prev => ({
+      ...prev,
+      id: uuidv4(),
+      start,
+      end
+    }));
+    setShowModal(true);
+  };
 
-    if (!title.trim()) {
-      alert('Title is required!');
-      return;
-    }
+  const handleSelectEvent = (event) => {
+    setIsEditing(true);
+    setNewEvent(event);
+    setShowModal(true);
+  };
 
-    const startDate = dayjs(start);
-    const endDate = dayjs(end);
+  const handleSaveEvent = () => {
+    if (!newEvent.title) return;
 
-    // Convert dates to [YYYY, MM, DD, HH, mm] arrays (ICalendar format)
-    const startArray = [
-      startDate.year(),
-      startDate.month() + 1, // Convert back to 1-based month
-      startDate.date(),
-      startDate.hour(),
-      startDate.minute()
-    ];
+    const url = isEditing 
+      ? `http://localhost:5000/api/event/update/${newEvent.id}`
+      : 'http://localhost:5000/api/events/save';
+    const method = isEditing ? 'PUT' : 'POST';
 
-    const endArray = [
-      endDate.year(),
-      endDate.month() + 1,
-      endDate.date(),
-      endDate.hour(),
-      endDate.minute()
-    ];
+    // Convert to backend-compatible format
+    const eventData = {
+      title: newEvent.title,
+      description: newEvent.desc,
+      location: newEvent.location,
+      start: newEvent.start.toISOString(),
+      end: newEvent.end.toISOString(),
+      recurrenceRule: newEvent.recurrenceRule
+    };
 
-    // POST to backend
-    fetch('http://localhost:5000/api/events/save', {
-      method: 'POST',
+    // For updates, include ID in body
+    if (isEditing) eventData._id = newEvent.id;
+
+    fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        description,
-        location,
-        start: startArray,
-        end: endArray,
-        recurrenceRule,
-        alarms
-      }),
+      body: JSON.stringify(eventData)
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setEvents((prev) => [...prev, { ...data.event, id: data.id }]);
-          setEvento({ title: '', description: '', location: '', start: '', end: '', recurrenceRule: '', alarms: [] });
-          setSelectedDate(null);
-          console.log('startArray:', startArray);
-          console.log('endArray:', endArray);
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          fetchAllEvents();
+          setShowModal(false);
+          resetForm();
         } else {
-          alert(data.message);
+          alert(json.message);
         }
       })
-      .catch((err) => alert('Failed to save event.'));
-  }, [evento]);
+      .catch(err => console.error('Error saving event:', err));
+  };
 
-  const handleDeleteEvent = useCallback((eventId) => {
-    setEvents(events.filter(event => event.id !== eventId));
-  }, [events]);
-
-  const generateCalendar = useMemo(() => {
-    const calendar = [];
-    let date = startOfWeek;
-
-    while (date.isBefore(endOfMonth, 'day') || date.isSame(endOfMonth, 'day')) {
-      if (date.isBefore(startOfMonth, 'day'))
-        calendar.push(<div key={date.toString()}></div>);
-      else {
-        const dayEvents = events.filter(event => dayjs(event.start).isSame(date, 'day'));
-        calendar.push(
-          <Giorno
-            key={date.toString()}
-            date={date}
-            events={dayEvents}
-            selected={date.isSame(selectedDate, 'day')}
-            handleClick={handleDateClick}
-            onDeleteEvent={handleDeleteEvent}>
-          </Giorno>
-        );
-      }
-      date = date.add(1, 'day');
-    }
-
-    return calendar;
-  }, [startOfWeek, endOfMonth, startOfMonth, events, selectedDate, handleDateClick, handleDeleteEvent]);
-
-  useEffect(() => {
-    if (selectedDate) {
-      const defaultStart = selectedDate.format('YYYY-MM-DDTHH:mm');
-      const defaultEnd = selectedDate.add(1, 'hour').format('YYYY-MM-DDTHH:mm');
-      setEvento(prev => ({
-        ...prev,
-        start: defaultStart,
-        end: defaultEnd
-      }));
-    }
-  }, [selectedDate]);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/events/all')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.events)) {
-          const parsedEvents = data.events.map(event => {
-            // Convert start/end arrays to valid Day.js objects
-            const parseDateArray = (arr) => {
-              if (!arr || arr.length < 5) return dayjs(); // Fallback
-              return dayjs(new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4]));
-            };
-  
-            return {
-              ...event,
-              start: parseDateArray(event.start),
-              end: parseDateArray(event.end)
-            };
-          });
-          setEvents(parsedEvents);
+  const handleDeleteEvent = () => {
+    fetch(`http://localhost:5000/api/event/remove/${newEvent.id}`, {
+      method: 'DELETE'
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          fetchAllEvents();
+          setShowModal(false);
+          resetForm();
         } else {
-          setEvents([]);
+          alert(json.message);
         }
       })
-      .catch((err) => {
-        console.error('Error loading events:', err);
-        setEvents([]);
-      });
-  }, []);
+      .catch(err => console.error('Error deleting event:', err));
+  };
+
+  const resetForm = () => {
+    setNewEvent({
+      id: '',
+      title: '',
+      start: new Date(),
+      end: new Date(),
+      location: '',
+      recurrenceRule: '',
+      desc: '',
+    });
+    setIsEditing(false);
+  };
+
+  const eventPropGetter = () => ({
+    style: {
+      backgroundColor: '#3174ad',
+      color: 'white',
+      borderRadius: '4px',
+      padding: '2px 5px',
+      cursor: 'pointer',
+    },
+  });
 
   return (
-    <div>
-      <div>
-        <button onClick={handlePrevMonth}>Previous</button>
-        <span>{currentDate.format('MMMM YYYY')}</span>
-        <button onClick={handleNextMonth}>Next</button>
-      </div>
+    <div className="calendar-container">
+      <Calendar
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        className="calendar"
+        selectable
+        onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent}
+        eventPropGetter={eventPropGetter}
+        slotProps={{
+          timeSlotWrapper: {
+            style: {
+              minHeight: '60px',
+            },
+          },
+        }}
+      />
 
-      <div className="calendar">
-        {daysOfWeek.map((day) => (
-          <div key={day} className="calendar-header">
-            {day}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>{isEditing ? 'Edit Event' : 'New Event'}</h3>
+              <button onClick={() => { setShowModal(false); resetForm(); }}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Title *</label>
+                <input
+                  type="text"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Location</label>
+                <input
+                  type="text"
+                  value={newEvent.location}
+                  onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Recurrence</label>
+                <select
+                  value={newEvent.recurrenceRule}
+                  onChange={(e) => setNewEvent({ ...newEvent, recurrenceRule: e.target.value })}
+                >
+                  <option value="">No recurrence</option>
+                  <option value="DAILY">Daily</option>
+                  <option value="WEEKLY">Weekly</option>
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="YEARLY">Yearly</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Start Date</label>
+                <input
+                  type="datetime-local"
+                  value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm")}
+                  onChange={(e) => setNewEvent({ ...newEvent, start: new Date(e.target.value) })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>End Date</label>
+                <input
+                  type="datetime-local"
+                  value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm")}
+                  onChange={(e) => setNewEvent({ ...newEvent, end: new Date(e.target.value) })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={newEvent.desc}
+                  onChange={(e) => setNewEvent({ ...newEvent, desc: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              {isEditing && (
+                <button className="delete-btn" onClick={handleDeleteEvent}>
+                  Delete
+                </button>
+              )}
+              <button className="cancel-btn" onClick={() => { setShowModal(false); resetForm(); }}>
+                Cancel
+              </button>
+              <button className="save-btn" onClick={handleSaveEvent}>
+                {isEditing ? 'Save Changes' : 'Create Event'}
+              </button>
+            </div>
           </div>
-        ))}
-        {generateCalendar}
-      </div>
-
-      {selectedDate && (
-        <form className="event-form" onSubmit={handleAddEvent}>
-          <h3>Add Event for {selectedDate.format('MMMM DD, YYYY')}</h3>
-          <input
-            type="text"
-            name="title"
-            value={evento.title}
-            onChange={handleChange}
-            placeholder="Title"
-            required
-          />
-          <input
-            type="text"
-            name="description"
-            value={evento.description}
-            onChange={handleChange}
-            placeholder="Description"
-          />
-          <input
-            type="text"
-            name="location"
-            value={evento.location}
-            onChange={handleChange}
-            placeholder="Location"
-          />
-          <label>
-            Start:
-            <input
-              type="datetime-local"
-              name="start"
-              value={evento.start}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            End:
-            <input
-              type="datetime-local"
-              name="end"
-              value={evento.end}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <input
-            type="text"
-            name="recurrenceRule"
-            value={evento.recurrenceRule}
-            onChange={handleChange}
-            placeholder="Recurrence Rule (e.g., DAILY, WEEKLY)"
-          />
-          <button type="submit">Add Event</button>
-        </form>
+        </div>
       )}
     </div>
   );
-};
-
-export default Calendario;
+}
