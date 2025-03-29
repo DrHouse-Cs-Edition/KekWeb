@@ -132,7 +132,7 @@ const allNote = async (request,response)=>{
                         {
                             $match: { user: request.user },
                             $addFields: { // aggiungiamo campi temporanei (qui solo 1)
-                                stringLength: { $strLenCP: "$text" } // $strLenCP è un aggregation operator che calcola lunghezza stringa
+                                stringLength: { $strLenCP: "$text" } // $strLenCP è un aggregation operator che calcola lunghezza stringa, $text indica che il calcolo è sul campo text
                             }
                         },
                         {

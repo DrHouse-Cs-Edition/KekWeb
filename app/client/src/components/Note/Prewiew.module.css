@@ -1,8 +1,23 @@
 .bin{
-    width: 20px;
-    height: 20px;
+    display: inline-block;
+    max-height: 2em;
 }
 .div{
     background-color: aquamarine;
     border-radius: 20px; /* Stonda tutti e 4 i bordi */
+}
+.tytle{
+    color: red;
+}
+.categories{
+    font-weight: bold;
+}
+.text{
+
+}
+.date{
+    font-style: italic;
+}
+.button{
+
 }
