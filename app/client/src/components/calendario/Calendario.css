@@ -1,74 +1,163 @@
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+.calendar-container {
+    height: 100vh;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.calendar-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px 0;
-    background-color: #4caf50;
+  }
+  
+  .calendar {
+    height: 90%;
+  }
+  
+  /* Add to Calendar.css */
+  .rbc-month-view {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .rbc-selected-cell {
+    background-color: rgba(49, 116, 173, 0.1);
+    transition: background-color 0.2s;
+  }
+  
+  .rbc-day-bg:hover {
+    background-color: rgba(49, 116, 173, 0.1);
+    transition: background-color 0.2s;
+  }
+  
+  .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .rbc-show-time-selection .rbc-time-gutter .rbc-time-slot {
+    cursor: pointer;
+  }
+  
+  .rbc-time-content {
+    scrollbar-width: thin;
+  }
+  
+  .delete-btn {
+    background: #ff4444;
     color: white;
-    border-radius: 5px;
-}
-
-.giorno {
+    margin-right: auto;
+  }
+  
+  .delete-btn:hover {
+    background: #cc0000;
+  }
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 10px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.giorno:hover {
-    background-color: #f1f1f1;
-}
-
-.giorno.selected {
-    background-color: #4caf50;
-    color: white;
-}
-
-.event-form {
-    margin-top: 20px;
+    z-index: 9999;
+  }
+  
+  .rbc-time-view,
+  .rbc-month-view {
+    z-index: 0 !important;
+  }
+  
+  .modal {
+    background: white;
     padding: 20px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.event-form h3 {
-    margin-bottom: 10px;
-}
-
-.event-form input {
-    width: calc(100% - 20px);
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #f5f5f5;
     padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.event-form button {
-    padding: 10px 20px;
-    background-color: #4caf50;
-    color: white;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .modal-header button {
+    background: none;
     border: none;
-    border-radius: 5px;
+    font-size: 24px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.event-form button:hover {
-    background-color: #45a049;
-}
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+  }
+  
+  .form-group input:hover,
+  .form-group select:hover,
+  .form-group textarea:hover {
+    border-color: #888;
+  }
+  
+  .modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .cancel-btn {
+    background: #f44336;
+    color: white;
+  }
+  
+  .save-btn:hover,
+  .cancel-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .form-group input[type="text"],
+  .form-group select {
+    height: 38px;
+  }
+  
+  .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  
