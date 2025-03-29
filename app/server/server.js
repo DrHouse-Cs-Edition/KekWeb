@@ -2,6 +2,8 @@ const express = require ('express');
 const path = require ('path');
 const bodyParser = require('body-parser');
 const fs = require('fs')
+
+const cookieParser = require("cookie-parser");
 //const { fileURLToPath } = require ('url');
 // Get the directory name of the current module
 // const __filename = fileURLToPath(import.meta.url);
@@ -28,16 +30,26 @@ const noteRoutes = require('./routes/notes');
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
+// altro login ma con cookies:
+const loginCookies =  require ("./controllers/cookiesLogin.js");
 
 app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 //app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client/build')));
-console.log("envvar_Server:", process.env.JWT_KEY);
+
+app.use(cookieParser());
 
 app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
-    console.log("connection perhaps created idk");
 });
+
+//************* login API ******************************* */
+app.post("/api/user/reqLogin", loginCookies.login);
+app.post("/api/user/sendRegistration", loginCookies.registration);
+app.delete("/api/user/logout", loginCookies.logout);
+//*********************************************************** */
+
+app.use( loginCookies.authToken); // Protegge tutte le API
 
 // gestione api eventi
 app.use('/api/events', eventRoutes);
@@ -48,11 +60,6 @@ app.use('/api/notes', noteRoutes);
 
 app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
 
-//************* login METHODS ******************************* */
-app.post("/api/user/reqLogin", UserRoutes.login);
-app.post("/api/user/sendRegistration", UserRoutes.registration);
-app.delete("/api/user/logout", UserRoutes.logout);
-//*********************************************************** */
 
 // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)
 app.get('*', (req, res) => {

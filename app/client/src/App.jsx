@@ -14,9 +14,7 @@ function App() {
   /*
   const {token, setToken} = UseToken();
   
-  console.log("checking for credentials: ", !token);
   if(!token){
-    console.log("sending login page");
     return (<Signup updateToken = {setToken}/>)
   }
 */
@@ -27,10 +25,10 @@ function App() {
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/calendario" element={<Calendar />} />
-          <Route path="/note/:id" element={<Note />} />
-          <Route path="/noteNavigation" element={<NoteNavigation />} />
+          <Route path="/noteEditor/:id" element={<Note />} />
+          <Route path="/note" element={<NoteNavigation />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
-          <Route path="/user" element={<User />} />
+          <Route path="/utente" element={<User />} />
         </Routes>
       </div>
     </div>

@@ -105,7 +105,6 @@
                     text: document.getElementById('nota').value,
                     date: "new date()",
                 };
-                console.log(JSON.stringify(note))
                 
                 const endpoint = new URL(`http://localhost:3000/api/notes/save`);
                 const response = fetch(endpoint,{

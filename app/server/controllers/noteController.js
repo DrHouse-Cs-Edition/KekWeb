@@ -9,17 +9,9 @@ const saveNote = async (request,response)=>{ // app.metodo('url_aggiuntivo') ges
         categories: notaInput.categories,
         text: notaInput.text,
         createdAt: notaInput.createdAt,
-        lastModified: notaInput.lastModified
-        // user: 'aaaaaaaaaaaaaaaaaa', // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
+        lastModified: notaInput.lastModified,
+        user: request.user, // se user è REQUIRED e non c'é il campo user o se l'_id non corrisoponde a quello di uno User nel server mongoDB dà errore
     });
-    /*
-    const user1 = new User({
-        name: "Gino",
-        password: "psw!", // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
-        email: "gino@io.com",
-        bio: "sono Gino",
-        birthday: note.date,
-    });*/
 
     try{
         await notaDB.save(); // comunicazione con mongoDB
@@ -122,22 +114,23 @@ const allNote = async (request,response)=>{
     try {
         let listaNote;
         if(!sort){
-            listaNote = await Note.find({}).lean(); // Prende tutte le note (come oggetti)
+            listaNote = await Note.find({ user: request.user }).lean(); // Prende tutte le note dell'utente (come oggetti)
         }
         else{
             switch (sort){ // in mongoose: 1 = crescente  e  -1 = decrescente
                 case "asc":
-                    listaNote = await Note.find({}).sort({ title: 1 }).collation({ locale: 'it'}).lean(); // collation = per definire come ordinare (regole lingua it)
+                    listaNote = await Note.find({ user: request.user }).sort({ title: 1 }).collation({ locale: 'it'}).lean(); // collation = per definire come ordinare (regole lingua it)
                     break;
                 case "desc":
-                    listaNote = await Note.find({}).sort({ title: -1 }).collation({ locale: 'it'}).lean(); 
+                    listaNote = await Note.find({ user: request.user }).sort({ title: -1 }).collation({ locale: 'it'}).lean(); 
                     break;
                 case "date":
-                    listaNote = await Note.find({}).sort({ lastModified: -1 }).lean(); // da piu recente
+                    listaNote = await Note.find({ user: request.user }).sort({ lastModified: -1 }).lean(); // da piu recente
                     break;
                 case "length":
                     listaNote = await Note.aggregate([ // query avanzata che usa l'Aggregation Pipeline
                         {
+                            $match: { user: request.user },
                             $addFields: { // aggiungiamo campi temporanei (qui solo 1)
                                 stringLength: { $strLenCP: "$text" } // $strLenCP è un aggregation operator che calcola lunghezza stringa
                             }

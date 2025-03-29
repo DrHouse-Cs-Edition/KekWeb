@@ -13,8 +13,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 // });
 
 async function registerUser(data) {
-    console.log("registration data is: ", data);
-    console.log("saved token env: ", process.env.REACT_APP_JWT_KEY);
+
     try {
         await fetch("http://localhost:5000/api/user/sendRegistration",{
         method : "POST",
@@ -31,7 +30,6 @@ async function registerUser(data) {
             realSurname : data.realSurname
             })
         }).then(res => res.json())
-        .then(json => {console.log("response to create user was ", json);})
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
         console.log("registration fetch error: ", e);

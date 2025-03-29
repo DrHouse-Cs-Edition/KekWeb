@@ -12,12 +12,10 @@ import { Fragment } from "react"
 function Animation({lastCmd, studyTime, breakTime, cycles}){
     switch (lastCmd){
         case 0:
-            console.log("animation cmd 0: display base look");
             return(
                 <img id="paper" src={paper1} alt="paper pile image"></img>
             );
         case 1:
-            console.log("animation cmd 1: start animation");
 
             let curFrame = paper1; //current animation frame that is updatet by the animation functions
             let cycleDuration = (studyTime + breakTime) * 60000; //*1000 per esprimere in millisec, *60 perchè sto misurando in secondi
@@ -28,7 +26,6 @@ function Animation({lastCmd, studyTime, breakTime, cycles}){
         
             let fullCycle = setInterval( () => {
                 NotFirst = 1;
-                console.log("starting fullCycle");
                 //*study loop
                 let studyStart = Date.now();
                 let studyEnd = studyStart + studyTime*60000;
@@ -36,7 +33,6 @@ function Animation({lastCmd, studyTime, breakTime, cycles}){
                     let stopStudy = studyCycle(studyStart, studyEnd, curFrame);
                     if(stopStudy)
                     {
-                        console.log("clearing study interval");
                         clearInterval(studyInterval);
                         document.getElementById('timerDisplay').textContent = "00:00";
                     }
@@ -49,7 +45,6 @@ function Animation({lastCmd, studyTime, breakTime, cycles}){
                     let breakInterval = setInterval(() =>{
                         let endBreakCycle = pauseCycle(breakStart, breakEnd);
                         if(endBreakCycle){
-                            console.log(`clearing break interval`);
                             clearInterval(breakInterval);
                             document.getElementById(`timerDisplay`).textContent = `00:00`;
                         }
@@ -70,13 +65,13 @@ function Animation({lastCmd, studyTime, breakTime, cycles}){
             );
             break;
         case 2:
-            console.log("animation cmd 2: reset animation");
+            
             break;
         case 3:
-            console.log("animation cmd 3: stop/resume animation");
+            
             break;
         default:
-            console.log("default animation command: unexpected val", lastCmd);
+            
             break;
 
     }
@@ -90,7 +85,7 @@ export default Animation;
     Deve avere i campi necessari ad avviare l'animazione già compilati. Fare riferimento alle altre funzioni
 */
 function mainAnimation(studyTime, breakTime, cycles, curFrame) {
-    console.log("kek"); //per vedere che la funzione parte
+    
     // let studyTime = document.getElementById("studyTime").value;
     // let pauseTime = document.getElementById("pausinaTime").value;
     // let n_cycles = document.getElementById("cycles").value;
@@ -103,15 +98,15 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
   
     let fullCycle = setInterval( () => {
         NotFirst = 1;
-        console.log("starting fullCycle");
+        
         //*study loop
         let studyStart = Date.now();
         let studyEnd = studyStart + studyTime*60000;
         let studyInterval = setInterval(() => {
-            console.log('starting study time interval');
+            
             let now = Date.now();
             let elapsedPercentage = timeElapsed(studyStart, studyEnd, now);
-            // console.log(`elapsed percentage is ${elapsedPercentage}`);
+            // 
             // Aggiorna l'immagine in base alla percentuale trascorsa
             
             if (elapsedPercentage >= 80) {
@@ -125,14 +120,14 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
             } else {
             curFrame = paper1;
             }
-            // console.log(`succesfully checked for image`);
+            // 
         
             // Calcola la differenza tra il tempo di fine e il tempo corrente
             const difference = studyEnd - now;
             
             // Se la differenza è minore o uguale a 0, ferma l'intervallo
             if (difference <= 0) {
-                console.log("clearing study interval");
+                
                 clearInterval(studyInterval);
                 // Pulisce il testo dell'elemento con id 'timerDisplay'
                 //!document.getElementById('timerDisplay').textContent = "00:00";
@@ -144,9 +139,9 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
             
             // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
             //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
-            //! console.log(`updating timer...`);
+            //! 
             //! document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            //! console.log(`complete`);         
+            //! 
         },1000);
   
         //* pause loop
@@ -156,7 +151,7 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
             let breakInterval = setInterval(() =>{
                 let endBreakCycle = pauseCycle(breakStart, breakEnd);
                 if(endBreakCycle){
-                    console.log(`clearing break interval`);
+                    
                     clearInterval(breakInterval);
                     document.getElementById(`timerDisplay`).textContent = `00:00`;
                 }
@@ -174,10 +169,10 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
   
   
   function studyCycle(studyStart, studyEnd, curFrame){
-    console.log('starting study time interval');
+    
     let now = Date.now();
     let elapsedPercentage = timeElapsed(studyStart, studyEnd, now);
-    // console.log(`elapsed percentage is ${elapsedPercentage}`);
+    // 
     // Aggiorna l'immagine in base alla percentuale trascorsa
   
         if (elapsedPercentage >= 80) {
@@ -191,7 +186,7 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
         } else {
             curFrame = paper1;
         }
-    // console.log(`succesfully checked for image`);
+    // 
   
     // Calcola la differenza tra il tempo di fine e il tempo corrente
     const difference = studyEnd - now;
@@ -207,15 +202,15 @@ function mainAnimation(studyTime, breakTime, cycles, curFrame) {
   
     // Visualizza il tempo rimanente nell'elemento con id 'timerDisplay'
     //padstart aggiunge uno zero prima della stringa se non raggiunge almeno una lunghezza di 2
-    // console.log(`updating timer...`);
+    // 
     //document.getElementById('timerDisplay').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    // console.log(`complete`);
+    // 
   }  
   
   
   
   function pauseCycle(pauseStart, pauseEnd){
-    console.log('starting pause time timer');
+    
     let now = Date.now();
     let elapsedPercentage = timeElapsed(pauseStart, pauseEnd, now);
   

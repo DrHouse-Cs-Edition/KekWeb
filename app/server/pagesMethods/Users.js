@@ -13,14 +13,12 @@ exports.login = async function (req, res){
     try{ 
         findUser(username, password)
         .then( result =>{
-            console.log("user find result: ",result);
             if(result.length){
 
-                const token = jwt.sign({username : username}, process.env.JWT_KEY,{ expiresIn: "15s"});
-                const R_token = jwt.sign({username : username}, process.env.JWT_REFRESH);
+                const token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_KEY,{ expiresIn: "15s"});
+                const R_token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_REFRESH);
 
                 tokenSchema.create({username, token : token});
-                console.log("created a new refresh token")
 
                 res.status(200).json({
                     message : "login successful",
@@ -45,21 +43,17 @@ exports.login = async function (req, res){
 
 exports.registration = async function (req, res){
     let reqBody = req.body;
-    console.log("recieved registration request with data ", reqBody);
     let {username, password} = reqBody;
 
     try{
         findUser(username, password)   //find same user
         .then(result =>{
-            console.log("result of user search yielded ", result);
             if(result.length){
-                console.log("user already exists");
                 res.status(400).json({
                     success: false,
                     message: "User already exists"
                 });
             }else{
-                console.log("registration in process");
                 Users.create(reqBody);
                 res.json({
                     success: true,
@@ -87,7 +81,9 @@ exports.authToken = function (req, res, next){
                 success: false,
                 message: "Invalid token"
             });
-    console.log("user ", decoded.username, "has been succesfully authenticated with return ", decoded);
+        // salvare nome utente e id per API
+        req.user = decoded.id; // Aggiunge username alla req passata dopo middleware
+        
         next(); 
         }   
     )
@@ -109,7 +105,6 @@ exports.refreshToken = function (req, res){
             success: false,
             message: "Invalid token"
             })
-        console.log("refresh token has been succesfully verified");
          return newToken = jwt.sign({name : result[0].username}, process.env.JWT_KEY, {expiresIn: '30m'});
         })
     .then( newToken =>{
@@ -122,14 +117,12 @@ exports.refreshToken = function (req, res){
 exports.logout = function (req, res){
     const body = req.body;
     username = body.username;
-    console.log("provided username for delete is: ", username);
 
     if(!username)
         res.status(401).json({
             message: "No username provided",
             success : false
         })
-    console.log("token exists, searching");
     tokenSchema.deleteMany({username : username})
     .then(result => {
         if(result.length === 0)
@@ -137,7 +130,6 @@ exports.logout = function (req, res){
             success: false,
             message: "Invalid username"
             })
-        console.log("refresh token has been succesfully deleted: ", result);
         res.status(200).json({
             success: true,
             message: "You have been logged out"
