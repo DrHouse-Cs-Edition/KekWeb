@@ -58,14 +58,13 @@ const getPersonalData = async (params)=>{
          }})
     }catch(e){
         console.log(e);
-        return {
-        email : "defaultMail@lezzo.kek",
-        bio : "chemical weapon",
-        birthday : "1/9/1939",
-        realName : "Orazio",
-        realSurname : "Grinzosi"
-        }
     }
 }
 
 export {getPersonalData};
+
+const checkPassword = (username, password)=>{
+    fetch("/api/users/verifyPassword", {
+
+    })
+}

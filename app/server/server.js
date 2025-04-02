@@ -68,6 +68,7 @@ app.post("/api/user/reqLogin", UserRoutes.login);
 app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
+app.put("/api/user/updateUData", UserRoutes.updateData);
 //*********************************************************** */
 
 // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

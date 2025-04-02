@@ -27,8 +27,8 @@ async function registerUser(data) {
             email : data.email,
             bio : data.bio,
             birthday : data.birthday,
-            realName : data.realName,
-            realSurname : data.realSurname
+            name : data.name,
+            surname : data.surname
             })
         }).then(res => res.json())
         .then(json => {
@@ -119,18 +119,18 @@ function Registration({updateToken}){
                     </Input>
 
                     <Input 
-                    label={"realName"}
+                    label={"name"}
                     type={"string"}
-                    id={"realName"}
+                    id={"name"}
                     placeholder={"insert your real name"}
                     validationMessage={"please enter your real name"}
                     >
                     </Input>
 
                     <Input 
-                    label={"realSurname"}
+                    label={"surname"}
                     type={"string"}
-                    id={"realSurname"}
+                    id={"surname"}
                     placeholder={"insert your real surname"}
                     validationMessage={"please enter your surname"}
                     >

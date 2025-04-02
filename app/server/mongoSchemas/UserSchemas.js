@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
     email: String,
     bio: String,
     birthday: Date,
-    realName : String,
-    realSurname : String,
+    name : String,
+    surname : String,
     // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
 });
 

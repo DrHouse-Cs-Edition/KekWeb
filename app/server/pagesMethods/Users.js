@@ -144,22 +144,43 @@ exports.userData = function (req, res){
     //*function uses request parameters for sending desired user data to client. Request tpye: GET
     const query = req.query;
     //!can't find user yet
-    console.log("user data requested by ", req.user);
+    console.log("user data requested by ", req.user, "with query: ", query);
     Users.findById(req.user).lean()
     .then(result => {
-        console.log(result.email || 0);
         const email = query.email ? result.email : null;
         const bio = query.bio ? result.bio : null; 
         const birthday = query.birthday ? result.birthday : null;
-        const realName = query.realName ? result.realName : null;
-        const realSurname = query.realSurname ? result.realSurname : null;
+        const name = query.name ? result.name : null;
+        const surname = query.surname ? result.surname : null;
         res.status(200).json({
             success: true,
             email : email,
             bio : bio, 
             birthday : birthday, 
-            realName : realName, 
-            realSurname : realSurname,
+            name : name, 
+            surname : surname,
         })
     })
+}
+
+exports.updateData = function (req, res){
+    //TODO funzione da implementare
+    const body = req.body; 
+    const u = findUser(body.username);
+    console.log("data is: ", body);
+    if(u){
+        Users.updateOne({username : body.username}, { $set : body} ).then(result => {
+            console.log("result of update is: ", result);
+            res.status(200).json({
+                success : true,
+                message : "User data updated"
+            })
+        })
+    }else{
+        console.log("fail: ", body)
+        res.status(403).json({
+            success : false,
+            message : "user not found for update"
+        })
+    }
 }
