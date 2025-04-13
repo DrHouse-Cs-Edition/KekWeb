@@ -1,23 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format } from 'date-fns';import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import itLocale from '@fullcalendar/core/locales/it'; // Import Italiano
+
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendario.css';
-
-const locales = {
-  'en-US': require('date-fns/locale/en-US')
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: date => startOfWeek(date, { weekStartsOn: 1 }),
-  getDay,
-  locales,
-});
 
 export default function CalendarApp() {
   const [events, setEvents] = useState([]);
@@ -30,7 +21,7 @@ export default function CalendarApp() {
     end: new Date(),
     location: '',
     recurrenceRule: '',
-    desc: '', // Maps to 'description' in backend
+    desc: '',
   });
 
   useEffect(() => {
@@ -38,18 +29,23 @@ export default function CalendarApp() {
   }, []);
 
   const fetchAllEvents = () => {
-    fetch('http://localhost:5000/api/events/all')
+    fetch('http://localhost:5000/api/events/all', {
+      method: 'GET',
+      credentials: 'include',
+    })
       .then(response => response.json())
       .then(json => {
         if (json.success) {
           const formattedEvents = json.list.map(event => ({
-            id: event._id, // MongoDB uses _id
+            id: event._id,
             title: event.title,
             start: new Date(event.start),
             end: new Date(event.end),
-            location: event.location,
-            recurrenceRule: event.recurrenceRule,
-            desc: event.description, // Map backend 'description' to frontend 'desc'
+            extendedProps: {
+              location: event.location,
+              recurrenceRule: event.recurrenceRule,
+              desc: event.description,
+            },
           }));
           setEvents(formattedEvents);
         }
@@ -57,20 +53,29 @@ export default function CalendarApp() {
       .catch(err => console.error(err));
   };
 
-  const handleSelectSlot = ({ start, end }) => {
+  const handleDateSelect = (selectInfo) => {
     setIsEditing(false);
     setNewEvent(prev => ({
       ...prev,
       id: uuidv4(),
-      start,
-      end
+      start: selectInfo.start,
+      end: selectInfo.end
     }));
     setShowModal(true);
+    selectInfo.view.calendar.unselect();
   };
 
-  const handleSelectEvent = (event) => {
+  const handleEventClick = (clickInfo) => {
     setIsEditing(true);
-    setNewEvent(event);
+    setNewEvent({
+      id: clickInfo.event.id,
+      title: clickInfo.event.title,
+      start: clickInfo.event.start,
+      end: clickInfo.event.end,
+      location: clickInfo.event.extendedProps.location,
+      recurrenceRule: clickInfo.event.extendedProps.recurrenceRule,
+      desc: clickInfo.event.extendedProps.desc,
+    });
     setShowModal(true);
   };
 
@@ -82,7 +87,6 @@ export default function CalendarApp() {
       : 'http://localhost:5000/api/events/save';
     const method = isEditing ? 'PUT' : 'POST';
 
-    // Convert to backend-compatible format
     const eventData = {
       title: newEvent.title,
       description: newEvent.desc,
@@ -92,13 +96,13 @@ export default function CalendarApp() {
       recurrenceRule: newEvent.recurrenceRule
     };
 
-    // For updates, include ID in body
     if (isEditing) eventData._id = newEvent.id;
 
     fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData)
+      body: JSON.stringify(eventData),
+      credentials: 'include',
     })
       .then(response => response.json())
       .then(json => {
@@ -115,7 +119,8 @@ export default function CalendarApp() {
 
   const handleDeleteEvent = () => {
     fetch(`http://localhost:5000/api/event/remove/${newEvent.id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include',
     })
       .then(response => response.json())
       .then(json => {
@@ -143,35 +148,33 @@ export default function CalendarApp() {
     setIsEditing(false);
   };
 
-  const eventPropGetter = () => ({
-    style: {
-      backgroundColor: '#3174ad',
-      color: 'white',
-      borderRadius: '4px',
-      padding: '2px 5px',
-      cursor: 'pointer',
-    },
-  });
-
   return (
     <div className="calendar-container">
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        className="calendar"
-        selectable
-        onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent}
-        eventPropGetter={eventPropGetter}
-        slotProps={{
-          timeSlotWrapper: {
-            style: {
-              minHeight: '60px',
-            },
-          },
+      <FullCalendar
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
+        events={events}
+        editable={true}
+        selectable={true}
+        selectMirror={true}
+        select={handleDateSelect}
+        eventClick={handleEventClick}
+        locale={itLocale}
+        eventContent={(eventInfo) => (
+          <div className="custom-event">
+            <div className="event-title">{eventInfo.event.title}</div>
+            {eventInfo.event.extendedProps.location && (
+              <div className="event-location">
+                📍 {eventInfo.event.extendedProps.location}
+              </div>
+            )}
+          </div>
+        )}
       />
 
       {showModal && (
@@ -219,7 +222,7 @@ export default function CalendarApp() {
                 <label>Start Date</label>
                 <input
                   type="datetime-local"
-                  value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm")}
+                  value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", { locale: it })}
                   onChange={(e) => setNewEvent({ ...newEvent, start: new Date(e.target.value) })}
                 />
               </div>
@@ -228,7 +231,7 @@ export default function CalendarApp() {
                 <label>End Date</label>
                 <input
                   type="datetime-local"
-                  value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm")}
+                  value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
                   onChange={(e) => setNewEvent({ ...newEvent, end: new Date(e.target.value) })}
                 />
               </div>
