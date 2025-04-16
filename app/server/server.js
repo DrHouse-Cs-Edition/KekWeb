@@ -19,6 +19,9 @@ const noteRoutes = require('./routes/notes');
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
+app.get('/utente', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html')); // se utente cerca pagina di login senza token non lo blocco
+}); 
 // altro login ma con cookies:
 const loginCookies =  require ("./controllers/cookiesLogin.js");
 
@@ -74,13 +77,10 @@ app.get('/',(request,response)=>{
 });
 
 //************* login API ******************************* */
-app.post("/api/user/reqLogin", loginCookies.login);
-app.post("/api/user/sendRegistration", loginCookies.registration);
-app.delete("/api/user/logout", loginCookies.logout);
-app.get('/utente', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build/index.html')); // se utente cerca pagina di login senza token non lo blocco
-});
-//******************************************************* */
+app.post("/api/user/reqLogin", UserRoutes.login);
+app.post("/api/user/sendRegistration", UserRoutes.registration);
+app.delete("/api/user/logout", UserRoutes.logout);
+//*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
 
@@ -88,9 +88,18 @@ app.use( loginCookies.authToken); // Protegge tutte le API successive con il mid
 app.use('/api/events', eventRoutes);
 // gestione api note
 app.use('/api/notes', noteRoutes);
-// POMODORO METHODS
-app.post("/api/Pomodoro/saveP", UserRoutes.authToken, pomodoroRoutes.saveP);
 
+//************* POMODORO METHODS **************************** */
+
+app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
+
+//************* User METHODS ******************************* */
+app.post("/api/user/reqLogin", UserRoutes.login);
+app.post("/api/user/sendRegistration", UserRoutes.registration);
+app.delete("/api/user/logout", UserRoutes.logout);
+app.get("/api/user/getData", UserRoutes.userData );
+app.put("/api/user/updateUData", UserRoutes.updateData);
+//*********************************************************** */
 
 app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)
     res.sendFile(path.join(__dirname, '../client/build/index.html'));

@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useUsername } from "./UserHooks";
 
 // const userSchema = new Schema({
 //     name: String,
@@ -15,7 +16,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 async function registerUser(data) {
 
     try {
-        await fetch("http://localhost:5000/api/user/sendRegistration",{
+        return fetch("http://localhost:5000/api/user/sendRegistration",{
         method : "POST",
         headers:{
             'Content-Type': 'application/json',
@@ -26,23 +27,36 @@ async function registerUser(data) {
             email : data.email,
             bio : data.bio,
             birthday : data.birthday,
-            realName : data.realName,
-            realSurname : data.realSurname
+            name : data.name,
+            surname : data.surname
             })
         }).then(res => res.json())
+        .then(json => {
+            if(!json.success){
+                console.log("registration failed");
+                alert(json.message);
+            }
+            console.log("response to create user was ", json);
+            return json;
+
+        })
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
+        alert("Error when recording new user");
         console.log("registration fetch error: ", e);
     }
 }
 
-function Registration({setToken}){
+function Registration({updateToken}){
+    const {username, setUsername} = useUsername();
     // const [username, setUsername] = useState("");
     // const [password, setPassword] = useState("");
 
     const onSubmit = (async data=>{
         try{
-            registerUser(data);
+            let response = await registerUser(data);
+            updateToken(response);
+            setUsername(data.username);
         }catch(e){
             console.log("error in login form: ", e);
         }
@@ -105,18 +119,18 @@ function Registration({setToken}){
                     </Input>
 
                     <Input 
-                    label={"realName"}
+                    label={"name"}
                     type={"string"}
-                    id={"realName"}
+                    id={"name"}
                     placeholder={"insert your real name"}
                     validationMessage={"please enter your real name"}
                     >
                     </Input>
 
                     <Input 
-                    label={"realSurname"}
+                    label={"surname"}
                     type={"string"}
-                    id={"realSurname"}
+                    id={"surname"}
                     placeholder={"insert your real surname"}
                     validationMessage={"please enter your surname"}
                     >
