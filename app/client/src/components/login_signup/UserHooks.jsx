@@ -6,21 +6,17 @@ const UseToken = ()=>{
         const tokenString = sessionStorage.getItem("token");
         return tokenString;    //as getToken is called upon rendering, first time the object is undefined
     }
-
     const [token, updateToken] = useState(getToken());
-
     const setToken = (userToken)=>{
         sessionStorage.setItem("token", userToken.token);
         updateToken(userToken.token);
         return getToken();
     }
-
     return {
         setToken: setToken,
         token
     }
 }
-
 export {UseToken};
 
 const useUsername = ()=>{
@@ -28,21 +24,17 @@ const useUsername = ()=>{
         const username = sessionStorage.getItem("username");
         return username;    //as getToken is called upon rendering, first time the object is undefined
     }
-
     const [username, setUsername] = useState(getUsername());
-
     const updateUsername = (username)=>{
         sessionStorage.setItem("username", username);
         setUsername(username);
         return getUsername();
     }
-
     return {
         setUsername: updateUsername,
         username
     }
 }
-
 export {useUsername};
 
 const getPersonalData = async (params)=>{   
@@ -60,11 +52,32 @@ const getPersonalData = async (params)=>{
         console.log(e);
     }
 }
-
 export {getPersonalData};
 
-const checkPassword = (username, password)=>{
-    fetch("/api/users/verifyPassword", {
-
-    })
+/**
+ * 
+ * @param {string} username 
+ * @param {string} password 
+ * function fetches to server, sending a username and passowrd, and returns 1 if the credentials are valid, 0 otherwise
+ * The return value is sent to the callback function
+ */
+const checkPassword = (username, password, callback)=>{
+    console.log("username and pw: ", username, password);
+    fetch("/api/user/reqLogin", {
+        method: "POST",
+        mode: "cors",
+        headers:{
+            'Content-Type': 'application/json',
+             'Accept': 'application/json',
+        },
+        body: JSON.stringify({username : username, password : password})
+        })
+        .then(res => res.json())
+        .then(
+            data =>{
+                callback(data.success);
+            }
+        )
 }
+
+export {checkPassword};

@@ -47,9 +47,9 @@ app.get('/',(request,response)=>{
 });
 
 //************* login API ******************************* */
-app.post("/api/user/reqLogin", loginCookies.login);
-app.post("/api/user/sendRegistration", loginCookies.registration);
-app.delete("/api/user/logout", loginCookies.logout);
+app.post("/api/user/reqLogin", UserRoutes.login);
+app.post("/api/user/sendRegistration", UserRoutes.registration);
+app.delete("/api/user/logout", UserRoutes.logout);
 //*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API

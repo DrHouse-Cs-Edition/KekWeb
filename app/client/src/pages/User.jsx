@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useUsername, UseToken, getPersonalData } from "../components/login_signup/UserHooks";
+import { useUsername, UseToken, getPersonalData, checkPassword } from "../components/login_signup/UserHooks";
 import {FormProvider, useForm} from "react-hook-form";
 
 import { Input } from "../components/utils/InputV2";
@@ -17,6 +17,7 @@ const User = ()=>{
 
     const [showForm, setShowForm] = useState(0);
     const [showCPW, setShowCPW] = useState(0);
+    const [attempts, setAttempts] = useState(0);
 
     //*FUNCTION GETS PERSONAL DATA FROM SERVER 
     const updatePersonalData = async ()=>{
@@ -61,38 +62,59 @@ const User = ()=>{
         }  
     }
 
-    const onSubmit =(data) =>{
-        //send data to the server in case any changes have been detected  
-        try {
-            return fetch("http://localhost:5000/api/user/updateUData",{
-            method : "PUT",
-            headers:{
-                'Content-Type': 'application/json', //header necessary for correct JSON data format
-            },
-            body : JSON.stringify({
-                username : username,
-                email : data.Email,
-                bio : data.Bio,
-                birthday : data.Birthday,
-                name : data.Name,
-                surname : data.Surname
-                })
-            }).then(res => res.json())
-            .then((res) => {
-                console.log(res);
-                updatePersonalData();
-                })
-        } catch(e){
-            console.log("error in user page, submit phase: ", e);
+    const onSubmit =  (data) =>{
+        checkPassword(username, CPW, (result) => {
+        console.log("lezzo: ", result); 
+        if(!result){  //if inserted password is wrong, clear it and ask for confirmation.
+            if(attempts >= 3){
+                alert("logging out for security reasons");
+                logout();
+            }else{
+                alert("incorrect password: more than 3 attempts will lead to a forced logout ");
+            setAttempts(attempts + 1);
+            }
+            return;
+        }else{
+            try {
+                return fetch("http://localhost:5000/api/user/updateUData",{
+                method : "PUT",
+                headers:{
+                    'Content-Type': 'application/json', //header necessary for correct JSON data format
+                },
+                body : JSON.stringify({
+                    username : username,
+                    email : data.Email,
+                    bio : data.Bio,
+                    birthday : data.Birthday,
+                    name : data.Name,
+                    surname : data.Surname
+                    })
+                }).then(res => res.json())
+                .then((res) => {
+                    console.log(res);
+                    setShowCPW(0); 
+                    setLock(1); 
+                    updatePersonalData()
+                    })
+            } catch(e){
+                console.log("error in user page, submit phase: ", e);
+            }
+            setLock(1);
         }
-        setLock(1);
+        })
     }
 
-    function onError(e){console.log("error in user page: ", e);}
+    const onError = (e)=>{console.log("error in user page: ", e);}
 
-    const modifyButton = <button onClick={()=>{setLock(0)}}>Modify</button>
-    const saveButton = <><button onClick={()=>{setShowCPW(1)}}>Save</button><button onClick={()=>{setShowCPW(0); setLock(1); updatePersonalData()}}>Abort</button></>   
-    let optionButtons = [saveButton, modifyButton];
+    const modifyButton = <button onClick={()=>{setLock(0); setShowCPW(1)}}>Modify</button>
+    const saveButtonComponent = (formMethods)=>{
+        return(
+            <>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError)}>Save</button>
+            <button onClick={()=>{setShowCPW(0); setLock(1); updatePersonalData()}}>Abort</button>
+            </>   
+        )
+    }
 
     const handleMailChange = (event) =>{setEmail(event.target.value)}
 
@@ -165,13 +187,11 @@ const User = ()=>{
                     onInput={(event)=>{setCPW(event.target.value)}}
                     isRequired={1}
                     ></Input>
-                    <button onClick={formMethods.handleSubmit(onSubmit, onError)}>Save</button>
                 </ div>
+                <button onClick={logout}>Logout</button>   
+                { lock ? modifyButton : saveButtonComponent(formMethods)}   
             </FormProvider>
-        </div>
-
-        <button onClick={logout}>Logout</button>   
-        {optionButtons[lock]}      
+        </div>   
     </div>
 )}
 
