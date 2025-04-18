@@ -14,4 +14,4 @@ const pomodoroSchema = new Schema({
     cycles : Number
 });
 
-module.exports = new mongoose.model("Pomodoro", pomodoroSchema);
+module.exports = new mongoose.model("pomodoro", pomodoroSchema);
