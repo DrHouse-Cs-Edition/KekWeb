@@ -41,6 +41,8 @@
   border-radius: 4px;
   border: none;
   padding: 2px 5px;
+  background-color: #3174ad;
+  color: white;
 }
 
 .fc-event:hover {

@@ -35,11 +35,15 @@ const updateEvent = async (request, response) => {
     const eventInput = request.body;
   
     try{
-        await Note.findByIdAndUpdate(id,{
+        await Event.findByIdAndUpdate(id,{
             // riconosce da id
             title: eventInput.title,
-            text: eventInput.text,
-            date: eventInput.date,
+            description: eventInput.description,
+            location: eventInput.location,
+            start: eventInput.start,
+            end: eventInput.end,
+            recurrenceRule: eventInput.recurrenceRule,
+            alarms: eventInput.alarms,
         });
         response.json({
             success: true,
