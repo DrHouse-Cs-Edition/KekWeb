@@ -1,16 +1,19 @@
 const Event = require('../mongoSchemas/Event.js');
 
 const saveEvent = async (request, response) => {
-  const eventInput = request.body;
-  const eventDB = new Event({
+    const eventInput = request.body;
+    const eventDB = new Event({
+      user: request.user, // Add user association
       title: eventInput.title,
       description: eventInput.description,
       location: eventInput.location,
-      start: eventInput.start,
-      end: eventInput.end,
-      recurrenceRule: eventInput.recurrenceRule,
-      alarms: eventInput.alarms,
-  });
+      type: eventInput.type,
+      cyclesLeft: eventInput.cyclesLeft,
+      activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
+      start: eventInput.start ? new Date(eventInput.start) : null,
+      end: eventInput.end ? new Date(eventInput.end) : null,
+      recurrenceRule: eventInput.recurrenceRule
+    });
 
   try{
       await eventDB.save();
@@ -34,30 +37,32 @@ const updateEvent = async (request, response) => {
     const id = request.params.id;
     const eventInput = request.body;
   
-    try{
-        await Event.findByIdAndUpdate(id,{
-            // riconosce da id
-            title: eventInput.title,
-            description: eventInput.description,
-            location: eventInput.location,
-            start: eventInput.start,
-            end: eventInput.end,
-            recurrenceRule: eventInput.recurrenceRule,
-            alarms: eventInput.alarms,
-        });
-        response.json({
-            success: true,
-            message: "Evento aggiornata"
-        });
+    try {
+      await Event.findByIdAndUpdate(id, {
+        title: eventInput.title,
+        description: eventInput.description,
+        location: eventInput.location,
+        type: eventInput.type,
+        cyclesLeft: eventInput.cyclesLeft,
+        activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
+        start: eventInput.start ? new Date(eventInput.start) : null,
+        end: eventInput.end ? new Date(eventInput.end) : null,
+        recurrenceRule: eventInput.recurrenceRule
+      });
+      
+      response.json({
+        success: true,
+        message: "Event updated"
+      });
     }
-    catch(e){
-        console.log(e.message);
-        response.json({
-            success: false,
-            message: "Errore durante il salvataggio sul DB"+e
-        });
+    catch(e) {
+      console.log(e.message);
+      response.json({
+        success: false,
+        message: "Error updating event: " + e.message
+      });
     }
-};
+  };
 
 
 const removeEvent = async (request, response) => {
@@ -105,31 +110,41 @@ const getEvent = async (request,response) => { // serve?
 }
 
 
-const allEvent = async (request,response)=>{
-
+const allEvent = async (request, response) => {
     try {
-        const eventList = await Event.find({}).lean();  // Prende tutte le note (come oggetti)
-        
-        if (eventList.length > 0) {
-            response.json({
-                success: true,
-                list: eventList, // Restituisce l'intero array di note
-                message: "trovati eventi"
-            });
-        } else {
-            response.json({
-                success: false,
-                message: "Nessun evento trovato"
-            });
-        }
-    } catch (e) {
-        console.log(e.message);
+      // Add user filtering
+      const eventList = await Event.find({ user: request.user }).lean();
+      
+      if (eventList.length > 0) {
         response.json({
-            success: false,
-            message: "Errore durante il caricamento dal DB"+e
+          success: true,
+          list: eventList.map(event => ({
+            _id: event._id,
+            title: event.title,
+            type: event.type,
+            start: event.start,
+            end: event.end,
+            activityDate: event.activityDate,
+            cyclesLeft: event.cyclesLeft,
+            location: event.location,
+            description: event.description,
+            recurrenceRule: event.recurrenceRule
+          })),
+          message: "Events found"
         });
+      } else {
+        response.json({
+          success: false,
+          message: "No events found"
+        });
+      }
+    } catch (e) {
+      console.log(e.message);
+      response.status(500).json({
+        success: false,
+        message: "Error loading events"
+      });
     }
-
-}
+  };
 
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent };

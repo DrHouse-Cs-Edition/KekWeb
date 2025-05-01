@@ -10,13 +10,16 @@ export default function CalendarApp() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newEvent, setNewEvent] = useState({
-    id: '',
-    title: '',
+    id: "",
+    title: "",
+    type: "event",
+    cyclesLeft: null,
+    activityDate: null,
     start: new Date(),
     end: new Date(),
-    location: '',
-    recurrenceRule: '',
-    desc: '',
+    location: "",
+    recurrenceRule: "",
+    desc: "",
   });
 
   useEffect(() => {
@@ -31,12 +34,15 @@ export default function CalendarApp() {
       .then(response => response.json())
       .then(json => {
         if (json.success) {
-          const formattedEvents = json.list.map(event => ({
+          const formattedEvents = json.list.map((event) => ({
             id: event._id,
             title: event.title,
-            start: new Date(event.start),
-            end: new Date(event.end),
+            start: event.type === "activity" ? new Date(event.activityDate) : new Date(event.start),
+            end: event.type === "activity" ? new Date(event.activityDate) : new Date(event.end),
             extendedProps: {
+              type: event.type,
+              cyclesLeft: event.cyclesLeft,
+              activityDate: event.activityDate,
               location: event.location,
               recurrenceRule: event.recurrenceRule,
               desc: event.description,
@@ -67,6 +73,9 @@ export default function CalendarApp() {
       title: clickInfo.event.title,
       start: clickInfo.event.start,
       end: clickInfo.event.end,
+      type: clickInfo.event.extendedProps.type ,
+      cyclesLeft: clickInfo.event.extendedProps.cyclesLeft,
+      activityDate: clickInfo.event.extendedProps.activityDate,
       location: clickInfo.event.extendedProps.location,
       recurrenceRule: clickInfo.event.extendedProps.recurrenceRule,
       desc: clickInfo.event.extendedProps.desc,
@@ -78,7 +87,7 @@ export default function CalendarApp() {
     if (!newEvent.title) return;
 
     const url = isEditing 
-      ? `http://localhost:5000/api/event/update/${newEvent.id}`
+      ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : 'http://localhost:5000/api/events/save';
     const method = isEditing ? 'PUT' : 'POST';
 
@@ -86,10 +95,15 @@ export default function CalendarApp() {
       title: newEvent.title,
       description: newEvent.desc,
       location: newEvent.location,
-      start: newEvent.start.toISOString(),
-      end: newEvent.end.toISOString(),
+      type: newEvent.type,
+      cyclesLeft: newEvent.type === 'pomodoro' ? newEvent.cyclesLeft : undefined,
+      activityDate: newEvent.type === 'activity' ? newEvent.activityDate?.toISOString() : undefined,
+      start: newEvent.type === 'event' ? newEvent.start.toISOString() : undefined,
+      end: newEvent.type === 'event' ? newEvent.end.toISOString() : undefined,
       recurrenceRule: newEvent.recurrenceRule,
+      user: newEvent.user
     };
+    console.log("Event Data Sent to Backend:", eventData); // Debugging
 
     if (isEditing) eventData._id = newEvent.id;
 
@@ -113,7 +127,7 @@ export default function CalendarApp() {
   };
 
   const handleDeleteEvent = () => {
-    fetch(`http://localhost:5000/api/event/remove/${newEvent.id}`, {
+    fetch(`http://localhost:5000/api/events/remove/${newEvent.id}`, {
       method: 'DELETE',
       credentials: 'include',
     })
@@ -132,13 +146,16 @@ export default function CalendarApp() {
 
   const resetForm = () => {
     setNewEvent({
-      id: '',
-      title: '',
+      id: "",
+      title: "",
+      type: "event",
+      cyclesLeft: null,
+      activityDate: null,
       start: new Date(),
       end: new Date(),
-      location: '',
-      recurrenceRule: '',
-      desc: '',
+      location: "",
+      recurrenceRule: "",
+      desc: "",
     });
     setIsEditing(false);
   };

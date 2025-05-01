@@ -160,7 +160,14 @@ const ModalFooter = ({
 }) => (
   <div className="modal-footer">
     {isEditing && (
-      <button className="delete-btn" onClick={handleDeleteEvent}>
+      <button 
+        className="delete-btn" 
+        onClick={() => {
+          if (window.confirm('Are you sure you want to delete this event?')) {
+            handleDeleteEvent();
+          }
+        }}
+      >
         Delete
       </button>
     )}
