@@ -9,6 +9,7 @@ import Pomodoro from "./pages/Pomodoro.jsx";
 import Signup from "./components/login_signup/Signup.jsx";
 import {UseToken} from "./components/login_signup/UserHooks.jsx"
 import User from "./pages/User.jsx";
+import Testing from "./Testing/testing.jsx"
 
 function App() {
   const {token, setToken} = UseToken();
@@ -27,6 +28,7 @@ function App() {
           <Route path="/note" element={<NoteNavigation />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/utente" element={<User />} />
+          <Route path="/testing" element={<Testing/>} />
         </Routes>
       </div>
     </div>

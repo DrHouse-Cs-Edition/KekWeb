@@ -27,3 +27,23 @@ exports.saveP = async function (req, res){
         console.log("pomodoro.js->saveP ERRORL: ", e);
     }
 }
+
+exports.getP = async function (req, res){
+    Pomodoro.find({}).lean()
+    .then(result => {
+        try{
+            console.log("pomodoros are: ", result);
+            res.status(200).json({
+                success : true,
+                message : "Pomodoros sent succesfully",
+                body : result
+            })
+        }
+        catch(e) {
+            res.status(400).json({
+                success : false,
+                message : "Error retrieving Pomodoro",
+            })
+        }
+    })
+}

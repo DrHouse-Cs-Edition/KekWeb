@@ -71,7 +71,7 @@ const User = ()=>{
                 logout();
             }else{
                 alert("incorrect password: more than 3 attempts will lead to a forced logout ");
-            setAttempts(attempts + 1);
+                setAttempts(attempts + 1);
             }
             return;
         }else{
@@ -189,7 +189,7 @@ const User = ()=>{
                     ></Input>
                 </ div>
                 <button onClick={logout}>Logout</button>   
-                { lock ? modifyButton : saveButtonComponent(formMethods)}   
+                { lock ? modifyButton : saveButtonComponent(formMethods)} 
             </FormProvider>
         </div>   
     </div>

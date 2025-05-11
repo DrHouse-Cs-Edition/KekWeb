@@ -62,6 +62,7 @@ app.use('/api/notes', noteRoutes);
 //************* POMODORO METHODS **************************** */
 
 app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
+app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 
 //************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);
