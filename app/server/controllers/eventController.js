@@ -12,7 +12,7 @@ const saveEvent = async (request, response) => {
       activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
       start: eventInput.start ? new Date(eventInput.start) : null,
       end: eventInput.end ? new Date(eventInput.end) : null,
-      recurrenceRule: eventInput.recurrenceRule
+      recurrenceRule: eventInput.recurrenceRule 
     });
 
   try{
@@ -47,7 +47,7 @@ const updateEvent = async (request, response) => {
         activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
         start: eventInput.start ? new Date(eventInput.start) : null,
         end: eventInput.end ? new Date(eventInput.end) : null,
-        recurrenceRule: eventInput.recurrenceRule
+        recurrenceRule: eventInput.recurrenceRule 
       });
       
       response.json({
@@ -112,39 +112,39 @@ const getEvent = async (request,response) => { // serve?
 
 const allEvent = async (request, response) => {
     try {
-      // Add user filtering
-      const eventList = await Event.find({ user: request.user }).lean();
-      
-      if (eventList.length > 0) {
-        response.json({
-          success: true,
-          list: eventList.map(event => ({
-            _id: event._id,
-            title: event.title,
-            type: event.type,
-            start: event.start,
-            end: event.end,
-            activityDate: event.activityDate,
-            cyclesLeft: event.cyclesLeft,
-            location: event.location,
-            description: event.description,
-            recurrenceRule: event.recurrenceRule
-          })),
-          message: "Events found"
-        });
-      } else {
-        response.json({
-          success: false,
-          message: "No events found"
-        });
-      }
+        // Add user filtering
+        const eventList = await Event.find({ user: request.user }).lean();
+
+        if (eventList.length > 0) {
+            response.json({
+                success: true,
+                list: eventList.map(event => ({
+                    _id: event._id,
+                    title: event.title,
+                    type: event.type,
+                    start: event.start,
+                    end: event.end,
+                    activityDate: event.activityDate,
+                    cyclesLeft: event.cyclesLeft,
+                    location: event.location,
+                    description: event.description,
+                    recurrenceRule: event.recurrenceRule
+                })),
+                message: "Events found"
+            });
+        } else {
+            response.json({
+                success: false,
+                message: "No events found"
+            });
+        }
     } catch (e) {
-      console.log(e.message);
-      response.status(500).json({
-        success: false,
-        message: "Error loading events"
-      });
+        console.log(e.message);
+        response.status(500).json({
+            success: false,
+            message: "Error loading events"
+        });
     }
-  };
+};
 
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent };

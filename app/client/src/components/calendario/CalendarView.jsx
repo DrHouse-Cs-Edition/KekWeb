@@ -1,18 +1,24 @@
 // CalendarView.jsx
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import rrulePlugin from "@fullcalendar/rrule";
 
-export default function CalendarView({ events, handleDateSelect, handleEventClick, locale }) {
+export default function CalendarView({
+  events,
+  handleDateSelect,
+  handleEventClick,
+  locale,
+}) {
   return (
     <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
       initialView="dayGridMonth"
       headerToolbar={{
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay",
       }}
       events={events}
       editable={true}
@@ -31,6 +37,13 @@ export default function CalendarView({ events, handleDateSelect, handleEventClic
           )}
         </div>
       )}
+      eventDisplay="block"
+      eventTimeFormat={{
+        hour: "2-digit",
+        minute: "2-digit",
+        meridiem: false,
+        hour12: false,
+      }}
     />
   );
 }

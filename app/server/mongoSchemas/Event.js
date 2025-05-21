@@ -17,11 +17,13 @@ const eventSchema = new Schema({
     activityDate: Date,
     // For pomodoro
     cyclesLeft: Number,
-    rrule: Object,
+    // For recurring events
+    recurrenceRule: String,
     nextAlarm: Date,
     user: { 
-      type: Schema.Types.ObjectId, // Specifica che è un ObjectId
-      ref: 'User', // Nome del modello a cui fa riferimento
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true // Add validation
     },
 });
 

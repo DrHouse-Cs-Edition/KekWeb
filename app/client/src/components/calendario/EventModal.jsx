@@ -1,6 +1,8 @@
 // EventModal.jsx
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { useState } from "react";
+import { RRule } from "rrule";
 
 export default function EventModal({
   isEditing,
@@ -11,6 +13,13 @@ export default function EventModal({
   setShowModal,
   resetForm,
 }) {
+  const [recurrence, setRecurrence] = useState(newEvent.recurrenceRule || ""); // New state for recurrence
+
+  const handleRecurrenceChange = (e) => {
+    setRecurrence(e.target.value);
+    setNewEvent({ ...newEvent, recurrenceRule: e.target.value });
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -19,7 +28,12 @@ export default function EventModal({
           setShowModal={setShowModal}
           resetForm={resetForm}
         />
-        <ModalBody newEvent={newEvent} setNewEvent={setNewEvent} />
+        <ModalBody
+          newEvent={newEvent}
+          setNewEvent={setNewEvent}
+          recurrence={recurrence}
+          handleRecurrenceChange={handleRecurrenceChange}
+        />
         <ModalFooter
           isEditing={isEditing}
           handleSaveEvent={handleSaveEvent}
@@ -46,82 +60,115 @@ const ModalHeader = ({ isEditing, setShowModal, resetForm }) => (
   </div>
 );
 
-const ModalBody = ({ newEvent, setNewEvent }) => (
-    <div className="modal-body">
-      <div className="form-group">
-        <label>Event Type</label>
-        <select
-          value={newEvent.type || 'event'}
-          onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
-        >
-          <option value="event">Regular Event</option>
-          <option value="activity">Activity</option>
-          <option value="pomodoro">Pomodoro</option>
-        </select>
-      </div>
-  
-      {newEvent.type === 'pomodoro' ? (
+const ModalBody = ({
+  newEvent,
+  setNewEvent,
+  recurrence,
+  handleRecurrenceChange,
+}) => (
+  <div className="modal-body">
+    <div className="form-group">
+      <label>Event Type</label>
+      <select
+        value={newEvent.type || "event"}
+        onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
+      >
+        <option value="event">Regular Event</option>
+        <option value="activity">Activity</option>
+        <option value="pomodoro">Pomodoro</option>
+      </select>
+    </div>
+
+    {newEvent.type === "pomodoro" ? (
+      <FormField
+        label="Cycles Left"
+        type="number"
+        value={newEvent.cyclesLeft || ""}
+        onChange={(e) =>
+          setNewEvent({ ...newEvent, cyclesLeft: e.target.value })
+        }
+        required
+      />
+    ) : (
+      <>
         <FormField
-          label="Cycles Left"
-          type="number"
-          value={newEvent.cyclesLeft || ''}
-          onChange={(e) => setNewEvent({ ...newEvent, cyclesLeft: e.target.value })}
+          label="Title *"
+          type="text"
+          value={newEvent.title}
+          onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
           required
         />
-      ) : (
-        <>
+
+        {newEvent.type === "activity" ? (
           <FormField
-            label="Title *"
-            type="text"
-            value={newEvent.title}
-            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-            required
+            label="Activity Date"
+            type="date"
+            value={format(newEvent.activityDate || new Date(), "yyyy-MM-dd")}
+            onChange={(e) =>
+              setNewEvent({
+                ...newEvent,
+                activityDate: new Date(e.target.value),
+              })
+            }
           />
-  
-          {newEvent.type === 'activity' ? (
+        ) : (
+          <>
             <FormField
-              label="Activity Date"
-              type="date"
-              value={format(newEvent.activityDate || new Date(), "yyyy-MM-dd")}
-              onChange={(e) => setNewEvent({ ...newEvent, activityDate: new Date(e.target.value) })}
+              label="Start Date"
+              type="datetime-local"
+              value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", {
+                locale: it,
+              })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, start: new Date(e.target.value) })
+              }
             />
-          ) : (
-            <>
-              <FormField
-                label="Start Date"
-                type="datetime-local"
-                value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", { locale: it })}
-                onChange={(e) => setNewEvent({ ...newEvent, start: new Date(e.target.value) })}
-              />
-  
-              <FormField
-                label="End Date"
-                type="datetime-local"
-                value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
-                onChange={(e) => setNewEvent({ ...newEvent, end: new Date(e.target.value) })}
-              />
-            </>
-          )}
-  
-          <FormField
-            label="Location"
-            type="text"
-            value={newEvent.location}
-            onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-          />
-        </>
-      )}
-  
-      {newEvent.type !== 'pomodoro' && (
+
+            <FormField
+              label="End Date"
+              type="datetime-local"
+              value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, end: new Date(e.target.value) })
+              }
+            />
+          </>
+        )}
+
         <FormField
-          label="Description"
-          isTextArea={true}
-          value={newEvent.desc}
-          onChange={(e) => setNewEvent({ ...newEvent, desc: e.target.value })}
+          label="Location"
+          type="text"
+          value={newEvent.location}
+          onChange={(e) =>
+            setNewEvent({ ...newEvent, location: e.target.value })
+          }
         />
-      )}
-    </div>
-  );
+
+        {newEvent.type === "event" && (
+          <div className="form-group">
+            <label>Recurrence</label>
+            <select value={recurrence} onChange={handleRecurrenceChange}>
+              <option value="">None</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        )}
+      </>
+    )}
+
+    {newEvent.type !== "pomodoro" && (
+      <FormField
+        label="Description"
+        isTextArea={true}
+        value={newEvent.desc}
+        onChange={(e) => setNewEvent({ ...newEvent, desc: e.target.value })}
+      />
+    )}
+  </div>
+);
 
 const FormField = ({
   label,
@@ -160,10 +207,10 @@ const ModalFooter = ({
 }) => (
   <div className="modal-footer">
     {isEditing && (
-      <button 
-        className="delete-btn" 
+      <button
+        className="delete-btn"
         onClick={() => {
-          if (window.confirm('Are you sure you want to delete this event?')) {
+          if (window.confirm("Are you sure you want to delete this event?")) {
             handleDeleteEvent();
           }
         }}

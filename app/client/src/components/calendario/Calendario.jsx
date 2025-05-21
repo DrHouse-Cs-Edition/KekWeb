@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import itLocale from '@fullcalendar/core/locales/it';
-import CalendarView from './CalendarView';
-import EventModal from './EventModal';
-import './Calendario.css';
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import itLocale from "@fullcalendar/core/locales/it";
+import CalendarView from "./CalendarView";
+import EventModal from "./EventModal";
+import { RRule } from "rrule";
+import "./Calendario.css";
 
 export default function CalendarApp() {
   const [events, setEvents] = useState([]);
@@ -27,58 +28,108 @@ export default function CalendarApp() {
   }, []);
 
   const fetchAllEvents = () => {
-    fetch('http://localhost:5000/api/events/all', {
-      method: 'GET',
-      credentials: 'include',
+    fetch("http://localhost:5000/api/events/all", {
+      method: "GET",
+      credentials: "include",
     })
-      .then(response => response.json())
-      .then(json => {
+      .then((response) => response.json())
+      .then((json) => {
         if (json.success) {
-          const formattedEvents = json.list.map((event) => ({
-            id: event._id,
-            title: event.title,
-            start: event.type === "activity" ? new Date(event.activityDate) : new Date(event.start),
-            end: event.type === "activity" ? new Date(event.activityDate) : new Date(event.end),
-            extendedProps: {
-              type: event.type,
-              cyclesLeft: event.cyclesLeft,
-              activityDate: event.activityDate,
-              location: event.location,
-              recurrenceRule: event.recurrenceRule,
-              desc: event.description,
-            },
-          }));
+          const formattedEvents = json.list.map((event) => {
+            // Ensure we have valid dates
+            const start = event.type === "activity" 
+              ? (event.activityDate ? new Date(event.activityDate) : new Date())
+              : (event.start ? new Date(event.start) : new Date());
+            
+            const end = event.type === "activity" 
+              ? (event.activityDate ? new Date(event.activityDate) : new Date())
+              : (event.end ? new Date(event.end) : new Date());
+            
+            console.log("Processing event:", event.title, "Rule:", event.recurrenceRule);
+            
+            // Base event object
+            const formattedEvent = {
+              id: event._id,
+              title: event.title,
+              start: start,
+              end: end,
+              extendedProps: {
+                type: event.type,
+                cyclesLeft: event.cyclesLeft,
+                activityDate: event.activityDate,
+                location: event.location,
+                recurrenceRule: event.recurrenceRule,
+                desc: event.description,
+              },
+            };
+
+            // Handle recurrence rule for FullCalendar
+            if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
+              try {
+                const freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
+                if (freqMatch && freqMatch[1]) {
+                  // For FullCalendar - Format properly as an object with rrule properties
+                  formattedEvent.rrule = {
+                    freq: freqMatch[1].toLowerCase(),
+                    dtstart: start.toISOString()
+                  };
+                  
+                  console.log("Created rrule object:", formattedEvent.rrule);
+                }
+              } catch (err) {
+                console.error("Error parsing recurrence rule:", err);
+              }
+            }
+
+            return formattedEvent;
+          });
           setEvents(formattedEvents);
         }
       })
-      .catch(err => console.error(err));
+      .catch((err) => console.error(err));
   };
 
   const handleDateSelect = (selectInfo) => {
     setIsEditing(false);
-    setNewEvent(prev => ({
+    setNewEvent((prev) => ({
       ...prev,
       id: uuidv4(),
       start: selectInfo.start,
-      end: selectInfo.end
+      end: selectInfo.end,
+      type: "event", // Reset to event type when creating new
+      recurrenceRule: "", // Reset recurrence rule
     }));
     setShowModal(true);
     selectInfo.view.calendar.unselect();
   };
 
   const handleEventClick = (clickInfo) => {
+    // Extract recurrence pattern from the stored rule if it exists
+    let recurrenceValue = "";
+    if (clickInfo.event.extendedProps.recurrenceRule) {
+      const freqMatch = clickInfo.event.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
+      if (freqMatch && freqMatch[1]) {
+        recurrenceValue = freqMatch[1].toLowerCase();
+        console.log("Extracted recurrence value:", recurrenceValue);
+      }
+    }
+
+    // Make sure we have valid dates
+    const start = clickInfo.event.start || new Date();
+    const end = clickInfo.event.end || new Date(start.getTime() + 3600000); // Default to 1 hour later if no end
+    
     setIsEditing(true);
     setNewEvent({
       id: clickInfo.event.id,
-      title: clickInfo.event.title,
-      start: clickInfo.event.start,
-      end: clickInfo.event.end,
-      type: clickInfo.event.extendedProps.type ,
-      cyclesLeft: clickInfo.event.extendedProps.cyclesLeft,
-      activityDate: clickInfo.event.extendedProps.activityDate,
-      location: clickInfo.event.extendedProps.location,
-      recurrenceRule: clickInfo.event.extendedProps.recurrenceRule,
-      desc: clickInfo.event.extendedProps.desc,
+      title: clickInfo.event.title || "",
+      start: start,
+      end: end,
+      type: clickInfo.event.extendedProps.type || "event",
+      cyclesLeft: clickInfo.event.extendedProps.cyclesLeft || null,
+      activityDate: clickInfo.event.extendedProps.activityDate ? new Date(clickInfo.event.extendedProps.activityDate) : null,
+      location: clickInfo.event.extendedProps.location || "",
+      recurrenceRule: recurrenceValue,
+      desc: clickInfo.event.extendedProps.desc || "",
     });
     setShowModal(true);
   };
@@ -86,35 +137,81 @@ export default function CalendarApp() {
   const handleSaveEvent = () => {
     if (!newEvent.title) return;
 
-    const url = isEditing 
+    const url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
-      : 'http://localhost:5000/api/events/save';
-    const method = isEditing ? 'PUT' : 'POST';
+      : "http://localhost:5000/api/events/save";
+    const method = isEditing ? "PUT" : "POST";
+
+    let rruleString = null;
+    if (newEvent.type === "event" && newEvent.recurrenceRule) {
+      try {
+        // Map the dropdown values to RRule frequency constants
+        const frequencyMap = {
+          'daily': RRule.DAILY,
+          'weekly': RRule.WEEKLY,
+          'monthly': RRule.MONTHLY,
+          'yearly': RRule.YEARLY
+        };
+        
+        const freq = frequencyMap[newEvent.recurrenceRule];
+        
+        if (freq !== undefined) {
+          // Make sure we have a valid start date
+          const startDate = newEvent.start || new Date();
+          
+          // Create a proper RRule string with correct frequency
+          const rruleObj = new RRule({
+            freq: freq,
+            dtstart: startDate
+          });
+          rruleString = rruleObj.toString();
+          console.log("Created RRule string:", rruleString);
+        } else {
+          console.error("Invalid recurrence rule value:", newEvent.recurrenceRule);
+          alert("Invalid recurrence rule");
+          return;
+        }
+      } catch (error) {
+        console.error("Error creating rrule:", error);
+        alert("Invalid recurrence rule");
+        return;
+      }
+    }
+
+    // Ensure we have valid dates for each event type before sending to server
+    const start = newEvent.start || new Date();
+    const end = newEvent.end || new Date(start.getTime() + 3600000); // Default to 1 hour later
+    const activityDate = newEvent.type === "activity" ? 
+      (newEvent.activityDate || new Date()) : null;
 
     const eventData = {
       title: newEvent.title,
-      description: newEvent.desc,
-      location: newEvent.location,
+      description: newEvent.desc || "",
+      location: newEvent.location || "",
       type: newEvent.type,
-      cyclesLeft: newEvent.type === 'pomodoro' ? newEvent.cyclesLeft : undefined,
-      activityDate: newEvent.type === 'activity' ? newEvent.activityDate?.toISOString() : undefined,
-      start: newEvent.type === 'event' ? newEvent.start.toISOString() : undefined,
-      end: newEvent.type === 'event' ? newEvent.end.toISOString() : undefined,
-      recurrenceRule: newEvent.recurrenceRule,
-      user: newEvent.user
+      cyclesLeft:
+        newEvent.type === "pomodoro" ? (newEvent.cyclesLeft || 0) : undefined,
+      activityDate:
+        newEvent.type === "activity" ? activityDate.toISOString() : undefined,
+      start:
+        newEvent.type === "event" ? start.toISOString() : undefined,
+      end:
+        newEvent.type === "event" ? end.toISOString() : undefined,
+      recurrenceRule: rruleString,
+      user: newEvent.user,
     };
-    console.log("Event Data Sent to Backend:", eventData); // Debugging
+    console.log("Event Data Sent to Backend:", eventData);
 
     if (isEditing) eventData._id = newEvent.id;
 
     fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(eventData),
-      credentials: 'include',
+      credentials: "include",
     })
-      .then(response => response.json())
-      .then(json => {
+      .then((response) => response.json())
+      .then((json) => {
         if (json.success) {
           fetchAllEvents();
           setShowModal(false);
@@ -123,16 +220,16 @@ export default function CalendarApp() {
           alert(json.message);
         }
       })
-      .catch(err => console.error('Error saving event:', err));
+      .catch((err) => console.error("Error saving event:", err));
   };
 
   const handleDeleteEvent = () => {
     fetch(`http://localhost:5000/api/events/remove/${newEvent.id}`, {
-      method: 'DELETE',
-      credentials: 'include',
+      method: "DELETE",
+      credentials: "include",
     })
-      .then(response => response.json())
-      .then(json => {
+      .then((response) => response.json())
+      .then((json) => {
         if (json.success) {
           fetchAllEvents();
           setShowModal(false);
@@ -141,7 +238,7 @@ export default function CalendarApp() {
           alert(json.message);
         }
       })
-      .catch(err => console.error('Error deleting event:', err));
+      .catch((err) => console.error("Error deleting event:", err));
   };
 
   const resetForm = () => {
