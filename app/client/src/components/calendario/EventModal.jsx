@@ -1,10 +1,10 @@
 // EventModal.jsx
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { useState } from "react";
-import { RRule } from "rrule";
+import { useState, useEffect, useCallback, memo } from "react";
 
-export default function EventModal({
+// Memoized component for better performance
+const EventModal = memo(function EventModal({
   isEditing,
   newEvent,
   setNewEvent,
@@ -12,17 +12,45 @@ export default function EventModal({
   handleDeleteEvent,
   setShowModal,
   resetForm,
+  isLoading
 }) {
-  const [recurrence, setRecurrence] = useState(newEvent.recurrenceRule || ""); // New state for recurrence
+  const [recurrence, setRecurrence] = useState(newEvent.recurrenceRule || "");
 
-  const handleRecurrenceChange = (e) => {
-    setRecurrence(e.target.value);
-    setNewEvent({ ...newEvent, recurrenceRule: e.target.value });
-  };
+  // Update recurrence state when newEvent changes (important for editing events)
+  useEffect(() => {
+    setRecurrence(newEvent.recurrenceRule || "");
+  }, [newEvent.recurrenceRule]);
+
+  const handleRecurrenceChange = useCallback((e) => {
+    const value = e.target.value;
+    setRecurrence(value);
+    setNewEvent(prev => ({ ...prev, recurrenceRule: value }));
+  }, [setNewEvent]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowModal(false);
+        resetForm();
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [setShowModal, resetForm]);
+
+  // Handle click outside modal to close it
+  const handleOutsideClick = useCallback((e) => {
+    if (e.target.className === 'modal-overlay') {
+      setShowModal(false);
+      resetForm();
+    }
+  }, [setShowModal, resetForm]);
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
+    <div className="modal-overlay" onClick={handleOutsideClick}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <ModalHeader
           isEditing={isEditing}
           setShowModal={setShowModal}
@@ -40,180 +68,211 @@ export default function EventModal({
           handleDeleteEvent={handleDeleteEvent}
           setShowModal={setShowModal}
           resetForm={resetForm}
+          isLoading={isLoading}
         />
       </div>
     </div>
   );
-}
+});
 
-const ModalHeader = ({ isEditing, setShowModal, resetForm }) => (
+const ModalHeader = memo(({ isEditing, setShowModal, resetForm }) => (
   <div className="modal-header">
-    <h3>{isEditing ? "Edit Event" : "New Event"}</h3>
+    <h3 id="modal-title">{isEditing ? "Edit Event" : "New Event"}</h3>
     <button
       onClick={() => {
         setShowModal(false);
         resetForm();
       }}
+      aria-label="Close modal"
     >
       ×
     </button>
   </div>
-);
+));
 
-const ModalBody = ({
+const ModalBody = memo(({
   newEvent,
   setNewEvent,
   recurrence,
   handleRecurrenceChange,
-}) => (
-  <div className="modal-body">
-    <div className="form-group">
-      <label>Event Type</label>
-      <select
-        value={newEvent.type || "event"}
-        onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
-      >
-        <option value="event">Regular Event</option>
-        <option value="activity">Activity</option>
-        <option value="pomodoro">Pomodoro</option>
-      </select>
-    </div>
+}) => {
+  // Handle form field changes
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setNewEvent(prev => ({ ...prev, [name]: value }));
+  }, [setNewEvent]);
 
-    {newEvent.type === "pomodoro" ? (
-      <FormField
-        label="Cycles Left"
-        type="number"
-        value={newEvent.cyclesLeft || ""}
-        onChange={(e) =>
-          setNewEvent({ ...newEvent, cyclesLeft: e.target.value })
-        }
-        required
-      />
-    ) : (
-      <>
+  // Handle date field changes
+  const handleDateChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
+  }, [setNewEvent]);
+
+  return (
+    <div className="modal-body">
+      <div className="form-group">
+        <label htmlFor="event-type">Event Type</label>
+        <select
+          id="event-type"
+          name="type"
+          value={newEvent.type || "event"}
+          onChange={handleInputChange}
+        >
+          <option value="event">Regular Event</option>
+          <option value="activity">Activity</option>
+          <option value="pomodoro">Pomodoro</option>
+        </select>
+      </div>
+
+      {newEvent.type === "pomodoro" ? (
         <FormField
-          label="Title *"
-          type="text"
-          value={newEvent.title}
-          onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+          id="cycles-left"
+          name="cyclesLeft"
+          label="Cycles Left"
+          type="number"
+          value={newEvent.cyclesLeft || ""}
+          onChange={handleInputChange}
+          min="1"
           required
         />
-
-        {newEvent.type === "activity" ? (
+      ) : (
+        <>
           <FormField
-            label="Activity Date"
-            type="date"
-            value={format(newEvent.activityDate || new Date(), "yyyy-MM-dd")}
-            onChange={(e) =>
-              setNewEvent({
-                ...newEvent,
-                activityDate: new Date(e.target.value),
-              })
-            }
+            id="event-title"
+            name="title"
+            label="Title *"
+            type="text"
+            value={newEvent.title}
+            onChange={handleInputChange}
+            required
           />
-        ) : (
-          <>
-            <FormField
-              label="Start Date"
-              type="datetime-local"
-              value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", {
-                locale: it,
-              })}
-              onChange={(e) =>
-                setNewEvent({ ...newEvent, start: new Date(e.target.value) })
-              }
-            />
 
+          {newEvent.type === "activity" ? (
             <FormField
-              label="End Date"
-              type="datetime-local"
-              value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
-              onChange={(e) =>
-                setNewEvent({ ...newEvent, end: new Date(e.target.value) })
-              }
+              id="activity-date"
+              name="activityDate"
+              label="Activity Date"
+              type="date"
+              value={format(newEvent.activityDate || new Date(), "yyyy-MM-dd")}
+              onChange={handleDateChange}
             />
-          </>
-        )}
+          ) : (
+            <>
+              <FormField
+                id="start-date"
+                name="start"
+                label="Start Date"
+                type="datetime-local"
+                value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", {
+                  locale: it,
+                })}
+                onChange={handleDateChange}
+              />
 
+              <FormField
+                id="end-date"
+                name="end"
+                label="End Date"
+                type="datetime-local"
+                value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
+                onChange={handleDateChange}
+              />
+            </>
+          )}
+
+          <FormField
+            id="event-location"
+            name="location"
+            label="Location"
+            type="text"
+            value={newEvent.location}
+            onChange={handleInputChange}
+          />
+
+          {(newEvent.type === "event" || newEvent.type === "activity") && (
+            <div className="form-group">
+              <label htmlFor="recurrence">Recurrence</label>
+              <select 
+                id="recurrence" 
+                value={recurrence} 
+                onChange={handleRecurrenceChange}
+              >
+                <option value="">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+          )}
+        </>
+      )}
+
+      {newEvent.type !== "pomodoro" && (
         <FormField
-          label="Location"
-          type="text"
-          value={newEvent.location}
-          onChange={(e) =>
-            setNewEvent({ ...newEvent, location: e.target.value })
-          }
+          id="event-description"
+          name="desc"
+          label="Description"
+          isTextArea={true}
+          value={newEvent.desc}
+          onChange={handleInputChange}
         />
+      )}
+    </div>
+  );
+});
 
-        {newEvent.type === "event" && (
-          <div className="form-group">
-            <label>Recurrence</label>
-            <select value={recurrence} onChange={handleRecurrenceChange}>
-              <option value="">None</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
-        )}
-      </>
-    )}
-
-    {newEvent.type !== "pomodoro" && (
-      <FormField
-        label="Description"
-        isTextArea={true}
-        value={newEvent.desc}
-        onChange={(e) => setNewEvent({ ...newEvent, desc: e.target.value })}
-      />
-    )}
-  </div>
-);
-
-const FormField = ({
+const FormField = memo(({
+  id,
+  name,
   label,
   type = "text",
   value,
   onChange,
   required = false,
   isTextArea = false,
+  min,
+  max,
 }) => (
   <div className="form-group">
-    <label>{label}</label>
+    <label htmlFor={id}>{label}</label>
     {isTextArea ? (
       <textarea
-        value={value}
-        onChange={onChange}
-        minHeight="80px"
-        resize="vertical"
-      />
-    ) : (
-      <input
-        type={type}
-        value={value}
+        id={id}
+        name={name}
+        value={value || ""}
         onChange={onChange}
         required={required}
       />
+    ) : (
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value || ""}
+        onChange={onChange}
+        required={required}
+        min={min}
+        max={max}
+      />
     )}
   </div>
-);
+));
 
-const ModalFooter = ({
+const ModalFooter = memo(({
   isEditing,
   handleSaveEvent,
   handleDeleteEvent,
   setShowModal,
   resetForm,
+  isLoading
 }) => (
   <div className="modal-footer">
     {isEditing && (
       <button
         className="delete-btn"
-        onClick={() => {
-          if (window.confirm("Are you sure you want to delete this event?")) {
-            handleDeleteEvent();
-          }
-        }}
+        onClick={handleDeleteEvent}
+        disabled={isLoading}
       >
         Delete
       </button>
@@ -224,11 +283,18 @@ const ModalFooter = ({
         setShowModal(false);
         resetForm();
       }}
+      disabled={isLoading}
     >
       Cancel
     </button>
-    <button className="save-btn" onClick={handleSaveEvent}>
-      {isEditing ? "Save Changes" : "Create Event"}
+    <button 
+      className="save-btn" 
+      onClick={handleSaveEvent}
+      disabled={isLoading}
+    >
+      {isLoading ? "Saving..." : (isEditing ? "Save Changes" : "Create Event")}
     </button>
   </div>
-);
+));
+
+export default EventModal;
