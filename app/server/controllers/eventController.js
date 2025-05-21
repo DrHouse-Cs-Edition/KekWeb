@@ -109,6 +109,7 @@ const getEvent = async (request,response) => { // serve?
 
 }
 
+// getActivity funzione che prende le attività e controlla quelle con l'importanza maggiore per poi prendere quelle con la data più vicina
 
 const allEvent = async (request, response) => {
     try {

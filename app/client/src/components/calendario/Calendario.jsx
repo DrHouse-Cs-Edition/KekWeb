@@ -5,7 +5,6 @@ import CalendarView from "./CalendarView";
 import EventModal from "./EventModal";
 import { RRule } from "rrule";
 import "./Calendario.css";
-import { se } from "date-fns/locale";
 
 export default function CalendarApp() {
   const [events, setEvents] = useState([]);
