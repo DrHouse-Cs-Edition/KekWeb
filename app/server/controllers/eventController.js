@@ -8,8 +8,15 @@ const saveEvent = async (request, response) => {
       location: eventInput.location,
       start: eventInput.start,
       end: eventInput.end,
-      recurrenceRule: eventInput.recurrenceRule,
-      alarms: eventInput.alarms,
+      //recurrenceRule: eventInput.recurrenceRule,
+      //alarms: eventInput.alarms,
+      rrule: {
+        freq: "DAILY",
+        interval: 2,
+        dtstart: "2025-01-01T15:55:00.122+00:00"
+      },
+      nextAlarm: "2025-01-06T15:55:00.122+00:00",
+      repeated: 0
   });
 
   try{

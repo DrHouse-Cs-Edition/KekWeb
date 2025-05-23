@@ -26,10 +26,40 @@ app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
-/*// gestione notifiche (1.0) disattivate per testing
-
+// gestione notifiche (2.0) disattivate per testing
+/*
 const cron = require('node-cron');
 const Event = require('./mongoSchemas/Event.js');
+const { RRule } = require('rrule');
+const { subMinutes, addMinutes } = require('date-fns');
+
+async function sendEmail(descrizione) {
+  const mailOptions = {
+      from: 'selfieapp17@gmail.com',
+      to: 'lucamarangon2001@gmail.com', // invece dovrai recupere la mail dell'utente dal database
+      subject: 'Promemoria Evento',
+      text: `Ricordati del tuo evento: ${descrizione}`
+  };
+  
+  await transporter.sendMail(mailOptions);
+}
+
+// aggiorna nextAlarm
+function updateAlarm(event, now){
+  event.repeated = event.repeated + 1;
+  event.nextAlarm = null;
+  if(event.repeated < event.alarm.repeat){ // se non ho finito di ripetere l'avviso all'utente
+    event.nextAlarm = addMinutes(now, event.alarm.repeat_every);
+  }
+  else{
+    const rule = new RRule(event.rrule);
+    const next = rule.after(now);
+    if (next) // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
+      event.nextAlarm = subMinutes(next, event.alarm.earlyness);
+      event.repeated = 0;
+  }
+  return(event);
+}
 
 cron.schedule('* * * * *', async () => { // /5 per controllare ogni 5 minuti invece
   const now = new Date();
@@ -49,25 +79,16 @@ cron.schedule('* * * * *', async () => { // /5 per controllare ogni 5 minuti inv
         }
     });
       
-    async function sendEmail(descrizione) {
-      const mailOptions = {
-          from: 'selfieapp17@gmail.com',
-          to: 'lucamarangon2001@gmail.com', // invece dovrai recupere la mail dell'utente dal database
-          subject: 'Promemoria Evento',
-          text: `Ricordati del tuo evento: ${descrizione}`
-      };
-      
-      await transporter.sendMail(mailOptions);
-    }
     sendEmail(evento.description)
 
     // Segna come notificato o cambia data prossima notifica
-    evento.nextAlarm = null; // NON SARA' DA ELIMINARE MA DA AGGIORNARE CON PROSSIMA DATA ALARM
-    await Event.findByIdAndUpdate(evento.id,evento); 
+    evento = updateAlarm(evento, now); // aggiorna con prossima data alarm (e num repetizioni)
+    await Event.findByIdAndUpdate(evento.id, evento);
   });
 
 });
 */
+// percorsi
 
 app.get('/',(request,response)=>{
     response.sendFile( path.join(__dirname,'../client/build/index.html') );
