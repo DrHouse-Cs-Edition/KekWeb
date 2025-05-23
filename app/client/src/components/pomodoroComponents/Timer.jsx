@@ -101,10 +101,12 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));
                                     setMinutes(Math.trunc(StudyTime/60%60));
+                                    alert("ugh, back to studying huh?")
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));
                                 setMinutes(Math.trunc(BreakTime/60%60));
+                                alert("Time for a break!");
                             }
                             updateCurTimer (curTimer => curTimer ^ 1);
                             }else
@@ -130,23 +132,26 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
     //*Calling this function stops the  current timer and resets the Cycles
     const CyclesReset = ()=>{
         setRunTimer(0);
-        updateCurTimer(curTimer => 0);
+        updateCurTimer(0);
         clearInterval(pomodoroInterval);
         setMinutes(Math.trunc(StudyTime/60%60));
         setSeconds(Math.trunc(StudyTime%60));
         setResetFlag(resetFlag => resetFlag ^ 1);
+        //^ is an operand that allows to switch from 0 to 1 and vice versa
     }
 
-    //*Function used for skipping the current Cycles.
+    const gotoNext = ()=>{
+        clearInterval(pomodoroInterval);
+        setSeconds(0);
+        setMinutes(0);
+    }
+    //*Function used for skipping the current full cycle (both study and break)
     //*It doesn't stop the current Cycles, differently from the reset currently implemented
     //*by setting both minutes and seconds to 0, it will skip the current timer
     //*by also setting curTimer to 1, it then  switches to the next Cycles and start the StudyCycles
     const skipCycles = ()=>{
-        alert("skipping Cycles");
-        clearInterval(pomodoroInterval);
-        setSeconds(0);
-        setMinutes(0);
-        updateCurTimer (1)
+        gotoNext();
+        updateCurTimer(1);
     }
 
     //*FUNCTION CALLED WHEN THE USER ASKS TO SAVE THE CURRENT POMODORO SETTINGS
@@ -193,6 +198,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
                 <button onClick={stopTimer} ref={stopButtonRef}> Stop timer </button>
                 <button onClick={CyclesReset} ref={resetButtonRef}> Reset Cycles </button>
                 <button onClick={skipCycles} ref={skipButtonRef}> Skip Cycles</button>
+                <button onClick={gotoNext} ref={skipButtonRef}> next</button>
             </div>
 
             <div id= "FormDiv" style={{textAlign : 'center'}}>

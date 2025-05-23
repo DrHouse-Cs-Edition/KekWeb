@@ -1,12 +1,25 @@
-const mongoose = require ('mongoose');
+const mongoose = require('mongoose');
+const { Schema } = mongoose; // Estrai Schema da mongoose
 
-const eventSchema = new mongoose.Schema({ // uso standard Icalendar (per conversione in ics usa libreria ics.js)
+const eventSchema = new Schema({
+    type: {
+      type: String,
+      enum: ['event', 'activity', 'pomodoro'],
+      default: 'event'
+    },
     title: String,
     description: String,
     location: String,
+    // For regular events and activities
     start: Date,
-    end: Date, // per durata tutto il giorno: non devi mettere ora in end (e in start non serve)
-    rrule: Object,
+    end: Date,
+    // For activities (date without time)
+    activityDate: Date,
+    // For pomodoro
+    cyclesLeft: Number,
+    // For recurring events
+    recurrenceRule: String,
+    /*rrule: Object, // RRULE PIU LEGGIBILE DAL SERVER -> CONTROLLARE SE DAREBBE CONFLITTI !!!!!!!!!!!!!!!!!!!!!!!!!!!!
     /*
         freq: Can be DAILY, WEEKLY, MONTHLY, or YEARLY.
         interval: The interval of freq to recur at. For example, if freq is WEEKLY and interval is 2, the event will repeat every 2 weeks. Must be an integer.
@@ -23,6 +36,11 @@ const eventSchema = new mongoose.Schema({ // uso standard Icalendar (per convers
     //extra
     nextAlarm: Date,
     repeated: Number,
+    user: { 
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true // Add validation
+    },
 });
 
-module.exports = new mongoose.model("Event", eventSchema)
+module.exports = mongoose.model("Event", eventSchema);

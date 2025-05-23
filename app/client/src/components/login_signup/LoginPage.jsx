@@ -1,11 +1,9 @@
 import React, {useState} from "react";
 import { Input } from "../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
-import { json, Navigate, useNavigate } from "react-router-dom";
-import { useUsername } from "./UserHooks";
+import { useUsername, getPersonalData } from "./UserHooks";
 
 function loginAttempt(username, password) {
-
     try {
         return fetch("http://localhost:5000/api/user/reqLogin",{
         method : "POST",
@@ -29,7 +27,7 @@ function loginAttempt(username, password) {
             default:
         break;
         }
-    }).catch(console.log( "error in login attempt" ));
+    });
     }catch(e){
         console.log("client side login error ", e);
     }
@@ -37,6 +35,12 @@ function loginAttempt(username, password) {
 
 const LoginPage = ({updateToken})=>{
     const {setUsername} = useUsername();
+
+    const [showPassword, setShowPassword] = useState(0);
+
+    const alternateShowPassword = () => {
+        setShowPassword(showPassword => showPassword ^ 1);
+    }
 
     const onSubmit = async (data)=>{
         try{
@@ -67,12 +71,14 @@ const LoginPage = ({updateToken})=>{
                     ></Input>
 
                     <Input label = {"password"}
-                    type={"password"}
+                    type= {showPassword ? "text" : "password"}
                     id={"password"}
                     placeholder={"please insert your password"}
                     validationMessage={"please enter your password"}
                     minLenght={8}
                     ></Input>
+
+                    <button id="showPassowrdButton" type="button" onClick={alternateShowPassword }> {showPassword ? "Hide Password" :"Show Password"}</button>
 
                     <button id="loginSend" type="button" onClick={formMethods.handleSubmit(onSubmit)}>Login</button>
                 </form>

@@ -1,0 +1,19 @@
+.PomodoroDiv{
+    justify-content: space-between;
+    height: 50vh;
+    background-color: antiquewhite;
+}
+
+.CalendarDiv{
+    display: flex;
+    justify-content: space-between;
+    height: 50vh;
+    background-color: cadetblue;
+}
+
+.NoteDiv{
+    display: flex;
+    justify-content: space-between;
+    height: 50vh;
+    background-color: darksalmon;
+}
