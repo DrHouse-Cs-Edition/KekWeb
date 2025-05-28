@@ -87,6 +87,7 @@ function SimpleTimer( {autoStart = 0} ){   //default is studyTime, expressed in 
 
     //*USE FOR STORING THE SETTIMEOUT RETURN VALUE
     let pomodoroInterval;
+    //*FUNCTION USED FOR STARTING THE POMODORO
     const timer = useEffect(()=>{
         if(runTimer){   //normal update of the timer
             pomodoroInterval = setTimeout(()=>{

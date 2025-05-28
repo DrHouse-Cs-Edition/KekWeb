@@ -1,0 +1,68 @@
+.sideBarDiv{
+    position: fixed;
+    left: 4%;
+    top: 75px;
+    border-style: solid;
+    border-color: darkmagenta;
+    border-width: 4px;
+    list-style-type: disc;
+    height: fit-content;
+    width: fit-content;
+}
+
+.piechart{
+    min-width: 50px;
+    width: 100px;
+    max-width: 150px;
+    min-height: 50px;
+    height: 100px;
+    max-height: 150px;
+    border-radius: 50%;
+}
+
+.burger{
+  display: block;
+  width: 40px;
+  height: 32px;
+  position: absolute;
+  top: -7px;
+  left: -5px;
+  
+  cursor: pointer;
+  
+  opacity: 0; /* hide this */
+  z-index: 2; /* and place it over the hamburger */
+}
+
+.burgerSpan{
+    display: block;
+    width: 33px;
+    height: 4px;
+    margin-bottom: 5px;
+    position: relative;
+    
+    background: #cdcdcd;
+    border-radius: 3px;
+    border-color: black;
+}
+
+.barItem{
+    display: grid;
+    grid-template-areas: "piechart data" 
+                        "buttons buttons" ;
+}
+
+.barItem > .piechart{
+    grid-area: piechart;
+    background-color: greenyellow;
+}
+
+.barItem > .data{
+    grid-area: data;
+    background-color: #cdcdcd;
+}
+
+.barItem > .buttons{
+    grid-area: buttons;
+    background-color: lightblue;
+}

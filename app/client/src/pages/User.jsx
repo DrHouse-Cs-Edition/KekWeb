@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useUsername, UseToken, getPersonalData, checkPassword } from "../components/login_signup/UserHooks";
 import {FormProvider, useForm} from "react-hook-form";
 
-import { Input } from "../components/utils/InputV2";
+import { Input } from "../utils/InputV2"
 import style from "./User.module.css";
 
 const User = ()=>{
