@@ -132,7 +132,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         }
     }, [minutes, seconds, runTimer]);
 
-    const stopTimer = ()=>{
+    function stopTimer(){
         clearTimeout(pomodoroInterval); //stops the timer from updating preemtively (no lag since pressing the button)
         setRunTimer(0); //stops further updates, still running the useEffect
     }
@@ -141,7 +141,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     //*If studyTime was running, it just resets.
     //*If  breakTime was running, it switches to studyTime and begins anew
     //*Calling this function stops the  current timer and resets the Cycles
-    const CyclesReset = ()=>{
+    function CyclesReset(){
         setRunTimer(0);
         updateCurTimer(0);
         clearInterval(pomodoroInterval);
@@ -151,7 +151,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         //^ is an operand that allows to switch from 0 to 1 and vice versa
     }
 
-    const gotoNext = ()=>{
+    function gotoNext(){
         clearInterval(pomodoroInterval);
         setSeconds(0);
         setMinutes(0);
@@ -160,7 +160,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     //*It doesn't stop the current Cycles, differently from the reset currently implemented
     //*by setting both minutes and seconds to 0, it will skip the current timer
     //*by also setting curTimer to 1, it then  switches to the next Cycles and start the StudyCycles
-    const skipCycles = ()=>{
+    function skipCycles(){
         gotoNext();
         updateCurTimer(1);
     }
@@ -208,10 +208,10 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
           <div id={style.buttonsDiv} >
               <h2> Testing buttons below </h2>
               <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} style={{visibility : 'hidden'}}> run timer </button>
-              <button onClick={()=>stopTimer} ref={stopButtonRef}> Stop timer </button>
-              <button onClick={()=>CyclesReset} ref={resetButtonRef}> Reset Cycles </button>
-              <button onClick={()=>skipCycles} ref={skipButtonRef}> Skip Cycles</button>
-              <button onClick={()=>gotoNext} ref={skipButtonRef}> next</button>
+              <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
+              <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+              <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
+              <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
           </div>
 
           <div id= "FormDiv" style={{textAlign : 'center'}}>
