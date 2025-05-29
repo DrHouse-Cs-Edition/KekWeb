@@ -17,12 +17,3 @@
     height: 50vh;
     background-color: darksalmon;
 }
-.background_image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Keeps aspect ratio while filling space */
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1; /* Ensures content-box stays on top */
-}

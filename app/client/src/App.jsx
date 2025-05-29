@@ -10,6 +10,8 @@ import Signup from "./components/login_signup/Signup.jsx";
 import {UseToken} from "./components/login_signup/UserHooks.jsx"
 import User from "./pages/User.jsx";
 import TimeMachine from "./pages/TimeMachine.jsx";
+import style from "./App.module.css";
+import bgDesktop from './assets/bg_desktop.png';
 
 function App() {
   const {token, setToken} = UseToken();
@@ -19,6 +21,7 @@ function App() {
   }
   return (
     <div>
+      <img className={style.background_image} src={bgDesktop} alt="Home" />
       <Navbar />
       <div className="content">
         <Routes>
