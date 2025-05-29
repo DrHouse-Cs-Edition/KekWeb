@@ -4,7 +4,7 @@ import itLocale from "@fullcalendar/core/locales/it";
 import CalendarView from "./CalendarView";
 import EventModal from "./EventModal";
 import { RRule } from "rrule";
-import "./Calendario.css";
+import styles from "./Calendario.module.css";
 
 export default function CalendarApp() {
   const [events, setEvents] = useState([]);
@@ -313,12 +313,13 @@ export default function CalendarApp() {
   };
 
   return (
-    <div className="calendar-container">
+    <div className={styles.calendarContainer}>  {/* Changed class name */}
       <CalendarView
         events={events}
         handleDateSelect={handleDateSelect}
         handleEventClick={handleEventClick}
         locale={itLocale}
+        
       />
 
       {showModal && (

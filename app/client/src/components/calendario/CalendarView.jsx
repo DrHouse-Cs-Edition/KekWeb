@@ -1,9 +1,9 @@
-// CalendarView.jsx
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import rrulePlugin from "@fullcalendar/rrule";
+import styles from "./Calendario.module.css"; // Import the CSS Module
 
 export default function CalendarView({
   events,
@@ -13,36 +13,44 @@ export default function CalendarView({
 }) {
   const renderEventContent = (eventInfo) => {
     const eventType = eventInfo.event.extendedProps.type || "event";
-    
+
     // Define icons for different event types
     const typeIcons = {
-      'event': '📅',
-      'activity': '✅',
-      'pomodoro': '🍅'
+      event: "📅",
+      activity: "✅",
+      pomodoro: "🍅",
     };
-    
+
     return (
-      <div className={`custom-event custom-event-${eventType}`}>
-        <div className="event-title">
-          {typeIcons[eventType] || '📅'} {eventInfo.event.title}
+      <div className={`${"custom-event"} ${"custom-event-" + eventType}`}>
+        {" "}
+        {/* Class names are not from CSS Module */}
+        <div className={styles.eventTitle}>
+          {typeIcons[eventType] || "📅"} {eventInfo.event.title}
         </div>
         {eventInfo.event.extendedProps.location && (
-          <div className="event-location">
+          <div className={styles.eventLocation}>
             📍 {eventInfo.event.extendedProps.location}
           </div>
         )}
-        {eventType === 'pomodoro' && eventInfo.event.extendedProps.cyclesLeft != null && (
-          <div className="event-cycles">
-            Cycles: {eventInfo.event.extendedProps.cyclesLeft}
-          </div>
-        )}
+        {eventType === "pomodoro" &&
+          eventInfo.event.extendedProps.cyclesLeft != null && (
+            <div className={styles.eventCycles}>
+              Cycles: {eventInfo.event.extendedProps.cyclesLeft}
+            </div>
+          )}
       </div>
     );
   };
 
   return (
     <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
+      plugins={[
+        dayGridPlugin,
+        timeGridPlugin,
+        interactionPlugin,
+        rrulePlugin,
+      ]}
       initialView="dayGridMonth"
       headerToolbar={{
         left: "prev,next today",
@@ -64,6 +72,7 @@ export default function CalendarView({
         meridiem: false,
         hour12: false,
       }}
+      longPressDelay={1} // 1ms: almost instant tap
     />
   );
 }

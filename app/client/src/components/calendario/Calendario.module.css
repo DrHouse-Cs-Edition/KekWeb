@@ -1,0 +1,205 @@
+/* Calendario.module.css */
+.calendarContainer {
+  height: 100vh;
+  padding: 20px;
+  background-color: #f8f9fa;
+
+  /* Mobile Optimization */
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
+}
+
+/* FullCalendar overrides - Use :global to avoid name mangling */
+:global(.fc) {
+  height: 80vh; /* Adjusted for better mobile view */
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px; /* Reduced padding for smaller screens */
+  font-size: 0.8em; /* Smaller font size for better readability */
+}
+
+:global(.fc-toolbar-title) {
+  color: #3174ad;
+  font-weight: 600;
+  font-size: 1.2em; /* Adjusted title size */
+}
+
+:global(.fc-button-primary) {
+  background-color: #3174ad !important;
+  border-color: #3174ad !important;
+  transition: opacity 0.2s;
+}
+
+:global(.fc-button-primary:hover) {
+  opacity: 0.9;
+}
+
+:global(.fc-daygrid-day-frame:hover) {
+  background-color: rgba(49, 116, 173, 0.1);
+}
+
+:global(.fc-timegrid-slots td) {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Default event styles */
+:global(.fc-event) {
+  border-radius: 4px;
+  border: none;
+  padding: 2px 5px;
+  background-color: #3174ad;
+  color: white;
+  font-size: 0.8em; /* Smaller font size for better readability */
+}
+
+:global(.fc-event:hover) {
+  opacity: 0.9;
+}
+
+/* Custom event type styling */
+:global(.custom-event-activity) {
+  background-color: #4285F4 !important;
+}
+
+:global(.custom-event-pomodoro) {
+  background-color: #EA4335 !important;
+}
+
+:global(.custom-event-event) {
+  background-color: #3174ad !important;
+}
+
+.eventTitle {
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 1em; /* Adjusted title size */
+}
+
+.eventLocation, .eventCycles {
+  font-size: 0.75em;
+  opacity: 0.9;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 15px; /* Reduced padding for smaller screens */
+  border-radius: 8px;
+  width: 90%; /* Adjusted width for better mobile view */
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* Reduced margin for smaller screens */
+  background: #f5f5f5;
+  padding: 8px; /* Reduced padding for smaller screens */
+  border-radius: 8px 8px 0 0;
+}
+
+.modalHeader button {
+  background: none;
+  border: none;
+  font-size: 20px; /* Adjusted close button size */
+  cursor: pointer;
+}
+
+.formGroup {
+  margin-bottom: 12px; /* Reduced margin for smaller screens */
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 3px; /* Reduced margin for smaller screens */
+  font-size: 0.9em; /* Smaller label font size */
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 6px; /* Reduced padding for smaller screens */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 0.9em; /* Smaller input font size */
+}
+
+button,
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  min-height: 44px; /* Recommended minimum for touch targets */
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.modalFooter {
+  margin-top: 15px; /* Reduced margin for smaller screens */
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px; /* Reduced gap for smaller screens */
+}
+
+button {
+  padding: 6px 12px; /* Reduced padding for smaller screens */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em; /* Smaller button font size */
+}
+
+.deleteBtn {
+  background: #ff4444;
+  color: white;
+  margin-right: auto;
+}
+
+.deleteBtn:hover {
+  background: #cc0000;
+}
+
+.saveBtn {
+  background: #4CAF50;
+  color: white;
+}
+
+.cancelBtn {
+  background: #f44336;
+  color: white;
+}
+
+.saveBtn:hover,
+.cancelBtn:hover {
+  opacity: 0.9;
+}
+
+.formGroup textarea {
+  min-height: 60px; /* Reduced height for smaller screens */
+  resize: vertical;
+}

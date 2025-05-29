@@ -1,5 +1,6 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
 import style from './Home.module.css';
+import ListaEventiGiornalieri from '../components/listeEventi/ListaEventiGiornalieri';
 import { getPersonalData } from '../components/login_signup/UserHooks';
 
 
@@ -53,12 +54,7 @@ function Home(){
     
     return(
         <>
-            <h1>home</h1>
-            {handleNote(note)}
-            {handlePomodoro(pomodoro)}
-            {handleCalendar(calendar)}            
-            lezzo
-            
+            <ListaEventiGiornalieri />
         </>
         
     )
