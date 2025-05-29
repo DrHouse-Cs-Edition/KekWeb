@@ -9,29 +9,25 @@
   --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
 }
 
-/* Container */
+/* ========== Container ========== */
 .container {
   width: 100%;
   max-width: 400px;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin: 0 auto;
   padding: 1rem;
+  background: var(--dusk-bg);
+  color: var(--dusk-text);
+  border: 1px solid var(--dusk-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--dusk-shadow);
   height: fit-content;
   max-height: 600px;
   overflow-y: auto;
-  margin: 0 auto;
-  background: var(--dusk-bg);
-  border: 1px solid var(--dusk-border);
-  color: var(--dusk-text);
-  box-shadow: var(--dusk-shadow);
 }
 
-/* Header */
+/* ========== Header ========== */
 .header {
   margin-bottom: 1rem;
-  border-bottom: 1px solid #f3f4f6;
   padding-bottom: 0.75rem;
   text-align: center;
   border-bottom: 1px solid var(--dusk-border);
@@ -41,20 +37,17 @@
 .title {
   font-size: 1.125rem;
   font-weight: bold;
-  color: #111827;
-  margin-bottom: 0.25rem;
-  margin-top: 0;
+  margin: 0 0 0.25rem 0;
   color: var(--dusk-text);
 }
 
 .date {
-  color: #6b7280;
-  margin: 0;
   font-size: 0.875rem;
+  margin: 0;
   color: var(--dusk-muted);
 }
 
-/* Loading States */
+/* ========== Loading States ========== */
 .loadingContainer {
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -74,39 +67,36 @@
   margin-bottom: 0.75rem;
 }
 
-.loadingLine {
-  height: 1rem;
+.loadingLine,
+.loadingLineShort {
   background-color: #e5e7eb;
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
 }
 
+.loadingLine {
+  height: 1rem;
+}
+
 .loadingLineShort {
   height: 0.75rem;
-  background-color: #e5e7eb;
-  border-radius: 0.25rem;
   width: 75%;
 }
 
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-/* Error State */
+/* ========== Error State ========== */
 .errorContainer {
   background: rgba(255, 140, 107, 0.15);
-  border: 1px solid var(--dusk-accent);
-  color: var(--dusk-accent);
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
+  color: var(--dusk-accent);
 }
 
 .errorText {
@@ -129,16 +119,15 @@
   background: var(--dusk-accent-light);
 }
 
-/* Empty State */
+/* ========== Empty State ========== */
 .emptyState {
   background: rgba(44, 37, 80, 0.5);
-  border: 2px dashed var(--dusk-accent-light);
-  color: var(--dusk-muted);
   background-color: #f9fafb;
   border: 2px dashed #d1d5db;
   border-radius: 0.5rem;
   padding: 1.5rem;
   text-align: center;
+  color: var(--dusk-muted);
 }
 
 .emptyIcon {
@@ -160,7 +149,7 @@
   margin: 0;
 }
 
-/* Events List - Mobile First (Vertical) */
+/* ========== Events List ========== */
 .eventsList {
   display: flex;
   flex-direction: column;
@@ -170,12 +159,11 @@
 
 .eventCard {
   background: var(--dusk-card);
-  border: 1px solid var(--dusk-border);
-  color: var(--dusk-text);
-  box-shadow: 0 2px 8px 0 rgba(44, 37, 80, 0.18);
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
+  color: var(--dusk-text);
+  box-shadow: 0 2px 8px 0 rgba(44, 37, 80, 0.18);
   padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -188,12 +176,10 @@
 
 .eventCard:hover {
   background: rgba(255, 140, 107, 0.08);
-  border-color: var(--dusk-accent);
-  box-shadow: 0 4px 16px 0 rgba(255, 140, 107, 0.15);
   background-color: #f3f4f6;
   border-color: #d1d5db;
-  transform: translateY(-1px);
   box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .eventContent {
@@ -219,10 +205,9 @@
 
 .eventTitle {
   font-weight: 600;
-  color: #111827;
-  margin: 0;
   font-size: 0.875rem;
   line-height: 1.2;
+  margin: 0;
   color: var(--dusk-accent-light);
 }
 
@@ -231,7 +216,6 @@
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: #6b7280;
   color: var(--dusk-muted);
 }
 
@@ -260,7 +244,7 @@
   flex-grow: 1;
 }
 
-/* Modal */
+/* ========== Modal ========== */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -277,10 +261,9 @@
 
 .modal {
   background: var(--dusk-card);
+  background-color: white;
   color: var(--dusk-text);
   border: 1px solid var(--dusk-border);
-  box-shadow: var(--dusk-shadow);
-  background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 28rem;
@@ -294,7 +277,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
   border-bottom: 1px solid var(--dusk-border);
   color: var(--dusk-accent-light);
   background: transparent;
@@ -303,7 +285,6 @@
 .modalTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
   margin: 0;
   color: var(--dusk-text);
 }
@@ -347,8 +328,8 @@
 .modalEventTitle {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
   margin: 0;
+  color: #111827;
 }
 
 .modalEventDetails {
@@ -376,8 +357,7 @@
 .modalDescriptionTitle {
   font-weight: 500;
   color: #111827;
-  margin-bottom: 0.5rem;
-  margin-top: 0;
+  margin: 0 0 0.5rem 0;
 }
 
 .modalDescriptionText {
@@ -391,54 +371,21 @@
   display: flex;
   gap: 0.5rem;
   padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  background: rgba(44, 37, 80, 0.6);
   border-top: 1px solid var(--dusk-border);
   background: rgba(44, 37, 80, 0.6);
 }
 
-.cancelButton {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  color: var(--dusk-accent);
-  border: 1px solid var(--dusk-accent);
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+/* ========== Media Queries ========== */
 
-.cancelButton:hover {
-  background: var(--dusk-accent);
-  color: var(--dusk-card);
-}
-
-.editButton {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  background: var(--dusk-accent);
-  color: var(--dusk-card);
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.editButton:hover {
-  background: var(--dusk-accent-light);
-  color: var(--dusk-card);
-}
-
-/* Tablet Breakpoint - Start transitioning to horizontal */
+/* Tablet Breakpoint */
 @media (min-width: 641px) {
   .container {
     max-width: 600px;
     padding: 1.25rem;
   }
-  
   .title {
     font-size: 1.25rem;
   }
-  
   .eventsList {
     flex-direction: row;
     flex-wrap: wrap;
@@ -446,22 +393,18 @@
     justify-content: center;
     gap: 0.5rem;
   }
-  
   .eventCard {
     flex: 1 1 160px;
     min-width: 160px;
     max-width: 200px;
     width: auto;
   }
-  
   .eventDescription {
     -webkit-line-clamp: 2;
   }
-  
   .modalOverlay {
     padding: 1rem;
   }
-  
   .modalHeader,
   .modalContent,
   .modalFooter {
@@ -469,7 +412,27 @@
   }
 }
 
-/* Adjust scrollbars for dark theme */
+/* Mobile Styles */
+@media (max-width: 640px) {
+  .container {
+    max-width: 95vw;
+    padding: 0.5rem;
+  }
+  .eventCard {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    min-width: 0;
+    max-width: 95vw;
+  }
+  .eventTitle {
+    font-size: 0.85rem;
+  }
+  .eventDescription {
+    font-size: 0.7rem;
+  }
+}
+
+/* ========== Scrollbar ========== */
 ::-webkit-scrollbar {
   width: 8px;
   background: #2d3356;

@@ -2,6 +2,7 @@ import {useState, useEffect, Fragment, useRef} from 'react';
 import style from './Home.module.css';
 import ListaEventiGiornalieri from '../components/listeEventi/ListaEventiGiornalieri';
 import { getPersonalData } from '../components/login_signup/UserHooks';
+import bgDesktop from '../assets/bg_desktop.png';
 
 
 function handleNote(x){
@@ -54,6 +55,7 @@ function Home(){
     
     return(
         <>
+            <img className={style.background_image} src={bgDesktop} alt="Home" />
             <ListaEventiGiornalieri />
         </>
         

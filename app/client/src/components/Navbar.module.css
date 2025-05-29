@@ -11,7 +11,7 @@
 .header {
   background: var(--navbar-bg);
   color: var(--navbar-link);
-  border-radius: 0.5rem;
+  border-radius: 0;
   margin-bottom: 1.25rem;
   box-shadow: var(--navbar-shadow);
 }
