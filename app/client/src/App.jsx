@@ -12,6 +12,7 @@ import User from "./pages/User.jsx";
 import TimeMachine from "./pages/TimeMachine.jsx";
 import style from "./App.module.css";
 import bgDesktop from './assets/bg_desktop.png';
+import bgMobile from './assets/bg_mobile.png'; // Import your mobile background image
 
 function App() {
   const {token, setToken} = UseToken();
@@ -21,7 +22,10 @@ function App() {
   }
   return (
     <div>
-      <img className={style.background_image} src={bgDesktop} alt="Home" />
+      {/* Desktop background */}
+      <img className={`${style.background_image} ${style.desktop_bg}`} src={bgDesktop} alt="Desktop background" />
+      {/* Mobile background */}
+      <img className={`${style.background_image} ${style.mobile_bg}`} src={bgMobile} alt="Mobile background" />
       <Navbar />
       <div className="content">
         <Routes>

@@ -1,205 +1,744 @@
-/* Calendario.module.css */
+:global(:root) {
+  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
+  --dusk-card: rgba(36, 41, 73, 0.95); /* Adjusted alpha for card background */
+  --dusk-card-solid: #242949; /* A solid version of the card bg */
+  --dusk-border: #5c3c6e;
+  --dusk-accent: #ff8c6b;
+  --dusk-accent-light: #ffb997;
+  --dusk-text: #ffffff; /* Changed to pure white for better visibility */
+  --dusk-text-header: #ffffff; /* For main headers against dark backgrounds */
+  --dusk-muted: #d1c7e0; /* Lightened for better visibility */
+  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
+  --dusk-button-bg: rgba(255, 140, 107, 0.2); /* Accent with alpha for buttons */
+  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
+  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
+  --dusk-input-bg: rgba(59, 45, 90, 0.5); /* Darker input background */
+  --dusk-input-border: #5c3c6e;
+  --dusk-input-focus-border: var(--dusk-accent);
+  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
+  --dusk-today-bg: rgba(255, 140, 107, 0.15);
+  --dusk-modal-overlay: rgba(15, 18, 36, 0.7); /* Darker overlay */
+  
+  /* New variables for better event text visibility */
+  --event-text-primary: #ffffff;
+  --event-text-secondary: #f0f0f0;
+  --event-bg-opacity: 0.85; /* Higher opacity for event backgrounds */
+}
+
+/* Calendar Container */
 .calendarContainer {
-  height: 100vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  background-color: #f8f9fa;
-
-  /* Mobile Optimization */
-  @media (max-width: 768px) {
-    padding: 10px;
-  }
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  /* background: var(--dusk-bg); /* Optional: if the page itself should have this gradient */
 }
 
-/* FullCalendar overrides - Use :global to avoid name mangling */
-:global(.fc) {
-  height: 80vh; /* Adjusted for better mobile view */
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 10px; /* Reduced padding for smaller screens */
-  font-size: 0.8em; /* Smaller font size for better readability */
+/* FullCalendar Overrides */
+.calendarContainer :global(.fc) {
+  background: var(--dusk-card);
+  border-radius: 12px;
+  box-shadow: var(--dusk-shadow);
+  overflow: hidden;
+  /* CSS Custom Properties to override FullCalendar defaults */
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: var(--event-text-primary); /* Updated for better visibility */
+  border: 1px solid var(--dusk-border); /* Add a subtle border to the calendar */
 }
 
-:global(.fc-toolbar-title) {
-  color: #3174ad;
-  font-weight: 600;
-  font-size: 1.2em; /* Adjusted title size */
+/* Force override FullCalendar's inline styles for events */
+.calendarContainer :global(.fc-event) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  border: none !important;
+  color: var(--event-text-primary) !important; /* Pure white text */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important; /* Added text shadow for better readability */
 }
 
-:global(.fc-button-primary) {
-  background-color: #3174ad !important;
-  border-color: #3174ad !important;
-  transition: opacity 0.2s;
+.calendarContainer :global(.fc-daygrid-event) {
+  background-color: transparent !important;
+  border: none !important;
+  /* Text wrapping for daygrid events */
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
 }
 
-:global(.fc-button-primary:hover) {
-  opacity: 0.9;
+.calendarContainer :global(.fc-timegrid-event) {
+  background-color: transparent !important;
+  border: none !important;
 }
 
-:global(.fc-daygrid-day-frame:hover) {
-  background-color: rgba(49, 116, 173, 0.1);
+/* Event container overrides for text wrapping and appearance */
+.calendarContainer :global(.fc-event-main),
+.calendarContainer :global(.fc-event-main-frame) {
+  background: inherit !important;
+  border: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
 }
 
-:global(.fc-timegrid-slots td) {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+/* Event title specific text handling */
+.calendarContainer :global(.fc-event-title) {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+  color: var(--event-text-primary) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important; /* Stronger shadow for titles */
+  font-weight: 600 !important; /* Bold text for better visibility */
 }
 
-/* Default event styles */
-:global(.fc-event) {
-  border-radius: 4px;
-  border: none;
-  padding: 2px 5px;
-  background-color: #3174ad;
-  color: white;
-  font-size: 0.8em; /* Smaller font size for better readability */
+/* Ensure long titles don't break layout in event harnesses */
+.calendarContainer :global(.fc-daygrid-event-harness) {
+  overflow: visible !important;
+  position: relative;
+  white-space: normal !important;
+  text-overflow: unset !important;
 }
 
-:global(.fc-event:hover) {
-  opacity: 0.9;
-}
-
-/* Custom event type styling */
-:global(.custom-event-activity) {
-  background-color: #4285F4 !important;
-}
-
-:global(.custom-event-pomodoro) {
-  background-color: #EA4335 !important;
-}
-
-:global(.custom-event-event) {
-  background-color: #3174ad !important;
-}
-
-.eventTitle {
-  font-weight: bold;
+/* Add some breathing room between events */
+.calendarContainer :global(.fc-daygrid-event:not(:last-child)) {
   margin-bottom: 2px;
-  font-size: 1em; /* Adjusted title size */
 }
 
-.eventLocation, .eventCycles {
-  font-size: 0.75em;
-  opacity: 0.9;
+.calendarContainer :global(.fc-header-toolbar) {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%); /* Darker gradient for header */
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid var(--dusk-border);
 }
 
-/* Modal styles */
+.calendarContainer :global(.fc-toolbar-title) {
+  color: var(--dusk-text-header) !important;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.calendarContainer :global(.fc-button-primary) {
+  background: var(--dusk-button-bg) !important;
+  border: 1px solid var(--dusk-accent-light) !important;
+  color: var(--dusk-text) !important;
+  border-radius: 8px !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.calendarContainer :global(.fc-button-primary:hover) {
+  background: var(--dusk-button-hover-bg) !important;
+  border-color: var(--dusk-accent) !important;
+  transform: translateY(-1px);
+}
+
+.calendarContainer :global(.fc-button-primary:disabled) {
+  background: var(--dusk-button-disabled-bg) !important;
+  opacity: 0.6;
+  border-color: var(--dusk-muted) !important;
+}
+
+.calendarContainer :global(.fc-daygrid-day-number) {
+  color: var(--dusk-muted);
+  font-weight: 500;
+}
+
+.calendarContainer :global(.fc-day-today) {
+  background: var(--dusk-today-bg) !important;
+}
+
+.calendarContainer :global(.fc-daygrid-day-top) {
+  justify-content: center;
+}
+
+/* Custom Event Styling (local classes) */
+.eventTitle {
+  font-weight: 700; /* Increased weight for better visibility */
+  font-size: 0.875rem;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  color: var(--event-text-primary) !important; /* Pure white */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); /* Strong shadow */
+}
+
+.eventLocation {
+  font-size: 0.75rem;
+  opacity: 0.95; /* Increased opacity */
+  margin-bottom: 1px;
+  color: var(--event-text-secondary) !important; /* Light text */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  font-weight: 500; /* Added weight */
+}
+
+.eventCycles {
+  font-size: 0.75rem;
+  font-weight: 600; /* Increased weight */
+  opacity: 0.95; /* Increased opacity */
+  color: var(--event-text-secondary) !important; /* Light text */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Global custom event classes for different types */
+.calendarContainer :global(.custom-event) {
+  padding: 6px 8px; /* Increased padding for better readability */
+  border-radius: 8px; /* Slightly larger radius */
+  border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Subtle border for definition */
+  color: var(--event-text-primary) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 3px; /* Increased margin */
+  background-color: inherit !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.3;
+  min-height: 1.8em; /* Increased min-height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important; /* Strong text shadow */
+}
+
+.calendarContainer :global(.custom-event:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Enhanced event type colors with better opacity and contrast */
+.calendarContainer :global(.custom-event-event) {
+  background: rgba(255, 140, 107, var(--event-bg-opacity)) !important; /* Higher opacity */
+  backdrop-filter: blur(2px); /* Subtle blur for depth */
+}
+
+.calendarContainer :global(.custom-event-activity) {
+  background: rgba(139, 195, 74, var(--event-bg-opacity)) !important; /* Green with higher opacity */
+  backdrop-filter: blur(2px);
+}
+
+.calendarContainer :global(.custom-event-pomodoro) {
+  background: rgba(244, 67, 54, var(--event-bg-opacity)) !important; /* Red with higher opacity */
+  backdrop-filter: blur(2px);
+}
+
+/* Modal Styles */
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--dusk-modal-overlay);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 9999;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .modal {
-  background: white;
-  padding: 15px; /* Reduced padding for smaller screens */
-  border-radius: 8px;
-  width: 90%; /* Adjusted width for better mobile view */
-  max-width: 400px;
+  background: var(--dusk-card-solid);
+  border-radius: 16px;
+  box-shadow: var(--dusk-shadow);
+  width: 100%;
+  max-width: 500px;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid var(--dusk-border);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px; /* Reduced margin for smaller screens */
-  background: #f5f5f5;
-  padding: 8px; /* Reduced padding for smaller screens */
-  border-radius: 8px 8px 0 0;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--dusk-border);
+  background: rgba(59, 45, 90, 0.7); /* Slightly different shade for header */
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dusk-text-header);
 }
 
 .modalHeader button {
   background: none;
   border: none;
-  font-size: 20px; /* Adjusted close button size */
+  font-size: 1.5rem;
+  color: var(--dusk-muted);
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.modalHeader button:hover {
+  background: var(--dusk-button-bg);
+  color: var(--dusk-accent);
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .formGroup {
-  margin-bottom: 12px; /* Reduced margin for smaller screens */
+  margin-bottom: 20px;
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 3px; /* Reduced margin for smaller screens */
-  font-size: 0.9em; /* Smaller label font size */
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--dusk-muted);
+  font-size: 0.875rem;
 }
 
 .formGroup input,
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  padding: 6px; /* Reduced padding for smaller screens */
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border: 2px solid var(--dusk-input-border);
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
   box-sizing: border-box;
-  font-size: 0.9em; /* Smaller input font size */
-}
-
-button,
-.formGroup input,
-.formGroup select,
-.formGroup textarea {
-  min-height: 44px; /* Recommended minimum for touch targets */
+  font-family: inherit;
+  background-color: var(--dusk-input-bg);
+  color: var(--dusk-text);
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
-  border-color: #4CAF50;
   outline: none;
-}
-
-.modalFooter {
-  margin-top: 15px; /* Reduced margin for smaller screens */
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px; /* Reduced gap for smaller screens */
-}
-
-button {
-  padding: 6px 12px; /* Reduced padding for smaller screens */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em; /* Smaller button font size */
-}
-
-.deleteBtn {
-  background: #ff4444;
-  color: white;
-  margin-right: auto;
-}
-
-.deleteBtn:hover {
-  background: #cc0000;
-}
-
-.saveBtn {
-  background: #4CAF50;
-  color: white;
-}
-
-.cancelBtn {
-  background: #f44336;
-  color: white;
-}
-
-.saveBtn:hover,
-.cancelBtn:hover {
-  opacity: 0.9;
+  border-color: var(--dusk-input-focus-border);
+  box-shadow: var(--dusk-input-focus-shadow);
 }
 
 .formGroup textarea {
-  min-height: 60px; /* Reduced height for smaller screens */
   resize: vertical;
+  min-height: 80px;
+}
+
+.formGroup select {
+  cursor: pointer;
+  /* SVG color needs to be updated for dark theme */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1c7e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e"); /* Updated stroke color */
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  appearance: none;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--dusk-border);
+  background: rgba(59, 45, 90, 0.7); /* Consistent with modal header */
+}
+
+.modalFooter button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 80px;
+}
+
+.modalFooter button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saveBtn {
+  background: var(--dusk-accent);
+  color: var(--dusk-card-solid); /* Dark text on accent bg for contrast */
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 140, 107, 0.4); /* Shadow from accent color */
+  background: var(--dusk-accent-light);
+}
+
+.cancelBtn {
+  background: var(--dusk-input-bg);
+  color: var(--dusk-muted);
+  border: 1px solid var(--dusk-border);
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: var(--dusk-border);
+  color: var(--dusk-text);
+}
+
+.deleteBtn {
+  background: #c70039; /* A suitable dark red for delete */
+  color: var(--dusk-text);
+  margin-right: auto;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(199, 0, 57, 0.4);
+  background: #900c3f; /* Darker red on hover */
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .calendarContainer {
+    padding: 5px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .calendarContainer :global(.fc) {
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .calendarContainer :global(.fc-view-harness) {
+    flex: 1;
+    overflow: auto;
+  }
+  
+  .calendarContainer :global(.fc-header-toolbar) {
+    padding: 8px 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: auto;
+    flex-shrink: 0;
+  }
+  
+  .calendarContainer :global(.fc-toolbar-chunk) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .calendarContainer :global(.fc-toolbar-title) {
+    font-size: 1.1rem;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+    order: 0;
+  }
+  
+  .calendarContainer :global(.fc-button) {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+    min-height: 32px;
+  }
+  
+  .calendarContainer :global(.fc-daygrid-day) {
+    min-height: 100px !important; /* Increased for wrapped text */
+  }
+  
+  .calendarContainer :global(.fc-daygrid-day-number) {
+    font-size: 0.8rem;
+    padding: 4px;
+  }
+  
+  .calendarContainer :global(.fc-col-header-cell) {
+    padding: 8px 2px;
+  }
+  
+  .calendarContainer :global(.fc-col-header-cell-cushion) {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .calendarContainer :global(.fc-daygrid-event) {
+    font-size: 0.8rem !important; /* Enhanced for readability */
+    margin-bottom: 2px !important; /* Enhanced spacing */
+    padding: 3px 4px !important; /* Enhanced padding */
+    border-radius: 4px !important; /* Enhanced border radius */
+  }
+
+  /* Adjust event spacing in day cells */
+  .calendarContainer :global(.fc-daygrid-day-events) {
+    margin-top: 2px;
+  }
+  
+  .eventTitle {
+    font-size: 0.8rem; /* Enhanced */
+    font-weight: 700; /* Bold for mobile */
+    line-height: 1.2;
+    margin-bottom: 1px;
+  }
+  
+  .eventLocation,
+  .eventCycles {
+    font-size: 0.75rem; /* Enhanced */
+    line-height: 1.1;
+    font-weight: 500; /* Added weight for mobile */
+  }
+
+  .calendarContainer :global(.custom-event) {
+    min-height: 28px; /* Increased touch target size */
+    padding: 5px 7px; /* Enhanced padding for mobile */
+    margin-bottom: 3px; /* Enhanced margin */
+    touch-action: manipulation; /* Improve touch interaction */
+  }
+  
+  .modalOverlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  
+  .modal {
+    max-height: 85vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    animation: modalSlideUp 0.3s ease-out;
+  }
+  
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .modalHeader {
+    padding-top: 20px;
+    padding-bottom: 12px;
+  }
+  
+  .modalBody {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  
+  .modalFooter {
+    padding-top: 12px;
+    padding-bottom: 20px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  .modalFooter button {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+  
+  .deleteBtn {
+    margin-right: 0;
+    order: 3;
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .formGroup input,
+  .formGroup select,
+  .formGroup textarea {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarContainer {
+    padding: 3px;
+  }
+  
+  .calendarContainer :global(.fc-header-toolbar) {
+    padding: 6px 8px;
+    min-height: 50px;
+  }
+  
+  .calendarContainer :global(.fc-toolbar-title) {
+    font-size: 1rem;
+  }
+  
+  .calendarContainer :global(.fc-button) {
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    min-height: 28px;
+  }
+  
+  .calendarContainer :global(.fc-daygrid-day) {
+    min-height: 90px !important; /* Enhanced for very small screens */
+  }
+  
+  .calendarContainer :global(.fc-daygrid-day-number) {
+    font-size: 0.75rem;
+    padding: 2px;
+  }
+  
+  .calendarContainer :global(.fc-col-header-cell) {
+    padding: 6px 1px;
+  }
+  
+  .calendarContainer :global(.fc-col-header-cell-cushion) {
+    font-size: 0.75rem;
+  }
+
+  .calendarContainer :global(.fc-daygrid-event) {
+    font-size: 0.75rem !important; /* Enhanced */
+    padding: 3px 5px !important; /* Enhanced padding */
+  }
+  
+  .eventTitle {
+    font-size: 0.75rem; /* Enhanced */
+    line-height: 1.15; /* Enhanced */
+    font-weight: 700; /* Bold for small screens */
+  }
+  
+  .eventLocation,
+  .eventCycles {
+    font-size: 0.7rem; /* Enhanced */
+    font-weight: 500;
+  }
+
+  .calendarContainer :global(.custom-event) {
+    padding: 4px 6px; /* Enhanced padding */
+    margin-bottom: 2px; /* Enhanced margin */
+    min-height: 24px; /* Enhanced min-height */
+  }
+  
+  .modalHeader h3 {
+    font-size: 1.1rem;
+  }
+  
+  .formGroup label {
+    font-size: 0.8rem;
+  }
+}
+
+/* High DPI / Retina Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .calendarContainer :global(.fc-button-primary) {
+    border-width: 0.5px !important;
+  }
+}
+
+/* Dark mode support (if needed in the future) */
+@media (prefers-color-scheme: dark) {
+  /* Add dark mode styles here if needed */
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .calendarContainer :global(.fc-button-primary),
+  .calendarContainer :global(.custom-event),
+  .modalFooter button {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.calendarContainer :global(.fc-button-primary:focus),
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus,
+.modalFooter button:focus {
+  outline: 2px solid var(--dusk-accent);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .modalOverlay {
+    display: none;
+  }
+  
+  .calendarContainer {
+    box-shadow: none;
+    background: #fff; /* Ensure light background for printing */
+  }
+  
+  .calendarContainer :global(.fc) {
+    background: #fff;
+    border: 1px solid #ccc;
+  }
+
+  .calendarContainer :global(.fc-header-toolbar) {
+    background: #f3f4f6 !important;
+  }
+  .calendarContainer :global(.fc-header-toolbar .fc-toolbar-title) {
+    color: #111827 !important;
+  }
+  .calendarContainer :global(.fc-button-primary) {
+    background: #e9ecef !important;
+    border: 1px solid #ced4da !important;
+    color: #495057 !important;
+  }
+  .calendarContainer :global(.fc-daygrid-day-number) {
+    color: #374151;
+  }
+  .calendarContainer :global(.fc-day-today) {
+    background: #e6f7ff !important;
+  }
+  .eventTitle, .eventLocation, .eventCycles {
+    color: #333; /* Dark text for events on print */
+    text-shadow: none;
+  }
+  .calendarContainer :global(.custom-event) {
+    color: #333 !important; /* Dark text for custom events */
+    text-shadow: none !important;
+  }
+  .calendarContainer :global(.custom-event-event) {
+    background: #ddeeff !important; /* Light blue for event type */
+  }
+  .calendarContainer :global(.custom-event-activity) {
+    background: #d4edda !important; /* Light green for activity type */
+  }
+  .calendarContainer :global(.custom-event-pomodoro) {
+    background: #f8d7da !important; /* Light red for pomodoro type */
+  }
 }

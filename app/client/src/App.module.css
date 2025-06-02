@@ -35,3 +35,21 @@
   left: 0;
   z-index: -1; /* Ensures content-box stays on top */
 }
+
+.desktop_bg {
+  display: block; /* Show by default (for desktop) */
+}
+
+.mobile_bg {
+  display: none; /* Hide by default */
+}
+
+/* Media query for mobile devices (e.g., screens up to 767px wide) */
+@media (max-width: 767px) {
+  .desktop_bg {
+    display: none; /* Hide desktop background on mobile */
+  }
+  .mobile_bg {
+    display: block; /* Show mobile background on mobile */
+  }
+}

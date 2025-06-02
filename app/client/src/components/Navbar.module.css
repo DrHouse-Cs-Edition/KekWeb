@@ -9,11 +9,12 @@
 }
 
 .header {
-  background: var(--navbar-bg);
-  color: var(--navbar-link);
+  backdrop-filter: blur(10px);
   border-radius: 0;
   margin-bottom: 1.25rem;
   box-shadow: var(--navbar-shadow);
+  position: relative;
+  z-index: 10001; /* Higher than modal overlay */
 }
 
 .container {
@@ -23,7 +24,8 @@
   padding: 0.75rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  position: relative;
+  position: relative; 
+  z-index: 10001; /* Higher than modal overlay */
 }
 
 /* Logo */
@@ -53,7 +55,8 @@
   border: none;
   cursor: pointer;
   gap: 0.25rem;
-  z-index: 10;
+  z-index: 10001; /* Higher than modal overlay */
+  position: relative;
 }
 
 .hamburgerLine {
@@ -88,7 +91,7 @@
   flex-direction: column;
   border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: var(--navbar-shadow);
-  z-index: 5;
+  z-index: 10001; /* Higher than modal overlay */
 }
 
 .navbarOpen {
@@ -125,6 +128,7 @@
 @media (min-width: 641px) {
   .container {
     padding: 1rem 1.5rem;
+    z-index: 10001; /* Keep consistent z-index */
   }
   
   .logo {
@@ -143,6 +147,7 @@
     box-shadow: none;
     border-radius: 0;
     gap: 0.5rem;
+    z-index: 10001; /* Keep consistent z-index */
   }
   
   .navLink {
