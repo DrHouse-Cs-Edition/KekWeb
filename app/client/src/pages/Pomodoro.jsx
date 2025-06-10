@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-import React, { Fragment, useState, useEffect } from "react";
-=======
 import {useState, useEffect, Fragment, useRef} from 'react';
 import { useParams } from 'react-router-dom';
 import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
->>>>>>> origin/main
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
-import {Input} from "../utils/InputV2.jsx"
+import {Input} from "../utils/InputV2.jsx";
 import {FormProvider, useForm} from "react-hook-form";
 import React from 'react';
 import { Animation } from "../components/pomodoroComponents/Animation/Animation.jsx";
