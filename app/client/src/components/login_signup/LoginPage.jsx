@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { Input } from "../utils/Input";
+import { Input } from "../../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { useUsername, getPersonalData } from "./UserHooks";
 

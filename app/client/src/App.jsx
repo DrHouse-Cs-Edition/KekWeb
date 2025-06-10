@@ -10,9 +10,13 @@ import Signup from "./components/login_signup/Signup.jsx";
 import {UseToken} from "./components/login_signup/UserHooks.jsx"
 import User from "./pages/User.jsx";
 import TimeMachine from "./pages/TimeMachine.jsx";
+<<<<<<< HEAD
 import style from "./App.module.css";
 import bgDesktop from './assets/bg_desktop.png';
 import bgMobile from './assets/bg_mobile.png'; // Import your mobile background image
+=======
+import Testing from "./Testing/testing.jsx"
+>>>>>>> origin/main
 
 function App() {
   const {token, setToken} = UseToken();
@@ -36,6 +40,7 @@ function App() {
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/utente" element={<User />} />
           <Route path="/macchinaDelTempo" element={<TimeMachine />} />
+          <Route path="/testing" element={<Testing/>} />
         </Routes>
       </div>
     </div>

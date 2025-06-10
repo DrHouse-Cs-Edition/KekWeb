@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useUsername, UseToken, getPersonalData, checkPassword } from "../components/login_signup/UserHooks";
 import {FormProvider, useForm} from "react-hook-form";
 
-import { Input } from "../components/utils/InputV2";
+import { Input } from "../utils/InputV2"
 import style from "./User.module.css";
 
 const User = ()=>{
@@ -71,7 +71,7 @@ const User = ()=>{
                 logout();
             }else{
                 alert("incorrect password: more than 3 attempts will lead to a forced logout ");
-            setAttempts(attempts + 1);
+                setAttempts(attempts + 1);
             }
             return;
         }else{
@@ -189,7 +189,7 @@ const User = ()=>{
                     ></Input>
                 </ div>
                 <button onClick={logout}>Logout</button>   
-                { lock ? modifyButton : saveButtonComponent(formMethods)}   
+                { lock ? modifyButton : saveButtonComponent(formMethods)} 
             </FormProvider>
         </div>   
     </div>
