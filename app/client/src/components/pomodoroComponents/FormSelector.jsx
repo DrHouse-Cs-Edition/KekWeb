@@ -1,6 +1,6 @@
 import React, { useState, Fragment, useRef } from "react";
 import {FormProvider, useForm} from "react-hook-form";
-import {Input} from "../utils/Input.jsx"  // elemento di input customizzabile che richiede label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght
+import {Input} from "../../utils/Input"  // elemento di input customizzabile che richiede label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght
 
 
 
