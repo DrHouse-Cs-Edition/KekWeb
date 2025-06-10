@@ -10,8 +10,8 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
       const inputError = findInputError(errors, label); //pass the form errors and the label of the input to find the error
       const isInvalid = isFormInvalid(inputError); //returns true if the input is invalid
     return (
-        <div>
-            <label htmlFor={id} className="font-semibold capitalize">
+        <div id={"div"+id}>
+            <label htmlFor={id} id={"label"+id} className="font-semibold capitalize " >
                 {label}
             </label>
 
@@ -23,7 +23,7 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
             //className="w-full p-5 font-medium border rounded-md border-slate-300 placeholder:opacity-60"
            //i had to adopt this solution because the input value was not being updated
 
-           placeholder={placeholder}
+            placeholder={placeholder}
 
             readOnly={readonly}
 

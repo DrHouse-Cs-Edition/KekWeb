@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Style from './PomodoroSideBar.module.css';
 
-const PomodoroSideBar = ( {loadPomodoro})=>{
+const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
     const pomodoroArray = [];
     const [pomodoros, setPomodoros] = useState("");
     const [visibility, setVisibility] = useState(0);
@@ -20,7 +20,7 @@ const PomodoroSideBar = ( {loadPomodoro})=>{
         ).then(
             (data) =>{
                 data.body.map((el)=>{pomodoroArray.push(el); console.log(el.title)});
-                setPomodoros(data.body.map(el => PomodoroWidgetDiv(el._id, el.title, el.studyTime, el.breakTime, el.cycles, loadPomodoro)));
+                setPomodoros(data.body.map(el => PomodoroWidgetDiv(el._id, el.title, el.studyTime, el.breakTime, el.cycles, loadPomodoro, deleteCallback)));
             }
         )
     }
@@ -55,13 +55,38 @@ export default PomodoroSideBar;
 //* - study phase duration
 //* - break phase duration
 //* - rounds
+//* - loadPomodoro function to load the pomodoro
+//* - deletePomodoro function to delete the pomodoro
+//* - editPomodoro function to edit the pomodoro
 // */
-const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro)=>{
+const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, deleteCallback)=>{
     //vars that keeps the degress for the chart
-
     let sum = studyT + breakT;
     let studyP = (studyT / sum) *360;
     let breakP = (breakT / sum) *360;
+
+    const deletePomodoro = ()=>
+    {
+        fetch(`/api/Pomodoro/deleteP/` + id,{
+            method: 'DELETE',
+            mode: "cors",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            })
+            .then(response =>
+            {
+                if(response.ok){
+                deleteCallback();
+            }
+            else{
+            alert("Error deleting the Pomodoro");
+            }})
+            .catch(error =>{
+                alert("Error deleting the Pomodoro");
+            }
+        );
+    }
 
     return ( 
         <li key={id}> 
@@ -77,8 +102,7 @@ const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro)=>{
             </div>
             <div className={Style.buttons}>
                 <button className={Style.openB} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button>
-                <button className={Style.modifyB} onClick={()=>{console.log("renaming pomdoro: ", title)}}>Rename</button>
-                <button className={Style.deleteB} onClick={()=>{console.log("opening deleting: ", title)}}>Delete</button>
+                <button className={Style.deleteB} onClick={()=>deletePomodoro()}>Delete</button>
             </div>
             <br></br>
         </div></li>

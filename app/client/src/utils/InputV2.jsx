@@ -15,7 +15,7 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
       }, [value])
     return (
         <div>
-            <label htmlFor={id} className="font-semibold capitalize">
+            <label htmlFor={id} className="font-semibold capitalize" id={"labelID_"+id}>
                 {label}
             </label>
 
