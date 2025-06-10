@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Calendar from "./pages/Calendar.jsx";
 import Note from "./pages/Note.jsx";

@@ -46,7 +46,27 @@
   --fc-event-bg-color: transparent;
   --fc-event-border-color: transparent;
   --fc-event-text-color: var(--event-text-primary); /* Updated for better visibility */
-  border: 1px solid var(--dusk-border); /* Add a subtle border to the calendar */
+  border: 1px solid var(--dusk-border); /* This already matches mobile's main container border */
+}
+
+/* Day header labels (Mon, Tue, etc.) */
+.calendarContainer :global(.fc-col-header-cell) { /* Target the actual header cell for its bottom border */
+  border-bottom: 1px solid var(--dusk-border);
+}
+
+.calendarContainer :global(.fc-col-header-cell-cushion) {
+  color: var(--dusk-text-header); /* Use theme header text color */
+  font-weight: 600; /* Consistent font weight */
+  text-decoration: none; /* Ensure no underline if not desired */
+  /* You can adjust padding here if needed, e.g., padding: 8px 4px; */
+}
+
+/* Day cell borders */
+.calendarContainer :global(.fc-daygrid-day) {
+  border: 1px solid var(--dusk-border); /* Add border to each day cell */
+  /* Note: FullCalendar cells typically touch. If you had a gap in mobile and want it here,
+     that would require more complex adjustments to FC's table structure or negative margins.
+     This change applies a border assuming cells touch or have default FC spacing. */
 }
 
 /* Force override FullCalendar's inline styles for events */
@@ -418,245 +438,7 @@
   background: #900c3f; /* Darker red on hover */
 }
 
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-  .calendarContainer {
-    padding: 5px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  
-  .calendarContainer :global(.fc) {
-    height: 100% !important;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .calendarContainer :global(.fc-view-harness) {
-    flex: 1;
-    overflow: auto;
-  }
-  
-  .calendarContainer :global(.fc-header-toolbar) {
-    padding: 8px 10px;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    min-height: auto;
-    flex-shrink: 0;
-  }
-  
-  .calendarContainer :global(.fc-toolbar-chunk) {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .calendarContainer :global(.fc-toolbar-title) {
-    font-size: 1.1rem;
-    margin: 0;
-    flex: 1;
-    text-align: center;
-    order: 0;
-  }
-  
-  .calendarContainer :global(.fc-button) {
-    padding: 6px 10px !important;
-    font-size: 0.8rem !important;
-    min-height: 32px;
-  }
-  
-  .calendarContainer :global(.fc-daygrid-day) {
-    min-height: 100px !important; /* Increased for wrapped text */
-  }
-  
-  .calendarContainer :global(.fc-daygrid-day-number) {
-    font-size: 0.8rem;
-    padding: 4px;
-  }
-  
-  .calendarContainer :global(.fc-col-header-cell) {
-    padding: 8px 2px;
-  }
-  
-  .calendarContainer :global(.fc-col-header-cell-cushion) {
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  
-  .calendarContainer :global(.fc-daygrid-event) {
-    font-size: 0.8rem !important; /* Enhanced for readability */
-    margin-bottom: 2px !important; /* Enhanced spacing */
-    padding: 3px 4px !important; /* Enhanced padding */
-    border-radius: 4px !important; /* Enhanced border radius */
-  }
-
-  /* Adjust event spacing in day cells */
-  .calendarContainer :global(.fc-daygrid-day-events) {
-    margin-top: 2px;
-  }
-  
-  .eventTitle {
-    font-size: 0.8rem; /* Enhanced */
-    font-weight: 700; /* Bold for mobile */
-    line-height: 1.2;
-    margin-bottom: 1px;
-  }
-  
-  .eventLocation,
-  .eventCycles {
-    font-size: 0.75rem; /* Enhanced */
-    line-height: 1.1;
-    font-weight: 500; /* Added weight for mobile */
-  }
-
-  .calendarContainer :global(.custom-event) {
-    min-height: 28px; /* Increased touch target size */
-    padding: 5px 7px; /* Enhanced padding for mobile */
-    margin-bottom: 3px; /* Enhanced margin */
-    touch-action: manipulation; /* Improve touch interaction */
-  }
-  
-  .modalOverlay {
-    padding: 10px;
-    align-items: flex-end;
-  }
-  
-  .modal {
-    max-height: 85vh;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    animation: modalSlideUp 0.3s ease-out;
-  }
-  
-  @keyframes modalSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .modalHeader,
-  .modalBody,
-  .modalFooter {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  
-  .modalHeader {
-    padding-top: 20px;
-    padding-bottom: 12px;
-  }
-  
-  .modalBody {
-    padding-top: 20px;
-    padding-bottom: 20px;
-  }
-  
-  .modalFooter {
-    padding-top: 12px;
-    padding-bottom: 20px;
-    flex-direction: column-reverse;
-    gap: 8px;
-  }
-  
-  .modalFooter button {
-    width: 100%;
-    padding: 14px 24px;
-    font-size: 1rem;
-  }
-  
-  .deleteBtn {
-    margin-right: 0;
-    order: 3;
-  }
-  
-  .formGroup {
-    margin-bottom: 16px;
-  }
-  
-  .formGroup input,
-  .formGroup select,
-  .formGroup textarea {
-    padding: 14px 16px;
-    font-size: 16px; /* Prevents zoom on iOS */
-  }
-}
-
-@media (max-width: 480px) {
-  .calendarContainer {
-    padding: 3px;
-  }
-  
-  .calendarContainer :global(.fc-header-toolbar) {
-    padding: 6px 8px;
-    min-height: 50px;
-  }
-  
-  .calendarContainer :global(.fc-toolbar-title) {
-    font-size: 1rem;
-  }
-  
-  .calendarContainer :global(.fc-button) {
-    padding: 4px 8px !important;
-    font-size: 0.75rem !important;
-    min-height: 28px;
-  }
-  
-  .calendarContainer :global(.fc-daygrid-day) {
-    min-height: 90px !important; /* Enhanced for very small screens */
-  }
-  
-  .calendarContainer :global(.fc-daygrid-day-number) {
-    font-size: 0.75rem;
-    padding: 2px;
-  }
-  
-  .calendarContainer :global(.fc-col-header-cell) {
-    padding: 6px 1px;
-  }
-  
-  .calendarContainer :global(.fc-col-header-cell-cushion) {
-    font-size: 0.75rem;
-  }
-
-  .calendarContainer :global(.fc-daygrid-event) {
-    font-size: 0.75rem !important; /* Enhanced */
-    padding: 3px 5px !important; /* Enhanced padding */
-  }
-  
-  .eventTitle {
-    font-size: 0.75rem; /* Enhanced */
-    line-height: 1.15; /* Enhanced */
-    font-weight: 700; /* Bold for small screens */
-  }
-  
-  .eventLocation,
-  .eventCycles {
-    font-size: 0.7rem; /* Enhanced */
-    font-weight: 500;
-  }
-
-  .calendarContainer :global(.custom-event) {
-    padding: 4px 6px; /* Enhanced padding */
-    margin-bottom: 2px; /* Enhanced margin */
-    min-height: 24px; /* Enhanced min-height */
-  }
-  
-  .modalHeader h3 {
-    font-size: 1.1rem;
-  }
-  
-  .formGroup label {
-    font-size: 0.8rem;
-  }
-}
+/* Mobile Responsive Styles REMOVED */
 
 /* High DPI / Retina Display Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {

@@ -3,8 +3,6 @@ import style from './Home.module.css';
 import ListaEventiGiornalieri from '../components/listeEventi/ListaEventiGiornalieri';
 import { getPersonalData } from '../components/login_signup/UserHooks';
 
-
-
 function handleNote(x){
     if(x === 0){
         return (

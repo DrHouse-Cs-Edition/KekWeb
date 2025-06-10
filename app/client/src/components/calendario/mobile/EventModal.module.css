@@ -1,0 +1,200 @@
+:global(:root) {
+  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
+  --dusk-card: rgba(36, 41, 73, 0.95); /* Adjusted alpha for card background */
+  --dusk-card-solid: #242949; /* A solid version of the card bg */
+  --dusk-border: #5c3c6e;
+  --dusk-accent: #ff8c6b;
+  --dusk-accent-light: #ffb997;
+  --dusk-text: #ffffff; /* Changed to pure white for better visibility */
+  --dusk-text-header: #ffffff; /* For main headers against dark backgrounds */
+  --dusk-muted: #d1c7e0; /* Lightened for better visibility */
+  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
+  --dusk-button-bg: rgba(255, 140, 107, 0.2); /* Accent with alpha for buttons */
+  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
+  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
+  --dusk-input-bg: rgba(59, 45, 90, 0.5); /* Darker input background */
+  --dusk-input-border: #5c3c6e;
+  --dusk-input-focus-border: var(--dusk-accent);
+  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
+  --dusk-today-bg: rgba(255, 140, 107, 0.15);
+  --dusk-modal-overlay: rgba(15, 18, 36, 0.7); /* Darker overlay */
+  
+  /* New variables for better event text visibility */
+  --event-text-primary: #ffffff;
+  --event-text-secondary: #f0f0f0;
+  --event-bg-opacity: 0.85; /* Higher opacity for event backgrounds */
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--dusk-modal-overlay); /* Use theme modal overlay */
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modalContent {
+  background-color: var(--dusk-card-solid); /* Use theme card solid background */
+  color: var(--dusk-text); /* Default text color */
+  width: 100%;
+  max-width: 28rem;
+  max-height: 100%;
+  overflow-y: auto;
+  border-top-left-radius: 0.5rem; /* For mobile bottom sheet appearance */
+  border-top-right-radius: 0.5rem;
+  border: 1px solid var(--dusk-border);
+  border-bottom: none; /* Part of bottom sheet appearance */
+}
+
+@media (min-width: 640px) {
+  .modalOverlay {
+    align-items: center;
+  }
+  .modalContent {
+    border-radius: 0.5rem; /* Full rounded corners on larger screens */
+    border-bottom: 1px solid var(--dusk-border);
+  }
+}
+
+.modalHeader {
+  padding: 1rem;
+  border-bottom: 1px solid var(--dusk-border); /* Use theme border */
+}
+
+.modalHeaderContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dusk-text-header); /* Use theme header text color */
+}
+
+.iconButton {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--dusk-muted);
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.iconButton:hover {
+  background-color: var(--dusk-button-bg);
+  color: var(--dusk-accent);
+}
+
+.closeButton {}
+
+.iconSize {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.modalBody {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--dusk-muted); /* Use theme muted text color */
+  margin-bottom: 0.25rem;
+}
+
+.selectInput,
+.textInput,
+.textareaInput {
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border: 1px solid var(--dusk-input-border); /* Use theme input border */
+  border-radius: 0.5rem;
+  outline: none;
+  background-color: var(--dusk-input-bg); /* Use theme input background */
+  color: var(--dusk-text); /* Use theme text color */
+  box-sizing: border-box;
+}
+
+.selectInput:focus,
+.textInput:focus,
+.textareaInput:focus {
+  border-color: var(--dusk-input-focus-border); /* Theme focus border */
+  box-shadow: var(--dusk-input-focus-shadow); /* Theme focus shadow */
+}
+
+.textareaInput {
+  /* rows="3" is handled by the textarea element itself */
+}
+
+.dateTimeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.modalFooter {
+  padding: 1rem;
+  border-top: 1px solid var(--dusk-border); /* Use theme border */
+  display: flex;
+  gap: 0.75rem;
+  background-color: var(--dusk-card); /* Footer bg same as header */
+}
+
+.button {
+  flex: 1;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.deleteButton {
+  background-color: #c70039; /* From desktop theme delete */
+  color: var(--dusk-text);
+  border-color: #c70039;
+}
+
+.deleteButton:hover {
+  background-color: #900c3f; /* From desktop theme delete hover */
+  border-color: #900c3f;
+}
+
+.cancelButton {
+  background-color: var(--dusk-input-bg);
+  color: var(--dusk-muted);
+  border-color: var(--dusk-border);
+}
+
+.cancelButton:hover {
+  background-color: var(--dusk-border);
+  color: var(--dusk-text);
+}
+
+.saveButton {
+  background-color: var(--dusk-accent); /* Use theme accent color */
+  color: var(--dusk-card-solid); /* Contrast text for accent */
+  border-color: var(--dusk-accent);
+}
+
+.saveButton:hover {
+  background-color: var(--dusk-accent-light); /* Lighter accent on hover */
+  border-color: var(--dusk-accent-light);
+}

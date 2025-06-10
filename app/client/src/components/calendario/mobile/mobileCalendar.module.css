@@ -1,0 +1,368 @@
+:global(:root) {
+  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
+  --dusk-card: rgba(36, 41, 73, 0.95); /* Matched from Calendario.module.css */
+  --dusk-card-solid: #242949; /* Matched from Calendario.module.css (solid) - if you want this transparent too, use rgba(36, 41, 73, 0.85) or similar */
+  --dusk-border: #5c3c6e; /* Matched from Calendario.module.css (solid) - if you want this transparent too, use rgba(92, 60, 110, 0.7) or similar */
+  --dusk-accent: #ff8c6b;
+  --dusk-accent-light: #ffb997;
+  --dusk-text: #ffffff;
+  --dusk-text-header: #ffffff;
+  --dusk-muted: #d1c7e0;
+  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
+  --dusk-button-bg: rgba(255, 140, 107, 0.2);
+  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
+  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
+  --dusk-input-bg: rgba(59, 45, 90, 0.5); /* Matched from Calendario.module.css */
+  --dusk-input-border: #5c3c6e; /* Matched from Calendario.module.css (solid) - if you want this transparent too, use rgba(92, 60, 110, 0.7) or similar */
+  --dusk-input-focus-border: var(--dusk-accent);
+  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
+  --dusk-today-bg: rgba(255, 140, 107, 0.15); /* Matched from Calendario.module.css */
+  --dusk-modal-overlay: rgba(15, 18, 36, 0.7); /* Matched from Calendario.module.css */
+
+  /* New variables for better event text visibility */
+  --event-text-primary: #ffffff;
+  --event-text-secondary: #f0f0f0;
+  --event-bg-opacity: 0.85; /* Higher opacity for event backgrounds */
+}
+
+.container {
+  min-height: 100vh;
+  backdrop-filter: blur(3px);
+  color: var(--dusk-text); /* Default text color */
+}
+
+.header {
+  backdrop-filter: blur(3px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerPadding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.headerTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.headerLeftGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.headerRightGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconButton {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  transition-property: background-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  color: var(--dusk-muted); /* Default icon color */
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.iconButtonHover:hover {
+  background-color: var(--dusk-button-bg); /* Use theme button background on hover */
+  color: var(--dusk-accent); /* Accent color for icon on hover */
+}
+
+.iconSize {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.iconSizeSmall {
+  width: 1rem;
+  height: 1rem;
+}
+.iconSizeLarge {
+    width: 3rem;
+    height: 3rem;
+}
+
+.calendarTitle {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: var(--dusk-text-header); /* Use theme header text color */
+}
+
+.primaryButton {
+  background-color: var(--dusk-accent); /* Use theme accent color */
+  color: var(--dusk-card-solid); /* Contrast text for accent */
+  padding: 0.5rem;
+  border-radius: 9999px;
+  transition-property: background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  border: none;
+}
+
+.primaryButton:hover {
+  background-color: var(--dusk-accent-light); /* Lighter accent on hover */
+}
+
+.searchBarContainer {
+  margin-bottom: 0.75rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border: 1px solid var(--dusk-input-border); /* Use theme input border */
+  border-radius: 0.5rem;
+  background-color: var(--dusk-input-bg); /* Use theme input background */
+  color: var(--dusk-text); /* Use theme text color */
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: var(--dusk-input-focus-border); /* Theme focus border */
+  box-shadow: var(--dusk-input-focus-shadow); /* Theme focus shadow */
+}
+
+.monthNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--dusk-text-header);
+}
+
+.monthNavTitle {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+.viewToggleContainer {
+  display: flex;
+  border-top: 1px solid var(--dusk-border); /* Use theme border */
+}
+
+.viewToggleButton {
+  flex: 1 1 0%;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  border-bottom-width: 2px;
+  transition-property: color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+}
+
+.viewToggleButtonInactive {
+  border-color: transparent;
+  color: var(--dusk-muted); /* Use theme muted text color */
+}
+.viewToggleButtonInactive:hover {
+  color: var(--dusk-text); /* Use theme text color on hover */
+}
+
+.viewToggleButtonActive {
+  border-color: var(--dusk-accent); /* Use theme accent color for border */
+  color: var(--dusk-accent); /* Use theme accent color for text */
+}
+
+.mainContent {
+  padding: 1rem;
+}
+
+.todaysEventsSummaryContainer {
+  margin-bottom: 1rem;
+}
+
+.todaysEventsTitle {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: var(--dusk-text-header);
+  margin-bottom: 0.75rem;
+}
+
+.todaysEventsCard {
+  background-color: var(--dusk-card-solid); /* Use solid card background */
+  border-radius: 0.5rem;
+  box-shadow: var(--dusk-shadow);
+  padding: 1rem;
+  border: 1px solid var(--dusk-border);
+}
+
+.noEventsText {
+  color: var(--dusk-muted);
+  text-align: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Styles for items within Today's Events Card */
+.todayEventItem { /* Corresponds to "flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* gap-3 */
+  padding: 0.5rem; /* p-2 */
+  border-radius: 0.25rem; /* rounded */
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+.todayEventItem:hover {
+  background-color: var(--dusk-input-bg); /* hover:bg-gray-50 -> theme hover */
+}
+.todayEventColorDot { /* Corresponds to "w-3 h-3 rounded-full" */
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+}
+.todayEventTextContainer { /* Corresponds to "flex-1" */
+  flex: 1;
+}
+.todayEventTitleText { /* Corresponds to "font-medium text-sm" */
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--dusk-text);
+}
+.todayEventTimeText { /* Corresponds to "text-xs text-gray-500" */
+  font-size: 0.75rem;
+  color: var(--dusk-muted);
+}
+.todayEventLocationIcon { /* Added style for location icon in summary */
+  color: var(--dusk-muted);
+  margin-left: auto; /* Push to the right */
+}
+.seeAllEventsText { /* Changed from button to text */
+  width: 100%;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--dusk-muted);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+
+.monthViewContainer {
+  background-color: var(--dusk-card-solid);
+  border-radius: 0.5rem;
+  box-shadow: var(--dusk-shadow);
+  border: 1px solid var(--dusk-border);
+}
+.monthViewDayLabelsGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+.monthViewDayLabel {
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: var(--dusk-muted);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.monthViewDaysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+.dayCell {
+  min-height: 3rem;
+  padding: 0.25rem;
+  border: 1px solid var(--dusk-border);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition-property: background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.dayCellHover:hover {
+  background-color: var(--dusk-input-bg); /* Subtle hover */
+}
+.dayCellToday {
+  background-color: var(--dusk-today-bg);
+  border-color: var(--dusk-accent-light); /* Accent border for today */
+}
+.dayCellSelected {
+  background-color: var(--dusk-button-bg); /* Accent bg for selected */
+  border-color: var(--dusk-accent);
+}
+.dayCellNotInMonth {
+  color: var(--dusk-muted);
+  opacity: 0.6;
+}
+.dayCellDateNumber {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--dusk-text); /* Default date number color */
+}
+.dayCellDateNumberToday {
+  color: var(--dusk-accent); /* Accent color for today's date number */
+}
+.dayCellEvent {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* color and background are dynamic via style prop, might need adjustment for dark theme visibility */
+}
+.dayCellMoreEvents {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--dusk-muted);
+  margin-top: 0.25rem;
+}
+
+/* Day View and Agenda View styles removed as they are no longer used */
+
+
+/* Floating Action Button Styles */
+.fabContainer {
+  position: fixed;
+  bottom: 1.5rem; /* Adjust as needed */
+  right: 1.5rem; /* Adjust as needed */
+  z-index: 20; /* Ensure it's above other content */
+}
+
+.fabButton {
+  /* primaryButton styles are already applied for background and color */
+  padding: 1rem; /* Make it a bit larger */
+  border-radius: 9999px; /* Circular */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15); /* Add some shadow */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fabButton .iconSize { /* Ensure icon inside FAB is sized if needed, primaryButton might already handle this */
+  width: 1.5rem;
+  height: 1.5rem;
+}
