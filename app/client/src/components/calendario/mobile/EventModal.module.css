@@ -1,30 +1,3 @@
-:global(:root) {
-  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
-  --dusk-card: rgba(36, 41, 73, 0.95); /* Adjusted alpha for card background */
-  --dusk-card-solid: #242949; /* A solid version of the card bg */
-  --dusk-border: #5c3c6e;
-  --dusk-accent: #ff8c6b;
-  --dusk-accent-light: #ffb997;
-  --dusk-text: #ffffff; /* Changed to pure white for better visibility */
-  --dusk-text-header: #ffffff; /* For main headers against dark backgrounds */
-  --dusk-muted: #d1c7e0; /* Lightened for better visibility */
-  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
-  --dusk-button-bg: rgba(255, 140, 107, 0.2); /* Accent with alpha for buttons */
-  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
-  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
-  --dusk-input-bg: rgba(59, 45, 90, 0.5); /* Darker input background */
-  --dusk-input-border: #5c3c6e;
-  --dusk-input-focus-border: var(--dusk-accent);
-  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
-  --dusk-today-bg: rgba(255, 140, 107, 0.15);
-  --dusk-modal-overlay: rgba(15, 18, 36, 0.7); /* Darker overlay */
-  
-  /* New variables for better event text visibility */
-  --event-text-primary: #ffffff;
-  --event-text-secondary: #f0f0f0;
-  --event-bg-opacity: 0.85; /* Higher opacity for event backgrounds */
-}
-
 .modalOverlay {
   position: fixed;
   inset: 0;
