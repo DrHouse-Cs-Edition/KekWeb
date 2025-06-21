@@ -11,7 +11,16 @@ const pomodoroSchema = new Schema({
     title: String,
     studyTime : Number,
     breakTime : Number,
-    cycles : Number
+    cycles : Number,
+    startDate: {
+        type: Date,
+        default: Date.now
+    },
+    endDate: Date,
+    leftovers: {
+        type: Number,
+        default: 0
+    }
 });
 
 module.exports = new mongoose.model("pomodoro", pomodoroSchema);

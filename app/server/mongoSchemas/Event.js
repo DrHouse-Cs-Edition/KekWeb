@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ref } = require('process');
 const { Schema } = mongoose; // Estrai Schema da mongoose
 
 const eventSchema = new Schema({
@@ -41,6 +42,11 @@ const eventSchema = new Schema({
       ref: 'User',
       required: true // Add validation
     },
+    pomodoro: {
+      type : Schema.Types.ObjectId,
+      ref: "Pomodoro",
+      default: null
+    }
 });
 
 module.exports = mongoose.model("Event", eventSchema);

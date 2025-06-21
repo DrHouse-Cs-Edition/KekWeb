@@ -235,7 +235,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
               <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
           </div>
           <div id={style.buttonsDiv} >
-              <h2> Testing buttons below </h2>
               <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
               <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
               <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>

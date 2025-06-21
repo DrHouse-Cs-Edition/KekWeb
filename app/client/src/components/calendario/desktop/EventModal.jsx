@@ -126,11 +126,11 @@ const ModalBody = memo(({
 
       {newEvent.type === "pomodoro" ? (
         <FormField
-          id="cycles-left"
-          name="cyclesLeft"
-          label="Cycles Left"
-          type="number"
-          value={newEvent.cyclesLeft || ""}
+          id="pomodoro-title"
+          name="pomodoroTitle"
+          label="pomodoroTitle"
+          type="string"
+          value={newEvent.pomodoroTitle || ""}
           onChange={handleInputChange}
           min="1"
           required
