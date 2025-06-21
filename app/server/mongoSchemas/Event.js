@@ -15,6 +15,16 @@ const eventSchema = new Schema({
     end: Date,
     // For activities (date without time)
     activityDate: Date,
+    completed: {
+      type: Boolean,
+      default: false
+    },
+    urgencyLevel: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: 0  
+    }, // 0-10
     // For pomodoro
     cyclesLeft: Number,
     // For recurring events

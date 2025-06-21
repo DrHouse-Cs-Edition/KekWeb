@@ -12,7 +12,9 @@ const saveEvent = async (request, response) => {
       activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
       start: eventInput.start ? new Date(eventInput.start) : null,
       end: eventInput.end ? new Date(eventInput.end) : null,
-      recurrenceRule: eventInput.recurrenceRule 
+      recurrenceRule: eventInput.recurrenceRule,
+      urgencyLevel: eventInput.urgencyLevel || 0,
+      completed: eventInput.completed || false
     });
 
   try{
@@ -32,7 +34,6 @@ const saveEvent = async (request, response) => {
   }
 };
 
-
 const updateEvent = async (request, response) => {
     const id = request.params.id;
     const eventInput = request.body;
@@ -47,7 +48,9 @@ const updateEvent = async (request, response) => {
         activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
         start: eventInput.start ? new Date(eventInput.start) : null,
         end: eventInput.end ? new Date(eventInput.end) : null,
-        recurrenceRule: eventInput.recurrenceRule 
+        recurrenceRule: eventInput.recurrenceRule,
+        urgencyLevel: eventInput.urgencyLevel,
+        completed: eventInput.completed
       });
       
       response.json({
@@ -62,8 +65,41 @@ const updateEvent = async (request, response) => {
         message: "Error updating event: " + e.message
       });
     }
-  };
+};
 
+// NEW METHOD: Quick update for completion status
+const toggleComplete = async (request, response) => {
+    const id = request.params.id;
+    const { completed } = request.body;
+  
+    try {
+      const updatedEvent = await Event.findByIdAndUpdate(
+        id, 
+        { completed: completed },
+        { new: true } // Return the updated document
+      );
+      
+      if (!updatedEvent) {
+        return response.status(404).json({
+          success: false,
+          message: "Event not found"
+        });
+      }
+      
+      response.json({
+        success: true,
+        message: "Event completion status updated",
+        event: updatedEvent
+      });
+    }
+    catch(e) {
+      console.log(e.message);
+      response.status(500).json({
+        success: false,
+        message: "Error updating completion status: " + e.message
+      });
+    }
+};
 
 const removeEvent = async (request, response) => {
     id = request.params.id;
@@ -82,9 +118,7 @@ const removeEvent = async (request, response) => {
             message: "Errore durante la rimozione dal DB"+e
         });
     }
-
 };
-
 
 const getEvent = async (request,response) => { // serve?
     id = request.params.id;
@@ -106,10 +140,7 @@ const getEvent = async (request,response) => { // serve?
             message: "Errore durante il caricamento dal DB:"+e,
         });
     }
-
 }
-
-// getActivity funzione che prende le attività e controlla quelle con l'importanza maggiore per poi prendere quelle con la data più vicina
 
 const allEvent = async (request, response) => {
     try {
@@ -129,7 +160,9 @@ const allEvent = async (request, response) => {
                     cyclesLeft: event.cyclesLeft,
                     location: event.location,
                     description: event.description,
-                    recurrenceRule: event.recurrenceRule
+                    recurrenceRule: event.recurrenceRule,
+                    urgencyLevel: event.urgencyLevel || 0,
+                    completed: event.completed || false
                 })),
                 message: "Events found"
             });
@@ -148,4 +181,4 @@ const allEvent = async (request, response) => {
     }
 };
 
-module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent };
+module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete };

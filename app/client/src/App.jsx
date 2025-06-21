@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
@@ -12,7 +11,7 @@ import User from "./pages/User.jsx";
 import TimeMachine from "./pages/TimeMachine.jsx";
 import style from "./App.module.css";
 import bgDesktop from './assets/bg_desktop.png';
-import bgMobile from './assets/bg_mobile.png'; // Import your mobile background image
+import bgMobile from './assets/bg_mobile.png';
 import Testing from "./Testing/testing.jsx";
 
 function App() {
