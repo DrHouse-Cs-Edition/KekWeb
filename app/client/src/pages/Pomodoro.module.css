@@ -6,4 +6,9 @@
     flex-direction: column;
     z-index: 2;
     overflow-y: scroll;
-  }
+}
+
+.PomodoroTitleDiv>label {
+  visibility: hidden;
+  z-index: -1;
+}

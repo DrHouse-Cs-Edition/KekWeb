@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Style from "./Navbar.module.css"; // Assuming your CSS module for styles
+import Style from "./Navbar.module.css";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,29 +9,45 @@ function Navbar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={Style.header}>
-      <Link to="/" className={Style.logo}>Logo</Link>
+      <div className={Style.container}>
+        <Link to="/" className={Style.logo} onClick={closeMenu}>
+          Logo
+        </Link>
 
-      <button className={Style.hamburger} onClick={toggleMenu}>
-        {isMenuOpen ? (
-          <span className={Style.hamburgerLineOpen}>X</span>
-        ) : (
-          <>
-            <span className={Style.hamburgerLine}></span>
-            <span className={Style.hamburgerLine}></span>
-            <span className={Style.hamburgerLine}></span>
-          </>
-        )}
-      </button>
+        <button 
+          className={Style.hamburger} 
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          <span className={`${Style.hamburgerLine} ${isMenuOpen ? Style.rotate45 : ''}`}></span>
+          <span className={`${Style.hamburgerLine} ${isMenuOpen ? Style.opacity0 : ''}`}></span>
+          <span className={`${Style.hamburgerLine} ${isMenuOpen ? Style.rotateMinus45 : ''}`}></span>
+        </button>
 
-      <nav className={`${Style.navbar} ${isMenuOpen ? Style.navbarActive : ""}`}>
-        <Link to="/home" className={Style.navLink}>Home</Link>
-        <Link to="/calendario" className={Style.navLink}>Calendario</Link>
-        <Link to="/note" className={Style.navLink}>Note</Link>
-        <Link to="/pomodoro" className={Style.navLink}>Pomodoro</Link>
-        <Link to="/utente" className={Style.navLink}>Utente</Link>
-      </nav>
+        <nav className={`${Style.navbar} ${isMenuOpen ? Style.navbarOpen : ""}`}>
+          <Link to="/home" className={Style.navLink} onClick={closeMenu}>
+            Home
+          </Link>
+          <Link to="/calendario" className={Style.navLink} onClick={closeMenu}>
+            Calendario
+          </Link>
+          <Link to="/note" className={Style.navLink} onClick={closeMenu}>
+            Note
+          </Link>
+          <Link to="/pomodoro" className={Style.navLink} onClick={closeMenu}>
+            Pomodoro
+          </Link>
+          <Link to="/utente" className={Style.navLink} onClick={closeMenu}>
+            Utente
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 }

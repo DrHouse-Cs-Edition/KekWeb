@@ -1,4 +1,4 @@
-// EventModal.jsx
+import styles from "./Calendario.module.css"; // Import the CSS Module
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo } from "react";
@@ -49,8 +49,8 @@ const EventModal = memo(function EventModal({
   }, [setShowModal, resetForm]);
 
   return (
-    <div className="modal-overlay" onClick={handleOutsideClick}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div className={styles.modalOverlay} onClick={handleOutsideClick}>
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <ModalHeader
           isEditing={isEditing}
           setShowModal={setShowModal}
@@ -76,7 +76,7 @@ const EventModal = memo(function EventModal({
 });
 
 const ModalHeader = memo(({ isEditing, setShowModal, resetForm }) => (
-  <div className="modal-header">
+  <div className={styles.modalHeader}>
     <h3 id="modal-title">{isEditing ? "Edit Event" : "New Event"}</h3>
     <button
       onClick={() => {
@@ -109,8 +109,8 @@ const ModalBody = memo(({
   }, [setNewEvent]);
 
   return (
-    <div className="modal-body">
-      <div className="form-group">
+    <div className={styles.modalBody}>
+      <div className={styles.formGroup}>
         <label htmlFor="event-type">Event Type</label>
         <select
           id="event-type"
@@ -190,7 +190,7 @@ const ModalBody = memo(({
           />
 
           {(newEvent.type === "event" || newEvent.type === "activity") && (
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="recurrence">Recurrence</label>
               <select 
                 id="recurrence" 
@@ -211,10 +211,10 @@ const ModalBody = memo(({
       {newEvent.type !== "pomodoro" && (
         <FormField
           id="event-description"
-          name="desc"
+          name="description"
           label="Description"
-          isTextArea={true}
-          value={newEvent.desc}
+          type="textarea"
+          value={newEvent.description}
           onChange={handleInputChange}
         />
       )}
@@ -222,39 +222,13 @@ const ModalBody = memo(({
   );
 });
 
-const FormField = memo(({
-  id,
-  name,
-  label,
-  type = "text",
-  value,
-  onChange,
-  required = false,
-  isTextArea = false,
-  min,
-  max,
-}) => (
-  <div className="form-group">
+const FormField = memo(({ id, name, label, type, value, onChange, ...rest }) => (
+  <div className={styles.formGroup}>
     <label htmlFor={id}>{label}</label>
-    {isTextArea ? (
-      <textarea
-        id={id}
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        required={required}
-      />
+    {type === "textarea" ? (
+      <textarea id={id} name={name} value={value} onChange={onChange} {...rest} />
     ) : (
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value || ""}
-        onChange={onChange}
-        required={required}
-        min={min}
-        max={max}
-      />
+      <input type={type} id={id} name={name} value={value} onChange={onChange} {...rest} />
     )}
   </div>
 ));
@@ -267,32 +241,17 @@ const ModalFooter = memo(({
   resetForm,
   isLoading
 }) => (
-  <div className="modal-footer">
+  <div className={styles.modalFooter}>
     {isEditing && (
-      <button
-        className="delete-btn"
-        onClick={handleDeleteEvent}
-        disabled={isLoading}
-      >
-        Delete
+      <button type="button" className={styles.deleteBtn} onClick={handleDeleteEvent} disabled={isLoading}>
+        {isLoading ? 'Deleting...' : 'Delete'}
       </button>
     )}
-    <button
-      className="cancel-btn"
-      onClick={() => {
-        setShowModal(false);
-        resetForm();
-      }}
-      disabled={isLoading}
-    >
+    <button type="button" className={styles.cancelBtn} onClick={() => { setShowModal(false); resetForm(); }} disabled={isLoading}>
       Cancel
     </button>
-    <button 
-      className="save-btn" 
-      onClick={handleSaveEvent}
-      disabled={isLoading}
-    >
-      {isLoading ? "Saving..." : (isEditing ? "Save Changes" : "Create Event")}
+    <button type="button" className={styles.saveBtn} onClick={handleSaveEvent} disabled={isLoading}>
+      {isLoading ? 'Saving...' : 'Save'}
     </button>
   </div>
 ));

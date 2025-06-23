@@ -1,0 +1,71 @@
+:root {
+  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
+  --dusk-card: rgba(36, 41, 73, 0.95);
+  --dusk-card-solid: #242949;
+  --dusk-border: #5c3c6e;
+  --dusk-accent: #ff8c6b;
+  --dusk-accent-light: #ffb997;
+  --dusk-text: #ffffff;
+  --dusk-text-header: #ffffff;
+  --dusk-muted: #d1c7e0;
+  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
+  --dusk-button-bg: rgba(255, 140, 107, 0.2);
+  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
+  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
+  --dusk-input-bg: rgba(59, 45, 90, 0.5);
+  --dusk-input-border: #5c3c6e;
+  --dusk-input-focus-border: var(--dusk-accent);
+  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
+  --dusk-today-bg: rgba(255, 140, 107, 0.15);
+  --dusk-modal-overlay: rgba(15, 18, 36, 0.7);
+  
+  /* Event text variables */
+  --event-text-primary: #ffffff;
+  --event-text-secondary: #f0f0f0;
+  --event-bg-opacity: 0.85;
+}
+
+.appRoot {
+  min-height: 100vh;
+  background: var(--dusk-bg);
+  color: var(--dusk-text);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  transition: background 0.5s;
+}
+
+/* Optional: style scrollbars for the dusk theme */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #2d3356;
+}
+::-webkit-scrollbar-thumb {
+  background: #5c3c6e;
+  border-radius: 4px;
+}
+.background_image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Keeps aspect ratio while filling space */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1; /* Ensures content-box stays on top */
+}
+
+.desktop_bg {
+  display: block; /* Show by default (for desktop) */
+}
+
+.mobile_bg {
+  display: none; /* Hide by default */
+}
+
+/* Media query for mobile devices (e.g., screens up to 767px wide) */
+@media (max-width: 767px) {
+  .desktop_bg {
+    display: none; /* Hide desktop background on mobile */
+  }
+  .mobile_bg {
+    display: block; /* Show mobile background on mobile */
+  }
+}
