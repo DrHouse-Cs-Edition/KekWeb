@@ -16,6 +16,7 @@ connectDB();
 let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
+const pushRoutes = require('./routes/pushNotifications')
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
@@ -29,23 +30,26 @@ app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
 app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
-let time_shift = 0;
-const { notifications, timetravelNotifications } = require ("./jobs/notifications.js");
+let time_shift = 0; // minuti
+const { notifications } = require ("./jobs/notifications.js");
 
 const cron = require('node-cron');
-const { addDays } = require('date-fns');
+const { addDays, addMinutes } = require('date-fns');
+/*
 cron.schedule('* * * * *', async () => { // /5 per controllare ogni 5 minuti invece
         let  now = new Date();
         if(time_shift != 0)
-            now = addDays(now, time_shift);
+            now = addMinutes(now, time_shift);
 
         //notifications(now);
+
+        // controllo di mezzanotte
         if (now.getHours() === 0 && now.getMinutes() === 0) {
             // MUOVI POMODORI
             // MUOVI ATTIVITA' SCADUTE
         }
     });
-
+*/
 // percorsi
 
 app.get('/',(request,response)=>{
@@ -64,6 +68,10 @@ app.use( loginCookies.authToken); // Protegge tutte le API successive con il mid
 app.use('/api/events', eventRoutes);
 // gestione api note
 app.use('/api/notes', noteRoutes);
+// gestione notifiche
+app.use('/api/pushNotifications', pushRoutes)
+const not = require ("./controllers/pushNotificationController.js");
+// app.post('api/pushNotifications/subscribe',not.subscribe)
 
 //************* POMODORO METHODS **************************** */
 
@@ -78,17 +86,17 @@ app.put("/api/user/updateUData", UserRoutes.updateData);
 //*********************************************************** */
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
-  time_shift = time_shift + Number(req.body.days);
+  time_shift = time_shift + Number(req.body.minutes);
   console.log(time_shift);
   // const now = new Date;
-  // timetravelNotifications(addDays(now, time_shift))
+  // notifications(addMinutes(now, time_shift))
   res.json({success: true})
 })
 
-app.get("/api/timeMachine/date", (req, res) => { // restituisce e data del server
+app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
   now = new Date;
-  now = addDays(now, time_shift);
-  res.json({date: now, success: true})
+  now = addMinutes(now, time_shift);
+  res.json({date: now.toString(), success: true})
 })
 
 app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità

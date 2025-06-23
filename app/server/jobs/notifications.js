@@ -1,8 +1,9 @@
 const Event = require('../mongoSchemas/Event.js');
+const User = require('../mongoSchemas/UserSchemas.js');
 const { RRule } = require('rrule');
 
 // gestione notifiche (2.0) disattivate per testing
-async function sendEmail(descrizione) {// MAIL V 1.0
+async function sendEmail(descrizione, userID) {// MAIL V 2.0
   const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -11,15 +12,42 @@ async function sendEmail(descrizione) {// MAIL V 1.0
       }
   });
 
+  const user = await User.findById(userID).lean();
+
   const mailOptions = {
       from: 'selfieapp17@gmail.com',
-      to: 'lucamarangon2001@gmail.com', // invece dovrai recupere la mail dell'utente dal database
+      to: user.email,
       subject: 'Promemoria Evento',
       text: `Ricordati del tuo evento: ${descrizione}`
   };
   
   await transporter.sendMail(mailOptions);
 }
+
+async function notify(descrizione, userID){
+
+  const user = await User.findById(userID).lean();
+
+  const payload = JSON.stringify({ title: 'Notifica!', body: descrizione });
+
+  const subscription = await Subscription.find( {user: userID} ).lean();
+
+  subscription.forEach( async (sub) => {
+      try{
+          await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload) // .catch(console.error) //.then( out => {console.log(out)});
+      }
+      catch(e){ // se c'è errore (iscrizione client eliminata -> la elimino da DB)
+          try{
+              console.log(sub)
+              await Subscription.deleteOne({_id: sub._id});
+          }
+          catch(e){
+              console.log(e.message);
+          };
+      }
+  })  
+}
+
 
 // aggiorna nextAlarm
 function updateAlarm(event){
@@ -52,7 +80,7 @@ async function notifications(now){
   });
 
   eventi.forEach(async (evento) => { // Invia notifiche
-    sendEmail(evento.description)
+    sendEmail(evento.description, evento.user)
 
     // Segna come notificato o cambia data prossima notifica
     evento = updateAlarm(evento); // aggiorna con prossima data alarm (e num repetizioni)
@@ -60,19 +88,4 @@ async function notifications(now){
   });
 }
 
-async function timetravelNotifications(now){
-  // Cerca eventi da notificare
-  const eventi = await Event.find({
-    nextAlarm: { $lte: now, $gte: subDays(now,1) }, //tutte notifiche di oggi di cui è giunto/superato momento
-  });
-
-  eventi.forEach(async (evento) => { // Invia notifiche
-    sendEmail(evento.description)
-
-    // Segna come notificato o cambia data prossima notifica
-    evento = updateAlarm(evento, now); // aggiorna con prossima data alarm (e num repetizioni)
-    await Event.findByIdAndUpdate(evento.id, evento);
-  });
-}
-
-module.exports = { notifications, timetravelNotifications };
+module.exports = { notifications};
