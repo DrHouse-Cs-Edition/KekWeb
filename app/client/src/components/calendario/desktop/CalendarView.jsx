@@ -53,9 +53,9 @@ export default function CalendarView({
       ]}
       initialView="dayGridMonth"
       headerToolbar={{
-        left: "prev,next today",
+        left: "prevYear,prev today",
         center: "title",
-        right: "dayGridMonth,timeGridWeek,timeGridDay",
+        right: "next,nextYear",
       }}
       events={events}
       editable={true}
