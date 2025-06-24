@@ -10,11 +10,17 @@ export default function CalendarApp() {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [newEvent, setNewEvent] = useState({
+  const [newEvent, setNewEvent] = useState({ //*holds all data regarding a possible event
     id: "",
     title: "",
     type: "event",
-    cyclesLeft: null,
+    pomodoro: {     //serverside is just the Title, here is the whole object
+      _id: "",
+      title: "",
+      studyTime: null,
+      breakTime: null,
+      cycles: null,
+    },   
     activityDate: null,
     start: new Date(),
     end: new Date(),
@@ -42,7 +48,7 @@ export default function CalendarApp() {
               title: event.title,
               extendedProps: {
                 type: event.type,
-                cyclesLeft: event.cyclesLeft,
+                pomodoro: event.pomodoro,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
                 desc: event.description,
@@ -165,7 +171,13 @@ export default function CalendarApp() {
           : start;
         break;
       case "pomodoro":
-        eventData.cyclesLeft = clickInfo.event.extendedProps.cyclesLeft || 0;
+        //load up a pomodoro Obj with: Title, studyTime, breakTime and cycles
+        eventData.pomodoro = clickInfo.event.extendedProps.pomodoro || {
+          title: "",
+          studyTime: null,
+          breakTime: null,
+          cycles: null,
+        };
         eventData.start = start;
         eventData.end = end;
         break;
@@ -243,7 +255,8 @@ export default function CalendarApp() {
         eventData.recurrenceRule = rruleString; // Add recurrence rule to activities
         break;
       case "pomodoro":
-        eventData.cyclesLeft = newEvent.cyclesLeft || 0;
+        //serverside, pomodoro is just the title as ref to the schema
+        eventData.pomodoro = newEvent.pomodoro.title || "";
         eventData.start = (newEvent.start || new Date()).toISOString();
         eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
         break;
@@ -301,7 +314,13 @@ export default function CalendarApp() {
       id: "",
       title: "",
       type: "event",
-      cyclesLeft: null,
+      pomodoro: {
+        _id: "",
+        title: "",
+        studyTime: null,
+        breakTime: null,
+        cycles: null,
+      },
       activityDate: null,
       start: new Date(),
       end: new Date(),

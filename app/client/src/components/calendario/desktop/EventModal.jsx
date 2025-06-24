@@ -1,7 +1,7 @@
 import styles from "./Calendario.module.css"; // Import the CSS Module
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 
 // Memoized component for better performance
 const EventModal = memo(function EventModal({
@@ -107,7 +107,6 @@ const ModalBody = memo(({
     const { name, value } = e.target;
     setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
   }, [setNewEvent]);
-
   return (
     <div className={styles.modalBody}>
       <div className={styles.formGroup}>
@@ -125,16 +124,37 @@ const ModalBody = memo(({
       </div>
 
       {newEvent.type === "pomodoro" ? (
+        <>
+        <SelectPomodoros setNewEvent = {setNewEvent}></SelectPomodoros>
         <FormField
-          id="pomodoro-title"
-          name="pomodoroTitle"
-          label="pomodoroTitle"
-          type="string"
-          value={newEvent.pomodoroTitle || ""}
+          id="studyTime"
+          name="studyTime"
+          label="studyTime"
+          type="number"
+          value={newEvent.pomodoro.studyTime || 0}
+          onChange={handleInputChange}
+          required
+        />
+        <FormField
+          id="breakTime"
+          name="breakTime"
+          label="breakTime"
+          type="number"
+          value={newEvent.pomodoro.breakTime || 0}
+          onChange={handleInputChange}
+          required
+        />
+        <FormField
+          id="cycles"
+          name="cycles"
+          label="cycles"
+          type="number"
+          value={newEvent.pomodoro.cycles || 0}
           onChange={handleInputChange}
           min="1"
           required
         />
+        </>        
       ) : (
         <>
           <FormField
@@ -257,3 +277,60 @@ const ModalFooter = memo(({
 ));
 
 export default EventModal;
+
+
+const SelectPomodoros = ( {setNewEvent} )=>{
+
+const [pomodoroOptions, setPomodoroOptions] = useState([]);
+const [currentPomodoro, setCurrentPomodoro] = useState(null);
+const selectRef = useRef();
+
+const FetchPomodoros = useCallback(()=>{
+console.log("lezzo gaming");
+fetch("api/Pomodoro/getP", {
+  method:"GET",
+  mode:"cors",
+  headers:{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+  }
+  })
+  .then(res => res.json()
+  ).then(
+    (data) =>{
+      setPomodoroOptions(data.body)      
+      }
+    )}, [])
+
+  // Gestore per il cambio dell'opzione selezionata
+  const handleSelectChange = useCallback(e => {
+    const selectedId = e.target.value;
+    //ritorna se si è passati al valore base
+    if(selectedId == "")
+      return;
+    // Trova l'oggetto pomodoro corrispondente all'ID selezionato
+    const foundPomodoro = pomodoroOptions.find(p => p._id === selectedId);
+    setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
+    console.log("Selected Pomodoro Object:", foundPomodoro);
+    setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
+
+  }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
+
+useEffect(()=>{FetchPomodoros()},[]);
+
+  return(
+    <select
+    ref={selectRef}
+    onChange={handleSelectChange}
+    value={currentPomodoro ? currentPomodoro._id : ""} >
+      <option value="">
+        select a pomodoro
+      </option>
+      {pomodoroOptions.map(el =>(
+        <option value={el._id} key={el._id}>
+          {el.title}
+        </option>
+      ))}
+    </select>
+  )
+}

@@ -17,7 +17,12 @@ const eventSchema = new Schema({
     // For activities (date without time)
     activityDate: Date,
     // For pomodoro
-    cyclesLeft: Number,
+    pomodoro: { //pomodoroTitle
+      type : Schema.Types.String,
+      ref: "Pomodoro",
+      default: null
+    },
+
     // For recurring events
     recurrenceRule: String,
     /*rrule: Object, // RRULE PIU LEGGIBILE DAL SERVER -> CONTROLLARE SE DAREBBE CONFLITTI !!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -42,11 +47,6 @@ const eventSchema = new Schema({
       ref: 'User',
       required: true // Add validation
     },
-    pomodoro: {
-      type : Schema.Types.ObjectId,
-      ref: "Pomodoro",
-      default: null
-    }
 });
 
 module.exports = mongoose.model("Event", eventSchema);
