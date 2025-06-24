@@ -20,7 +20,7 @@ export default function CalendarApp() {
     end: new Date(),
     location: "",
     recurrenceRule: "",
-    desc: "",
+    description: "",
   });
 
   // Carica tutti gli eventi quando il componente si monta
@@ -47,7 +47,7 @@ export default function CalendarApp() {
                 cyclesLeft: event.cyclesLeft,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
-                desc: event.description,
+                description: event.description,
               },
             };
 
@@ -151,7 +151,7 @@ export default function CalendarApp() {
       type: clickInfo.event.extendedProps.type || "event",
       location: clickInfo.event.extendedProps.location || "",
       recurrenceRule: recurrence,
-      desc: clickInfo.event.extendedProps.desc || "",
+      description: clickInfo.event.extendedProps.description || "",
     };
     
     // Aggiungo proprietà specifiche per tipo
@@ -227,7 +227,7 @@ export default function CalendarApp() {
     // Preparo i dati dell'evento per il backend
     let eventData = {
       title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
-      description: newEvent.desc || "",
+      description: newEvent.description || "",
       location: newEvent.location || "",
       type: newEvent.type,
       user: newEvent.user,
@@ -304,7 +304,7 @@ export default function CalendarApp() {
       end: new Date(),
       location: "",
       recurrenceRule: "",
-      desc: "",
+      description: "", // Cambiato da desc a description
     });
     setIsEditing(false);
   };
