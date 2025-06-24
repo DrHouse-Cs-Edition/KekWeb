@@ -454,7 +454,7 @@
   
   .calendarContainer {
     box-shadow: none;
-    background: #fff; /* Ensure light background for printing */
+    background: #fff;
   }
   
   .calendarContainer :global(.fc) {
@@ -486,14 +486,5 @@
   .calendarContainer :global(.custom-event) {
     color: #333 !important; /* Dark text for custom events */
     text-shadow: none !important;
-  }
-  .calendarContainer :global(.custom-event-event) {
-    background: #ddeeff !important; /* Light blue for event type */
-  }
-  .calendarContainer :global(.custom-event-activity) {
-    background: #d4edda !important; /* Light green for activity type */
-  }
-  .calendarContainer :global(.custom-event-pomodoro) {
-    background: #f8d7da !important; /* Light red for pomodoro type */
   }
 }
