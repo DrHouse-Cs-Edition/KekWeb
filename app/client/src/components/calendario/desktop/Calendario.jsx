@@ -23,26 +23,27 @@ export default function CalendarApp() {
     description: "",
   });
 
-  // Carica tutti gli eventi quando il componente si monta
+  // HOOK useEffect - Si esegue quando il componente si monta
   useEffect(() => {
-    getAllEvents();
+    getAllEvents(); // Carica tutti gli eventi dal backend all'avvio
   }, []);
 
-  // Funzione per prendere tutti gli eventi dal backend
+  // FUNZIONE getAllEvents - Recupera tutti gli eventi dal backend
   const getAllEvents = () => {
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
-      credentials: "include",
+      credentials: "include", // Invia i cookie per l'autenticazione
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Converto gli eventi dal formato del backend a quello di FullCalendar
+          // Converte gli eventi dal formato backend al formato FullCalendar
           const eventsForCalendar = data.list.map((event) => {
+            // Crea l'oggetto base per FullCalendar
             let eventForFC = {
               id: event._id,
               title: event.title,
-              extendedProps: {
+              extendedProps: { // Proprietà personalizzate per FullCalendar
                 type: event.type,
                 cyclesLeft: event.cyclesLeft,
                 location: event.location,
@@ -51,9 +52,9 @@ export default function CalendarApp() {
               },
             };
 
-            // Gestisco i diversi tipi di eventi
+            // Gestisce diversi tipi di eventi con logiche specifiche
             if (event.type === "activity") {
-              // Per le attività uso activityDate
+              // Attività: usa activityDate e può essere ricorrente
               let actDate = event.activityDate ? new Date(event.activityDate) : new Date();
               eventForFC.start = actDate;
               eventForFC.end = actDate;
@@ -106,7 +107,7 @@ export default function CalendarApp() {
 
             return eventForFC;
           });
-          setEvents(eventsForCalendar);
+          setEvents(eventsForCalendar); // Aggiorna lo stato con gli eventi convertiti
         }
       })
       .catch((err) => console.error("Errore nel fetch degli eventi:", err));
@@ -114,18 +115,18 @@ export default function CalendarApp() {
 
   // Quando l'utente seleziona una data per creare un nuovo evento
   const onDateSelect = (selectInfo) => {
-    setIsEditing(false);
+    setIsEditing(false); // Modalità creazione (non modifica)
     setNewEvent({
       ...newEvent,
-      id: uuidv4(),
-      start: selectInfo.start,
-      end: selectInfo.end,
-      type: "event",
+      id: uuidv4(), // Genera un ID univoco
+      start: selectInfo.start, // Data/ora di inizio selezionata
+      end: selectInfo.end, // Data/ora di fine selezionata
+      type: "event", // Tipo predefinito
       recurrenceRule: "",
       activityDate: selectInfo.start,
     });
-    setShowModal(true);
-    selectInfo.view.calendar.unselect(); // deseleziona la data
+    setShowModal(true); // Apre il modal per inserire i dettagli
+    selectInfo.view.calendar.unselect(); // Deseleziona la data nel calendario
   };
 
   // Quando l'utente clicca su un evento esistente
@@ -168,25 +169,26 @@ export default function CalendarApp() {
       eventData.end = endDate;
     }
     
-    setIsEditing(true);
-    setNewEvent(eventData);
-    setShowModal(true);
+    setIsEditing(true); // Modalità modifica
+    setNewEvent(eventData); // Popola il form con i dati esistenti
+    setShowModal(true); // Apre il modal
   };
 
   // Salva l'evento (nuovo o modificato)
   const saveEvent = () => {
-    // Controllo che abbia almeno un titolo (tranne per i pomodoro)
+    // Validazione: controlla che ci sia un titolo (tranne per pomodoro)
     if (!newEvent.title && newEvent.type !== "pomodoro") {
       alert("Inserisci un titolo!");
       return;
     }
 
+    // Determina URL e metodo HTTP in base se è modifica o creazione
     let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
     let method = isEditing ? "PUT" : "POST";
 
-    // Gestisco la ricorrenza se è stata impostata
+    // Gestisce la ricorrenza convertendo il valore del form in RRule
     let rruleString = null;
     if ((newEvent.type === "event" || newEvent.type === "activity") && newEvent.recurrenceRule) {
       try {
@@ -262,10 +264,10 @@ export default function CalendarApp() {
       .then((result) => {
         if (result.success) {
           getAllEvents(); // ricarico gli eventi
-          setShowModal(false);
-          resetEventForm();
+          setShowModal(false); // Chiude il modal
+          resetEventForm(); // Resetta il form
         } else {
-          alert(result.message);
+          alert(result.message); // Mostra errore
         }
       })
       .catch((err) => console.error("Errore nel salvataggio:", err));
@@ -282,9 +284,9 @@ export default function CalendarApp() {
       .then((response) => response.json())
       .then((result) => {
         if (result.success) {
-          getAllEvents();
-          setShowModal(false);
-          resetEventForm();
+          getAllEvents(); // Ricarica la lista
+          setShowModal(false); // Chiude il modal
+          resetEventForm(); // Resetta il form
         } else {
           alert(result.message);
         }
@@ -292,7 +294,7 @@ export default function CalendarApp() {
       .catch((err) => console.error("Errore nell'eliminazione:", err));
   };
 
-  // Reset del form
+  // FUNZIONE resetEventForm - Resetta il form ai valori predefiniti
   const resetEventForm = () => {
     setNewEvent({
       id: "",
@@ -304,9 +306,9 @@ export default function CalendarApp() {
       end: new Date(),
       location: "",
       recurrenceRule: "",
-      description: "", // Cambiato da desc a description
+      description: "",
     });
-    setIsEditing(false);
+    setIsEditing(false); // Torna in modalità creazione
   };
 
   return (
