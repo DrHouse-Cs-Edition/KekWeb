@@ -6,11 +6,12 @@ import EventModal from './EventModal';
 import styles from './mobileCalendar.module.css';
 
 const MobileCalendarApp = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date()); // La data di cui vedo gli eventi
-  const [events, setEvents] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  // STATI del componente
+  const [currentDate, setCurrentDate] = useState(new Date()); // Mese visualizzato
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Data selezionata per vedere eventi
+  const [events, setEvents] = useState([]); // Array di tutti gli eventi
+  const [showModal, setShowModal] = useState(false); // Visibilità modal
+  const [isEditing, setIsEditing] = useState(false); // Modalità modifica/creazione
   const [newEvent, setNewEvent] = useState({
     id: "",
     title: "",
@@ -22,14 +23,14 @@ const MobileCalendarApp = () => {
     location: "",
     recurrenceRule: "",
     description: "", // Cambiato da desc a description
-  });
+  }); // Dati evento in editing
 
-  // Carico tutti gli eventi quando parte l'app
+  // HOOK useEffect - Carica eventi all'avvio
   useEffect(() => {
     loadAllEvents();
   }, []);
 
-  // Funzione per caricare tutti gli eventi dal backend
+  // FUNZIONE loadAllEvents - Recupera tutti gli eventi dal backend
   const loadAllEvents = () => {
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
@@ -38,7 +39,7 @@ const MobileCalendarApp = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Trasformo gli eventi dal backend per il calendario mobile
+          // Trasforma eventi dal formato backend al formato mobile
           const eventsForMobile = data.list.map((event) => {
             let eventObj = {
               id: event._id,
@@ -53,8 +54,9 @@ const MobileCalendarApp = () => {
               },
             };
 
-            // Gestisco i diversi tipi di eventi
+            // Gestisce diversi tipi di eventi con colori e durate specifiche
             if (event.type === "activity") {
+              // Attività: giornata intera, colore blu
               let actDate = event.activityDate ? new Date(event.activityDate) : new Date();
               eventObj.start = actDate;
               eventObj.end = actDate;
@@ -62,12 +64,13 @@ const MobileCalendarApp = () => {
               eventObj.backgroundColor = "#4285F4";
               eventObj.color = "#4285F4";
             } else if (event.type === "pomodoro") {
+              // Pomodoro: 25 minuti, colore rosso
               eventObj.start = event.start ? new Date(event.start) : new Date();
               eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 25 * 60000);
               eventObj.backgroundColor = "#EA4335";
               eventObj.color = "#EA4335";
             } else {
-              // Eventi normali
+              // Eventi normali: durata personalizzata, colore blu scuro
               eventObj.start = event.start ? new Date(event.start) : new Date();
               eventObj.end = event.end ? new Date(eventObj.start.getTime() + 3600000) : new Date(eventObj.start.getTime() + 3600000);
               eventObj.backgroundColor = "#3174ad";
@@ -82,14 +85,14 @@ const MobileCalendarApp = () => {
       .catch((err) => console.error("Errore nel caricamento eventi:", err));
   };
 
-  // Funzione per ottenere l'icona giusta per ogni tipo di evento
+  // FUNZIONE getEventIcon - Restituisce l'icona appropriata per tipo evento
   const getEventIcon = (type) => {
     if (type === 'activity') return <Check className={styles.iconSizeSmall} />;
     if (type === 'pomodoro') return <Timer className={styles.iconSizeSmall} />;
     return <Calendar className={styles.iconSizeSmall} />;
   };
 
-  // Formatto l'ora in modo carino
+  // FUNZIONE formatTime - Formatta orario in formato 12h (AM/PM)
   const formatTime = (date) => {
     if (!date) return '';
     return date.toLocaleTimeString('en-US', {
@@ -99,7 +102,7 @@ const MobileCalendarApp = () => {
     });
   };
 
-  // Formatto la data per il titolo
+  // FUNZIONE formatDate - Formatta data per intestazioni (es: "Monday, December 25")
   const formatDate = (date) => {
     if (!date) return '';
     return date.toLocaleDateString('en-US', {
@@ -109,12 +112,12 @@ const MobileCalendarApp = () => {
     });
   };
 
-  // Prendo tutti gli eventi per una data specifica
+  // FUNZIONE getEventsForDate - Filtra eventi per una data specifica
   const getEventsForDate = (date) => {
     return events.filter(event => {
       let eventDate = event.start ? new Date(event.start) : null;
       
-      // Se ha ricorrenza, controllo se ricorre in questa data
+      // Se ha ricorrenza, verifica se ricorre in questa data
       if (event.extendedProps && event.extendedProps.recurrenceRule) {
         try {
           let rrule = RRule.fromString(event.extendedProps.recurrenceRule);
@@ -123,54 +126,54 @@ const MobileCalendarApp = () => {
           let occurrences = rrule.between(startOfDay, endOfDay, true);
           return occurrences.length > 0;
         } catch (e) {
-          console.error("Errore nel parsing ricorrenza:", event.extendedProps.recurrenceRule, e);
+          console.error("Errore parsing ricorrenza:", e);
           return false;
         }
       }
       
-      // Altrimenti controllo se è nella stessa data
+      // Altrimenti confronta le date direttamente
       return eventDate && eventDate.toDateString() === date.toDateString();
     });
   };
 
-  // Prendo gli eventi del giorno selezionato e li ordino
+  // FUNZIONE getEventsForSelectedDate - Eventi della data selezionata ordinati per orario
   const getEventsForSelectedDate = () => {
     return getEventsForDate(selectedDate).sort((a, b) => new Date(a.start) - new Date(b.start));
   };
 
-  // Navigo tra i mesi
+  // FUNZIONE navigateMonth - Naviga tra i mesi (avanti/indietro)
   const navigateMonth = (direction) => {
     setCurrentDate(prev => {
       let newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
       let today = new Date();
       
-      // Se torno al mese corrente, seleziono oggi
+      // Se torna al mese corrente, seleziona oggi
       if (newDate.getMonth() === today.getMonth() && newDate.getFullYear() === today.getFullYear()) {
         setSelectedDate(today);
       } else {
-        // Altrimenti seleziono il primo del mese
+        // Altrimenti seleziona il primo del mese
         setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
       }
       return newDate;
     });
   };
 
-  // Calcolo tutti i giorni da mostrare nel calendario (6 settimane)
+  // FUNZIONE getDaysInMonth - Calcola tutti i giorni da mostrare (6 settimane = 42 celle)
   const getDaysInMonth = (date) => {
     let year = date.getFullYear();
     let month = date.getMonth();
     let firstDay = new Date(year, month, 1);
     
-    // Calcolo da quale lunedì iniziare (perché voglio che la settimana inizi di lunedì)
-    let dayOfWeek = firstDay.getDay(); // 0 = domenica, 1 = lunedì, ecc.
-    let offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Se è domenica, torno indietro di 6
+    // Calcola offset per iniziare di lunedì
+    let dayOfWeek = firstDay.getDay(); // 0=domenica, 1=lunedì
+    let offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
     let startDate = new Date(firstDay);
     startDate.setDate(firstDay.getDate() - offset);
 
     let days = [];
-    for (let i = 0; i < 42; i++) { // 6 settimane x 7 giorni = 42 celle
+    for (let i = 0; i < 42; i++) { // 6 settimane x 7 giorni
       let day = new Date(startDate);
       day.setDate(startDate.getDate() + i);
       days.push(day);
@@ -178,48 +181,46 @@ const MobileCalendarApp = () => {
     return days;
   };
 
-  // Controllo se una data è oggi
+  // FUNZIONI di utilità per classi CSS
   const isToday = (date) => {
     let today = new Date();
     return date.toDateString() === today.toDateString();
   };
 
-  // Controllo se una data è quella selezionata
   const isSelected = (date) => {
     return date.toDateString() === selectedDate.toDateString();
   };
 
-  // Controllo se una data è nello stesso mese che sto visualizzando
   const isSameMonth = (date) => {
     return date.getMonth() === currentDate.getMonth();
   };
 
-  // Quando clicco su una data
+  // FUNZIONE handleDateSelect - Gestisce selezione di una data nel calendario
   const handleDateSelect = (date) => {
-    setSelectedDate(date); // Aggiorno la data selezionata
+    setSelectedDate(date); // Aggiorna la data selezionata per vedere eventi
   };
 
-  // Quando clicco sul pulsante + per aggiungere un evento
+  // FUNZIONE handleNewEventButtonClick - Gestisce click su bottone "+" per nuovo evento
   const handleNewEventButtonClick = () => {
-    setIsEditing(false);
+    setIsEditing(false); // Modalità creazione
     setNewEvent({ 
       id: uuidv4(),
       title: "", 
       type: "event", 
       cyclesLeft: null,
-      activityDate: new Date(selectedDate), 
+      activityDate: new Date(selectedDate), // Usa data selezionata
       start: new Date(selectedDate), 
-      end: new Date(new Date(selectedDate).getTime() + 60 * 60 * 1000),
+      end: new Date(new Date(selectedDate).getTime() + 60 * 60 * 1000), // +1 ora
       location: "",
       recurrenceRule: "",
       description: "", // Cambiato da desc a description
     });
-    setShowModal(true);
+    setShowModal(true); // Apre modal
   };
 
-  // Quando clicco su un evento per modificarlo
+  // FUNZIONE handleEventClick - Gestisce click su evento esistente per modificarlo
   const handleEventClick = (eventData) => {
-    // Estraggo la ricorrenza se c'è
+    // Estrae regola di ricorrenza se presente
     let recurrenceValue = "";
     if (eventData.extendedProps && eventData.extendedProps.recurrenceRule) {
       let freqMatch = eventData.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
@@ -231,6 +232,7 @@ const MobileCalendarApp = () => {
     let start = eventData.start || new Date();
     let end = eventData.end || new Date(start.getTime() + 3600000);
 
+    // Prepara dati evento per modal
     let eventForModal = {
       id: eventData.id,
       title: eventData.title || "",
@@ -240,7 +242,7 @@ const MobileCalendarApp = () => {
       description: eventData.extendedProps.description || "", // Cambiato da desc a description
     };
 
-    // Aggiungo le proprietà specifiche per tipo
+    // Aggiunge proprietà specifiche per tipo
     if (eventForModal.type === "activity") {
       eventForModal.activityDate = eventData.extendedProps.activityDate
         ? new Date(eventData.extendedProps.activityDate)
@@ -254,25 +256,26 @@ const MobileCalendarApp = () => {
       eventForModal.end = end;
     }
 
-    setIsEditing(true);
+    setIsEditing(true); // Modalità modifica
     setNewEvent(eventForModal);
     setShowModal(true);
   };
 
-  // Salvo l'evento (nuovo o modificato)
+  // FUNZIONE handleSaveEvent - Salva evento (nuovo o modificato)
   const handleSaveEvent = () => {
-    // Controllo che ci sia un titolo (tranne per i pomodoro)
+    // Validazione titolo (tranne per pomodoro)
     if (!newEvent.title && newEvent.type !== "pomodoro") {
       alert("Inserisci un titolo!");
       return;
     }
 
+    // Determina URL e metodo HTTP
     let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
     let method = isEditing ? "PUT" : "POST";
 
-    // Gestisco la ricorrenza se è stata impostata
+    // Gestisce ricorrenza convertendo in RRule
     let rruleString = null;
     if ((newEvent.type === "event" || newEvent.type === "activity") && newEvent.recurrenceRule) {
       try {
@@ -284,7 +287,6 @@ const MobileCalendarApp = () => {
         };
 
         let freq = frequencyMap[newEvent.recurrenceRule];
-
         if (freq !== undefined) {
           let startDate = newEvent.type === "activity"
             ? (newEvent.activityDate || new Date())
@@ -295,11 +297,6 @@ const MobileCalendarApp = () => {
             dtstart: startDate
           });
           rruleString = rruleObj.toString();
-          console.log("RRule creata:", rruleString);
-        } else {
-          console.error("Valore ricorrenza non valido:", newEvent.recurrenceRule);
-          alert("Ricorrenza non valida");
-          return;
         }
       } catch (error) {
         console.error("Errore creazione rrule:", error);
@@ -308,7 +305,7 @@ const MobileCalendarApp = () => {
       }
     }
 
-    // Preparo i dati per il backend
+    // Prepara dati per backend con struttura appropriata
     let eventData = {
       title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
       description: newEvent.description || "", // Cambiato da newEvent.desc a newEvent.description
@@ -316,7 +313,7 @@ const MobileCalendarApp = () => {
       type: newEvent.type,
     };
 
-    // Aggiungo dati specifici per tipo
+    // Aggiunge campi specifici per tipo
     if (newEvent.type === "activity") {
       eventData.activityDate = (newEvent.activityDate || new Date()).toISOString();
       eventData.recurrenceRule = rruleString;
@@ -332,9 +329,7 @@ const MobileCalendarApp = () => {
 
     if (isEditing) eventData._id = newEvent.id;
 
-    console.log("Invio al backend:", eventData);
-
-    // Invio al backend
+    // Invia richiesta HTTP al backend
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -344,7 +339,7 @@ const MobileCalendarApp = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          loadAllEvents(); // Ricarico tutti gli eventi
+          loadAllEvents(); // Ricarica eventi
           setShowModal(false);
           resetForm();
         } else {
@@ -354,7 +349,7 @@ const MobileCalendarApp = () => {
       .catch((err) => console.error("Errore nel salvataggio:", err));
   };
 
-  // Elimino un evento
+  // FUNZIONE handleDeleteEvent - Elimina evento esistente
   const handleDeleteEvent = () => {
     if (!window.confirm("Sei sicuro di voler eliminare questo evento?")) return;
     
@@ -375,7 +370,7 @@ const MobileCalendarApp = () => {
       .catch((err) => console.error("Errore eliminazione:", err));
   };
 
-  // Resetto il form
+  // FUNZIONE resetForm - Resetta form ai valori predefiniti
   const resetForm = () => {
     setNewEvent({
       id: "",
@@ -392,13 +387,14 @@ const MobileCalendarApp = () => {
     setIsEditing(false);
   };
 
-  // Renderizzo la vista del mese
+  // FUNZIONE renderMonthView - Renderizza griglia calendario mensile
   const renderMonthView = () => {
     let days = getDaysInMonth(currentDate);
     let dayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']; 
 
     return (
       <div className={styles.monthViewContainer}>
+        {/* Intestazioni giorni della settimana */}
         <div className={styles.monthViewDayLabelsGrid}>
           {dayLabels.map(day => (
             <div key={day} className={styles.monthViewDayLabel}>
@@ -406,9 +402,13 @@ const MobileCalendarApp = () => {
             </div>
           ))}
         </div>
+        
+        {/* Griglia giorni del mese */}
         <div className={styles.monthViewDaysGrid}>
           {days.map((day, index) => {
             let dayEvents = getEventsForDate(day);
+            
+            // Calcola classi CSS per ogni cella
             let cellClasses = [
               styles.dayCell,
               styles.dayCellHover,
@@ -417,20 +417,17 @@ const MobileCalendarApp = () => {
               !isSameMonth(day) ? styles.dayCellNotInMonth : ''
             ].join(' ').trim();
 
-            let dateNumberClasses = [
-                styles.dayCellDateNumber,
-                isToday(day) ? styles.dayCellDateNumberToday : ''
-            ].join(' ').trim();
-
             return (
               <div
                 key={index}
                 onClick={() => handleDateSelect(day)}
                 className={cellClasses}
               >
-                <div className={dateNumberClasses}>
+                <div className={styles.dayCellDateNumber}>
                   {day.getDate()}
                 </div>
+                
+                {/* Mostra primi 2 eventi nella cella */}
                 {dayEvents.slice(0, 2).map(event => (
                   <div
                     key={event.id}
@@ -440,6 +437,8 @@ const MobileCalendarApp = () => {
                     {event.title}
                   </div>
                 ))}
+                
+                {/* Indicatore per eventi aggiuntivi */}
                 {dayEvents.length > 2 && (
                   <div className={styles.dayCellMoreEvents}>
                     +{dayEvents.length - 2} altri

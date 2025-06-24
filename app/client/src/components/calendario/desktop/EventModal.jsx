@@ -3,31 +3,32 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo } from "react";
 
-// Memoized component for better performance
+// COMPONENTE PRINCIPALE EventModal - Modal per creare/modificare eventi
 const EventModal = memo(function EventModal({
-  isEditing,
-  newEvent,
-  setNewEvent,
-  handleSaveEvent,
-  handleDeleteEvent,
-  setShowModal,
-  resetForm,
-  isLoading
+  isEditing, // true se stiamo modificando un evento esistente
+  newEvent, // oggetto con i dati dell'evento
+  setNewEvent, // funzione per aggiornare i dati dell'evento
+  handleSaveEvent, // funzione per salvare l'evento
+  handleDeleteEvent, // funzione per eliminare l'evento
+  setShowModal, // funzione per chiudere il modal
+  resetForm, // funzione per resettare il form
+  isLoading // stato di caricamento
 }) {
   const [recurrence, setRecurrence] = useState(newEvent.recurrenceRule || "");
 
-  // Update recurrence state when newEvent changes (important for editing events)
+  // HOOK useEffect - Aggiorna lo stato della ricorrenza quando cambia l'evento
   useEffect(() => {
     setRecurrence(newEvent.recurrenceRule || "");
   }, [newEvent.recurrenceRule]);
 
+  // FUNZIONE handleRecurrenceChange - Gestisce il cambio della regola di ricorrenza
   const handleRecurrenceChange = useCallback((e) => {
     const value = e.target.value;
-    setRecurrence(value);
-    setNewEvent(prev => ({ ...prev, recurrenceRule: value }));
+    setRecurrence(value); // Aggiorna stato locale
+    setNewEvent(prev => ({ ...prev, recurrenceRule: value })); // Aggiorna evento
   }, [setNewEvent]);
 
-  // Handle escape key to close modal
+  // HOOK useEffect - Gestisce il tasto Escape per chiudere il modal
   useEffect(() => {
     const handleEscapeKey = (e) => {
       if (e.key === 'Escape') {
@@ -37,10 +38,10 @@ const EventModal = memo(function EventModal({
     };
     
     window.addEventListener('keydown', handleEscapeKey);
-    return () => window.removeEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey); // Cleanup
   }, [setShowModal, resetForm]);
 
-  // Handle click outside modal to close it
+  // FUNZIONE handleOutsideClick - Chiude il modal se si clicca fuori
   const handleOutsideClick = useCallback((e) => {
     if (e.target.className === 'modal-overlay') {
       setShowModal(false);
@@ -48,40 +49,28 @@ const EventModal = memo(function EventModal({
     }
   }, [setShowModal, resetForm]);
 
+  // Renderizza la struttura del modal con Header, Body e Footer
   return (
     <div className={styles.modalOverlay} onClick={handleOutsideClick}>
       <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <ModalHeader
-          isEditing={isEditing}
-          setShowModal={setShowModal}
-          resetForm={resetForm}
-        />
-        <ModalBody
-          newEvent={newEvent}
-          setNewEvent={setNewEvent}
-          recurrence={recurrence}
-          handleRecurrenceChange={handleRecurrenceChange}
-        />
-        <ModalFooter
-          isEditing={isEditing}
-          handleSaveEvent={handleSaveEvent}
-          handleDeleteEvent={handleDeleteEvent}
-          setShowModal={setShowModal}
-          resetForm={resetForm}
-          isLoading={isLoading}
-        />
+        <ModalHeader isEditing={isEditing} setShowModal={setShowModal} resetForm={resetForm} />
+        <ModalBody newEvent={newEvent} setNewEvent={setNewEvent} recurrence={recurrence} handleRecurrenceChange={handleRecurrenceChange} />
+        <ModalFooter isEditing={isEditing} handleSaveEvent={handleSaveEvent} handleDeleteEvent={handleDeleteEvent} setShowModal={setShowModal} resetForm={resetForm} isLoading={isLoading} />
       </div>
     </div>
   );
 });
 
+// COMPONENTE ModalHeader - Header del modal con titolo e pulsante chiudi
 const ModalHeader = memo(({ isEditing, setShowModal, resetForm }) => (
   <div className={styles.modalHeader}>
-    <h3 id="modal-title">{isEditing ? "Edit Event" : "New Event"}</h3>
+    <h3 id="modal-title">
+      {isEditing ? "Edit Event" : "New Event"} {/* Titolo dinamico */}
+    </h3>
     <button
       onClick={() => {
-        setShowModal(false);
-        resetForm();
+        setShowModal(false); // Chiude il modal
+        resetForm(); // Resetta il form
       }}
       aria-label="Close modal"
     >
@@ -90,26 +79,28 @@ const ModalHeader = memo(({ isEditing, setShowModal, resetForm }) => (
   </div>
 ));
 
+// COMPONENTE ModalBody - Corpo del modal con tutti i campi del form
 const ModalBody = memo(({
   newEvent,
   setNewEvent,
   recurrence,
   handleRecurrenceChange,
 }) => {
-  // Handle form field changes
+  // FUNZIONE handleInputChange - Gestisce il cambio dei campi di testo
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setNewEvent(prev => ({ ...prev, [name]: value }));
+    setNewEvent(prev => ({ ...prev, [name]: value })); // Aggiorna il campo specifico
   }, [setNewEvent]);
 
-  // Handle date field changes
+  // FUNZIONE handleDateChange - Gestisce il cambio dei campi data
   const handleDateChange = useCallback((e) => {
     const { name, value } = e.target;
-    setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
+    setNewEvent(prev => ({ ...prev, [name]: new Date(value) })); // Converte in Date object
   }, [setNewEvent]);
 
   return (
     <div className={styles.modalBody}>
+      {/* SELECT per il tipo di evento */}
       <div className={styles.formGroup}>
         <label htmlFor="event-type">Event Type</label>
         <select
@@ -124,7 +115,9 @@ const ModalBody = memo(({
         </select>
       </div>
 
+      {/* RENDERING CONDIZIONALE - Campi diversi in base al tipo di evento */}
       {newEvent.type === "pomodoro" ? (
+        // Per eventi Pomodoro: solo cicli rimanenti
         <FormField
           id="cycles-left"
           name="cyclesLeft"
@@ -136,7 +129,9 @@ const ModalBody = memo(({
           required
         />
       ) : (
+        // Per eventi normali e attività
         <>
+          {/* Campo titolo obbligatorio */}
           <FormField
             id="event-title"
             name="title"
@@ -147,7 +142,9 @@ const ModalBody = memo(({
             required
           />
 
+          {/* CAMPI DATA - Diversi per attività vs eventi normali */}
           {newEvent.type === "activity" ? (
+            // Attività: solo data (senza ora)
             <FormField
               id="activity-date"
               name="activityDate"
@@ -157,18 +154,16 @@ const ModalBody = memo(({
               onChange={handleDateChange}
             />
           ) : (
+            // Eventi normali: data e ora di inizio/fine
             <>
               <FormField
                 id="start-date"
                 name="start"
                 label="Start Date"
                 type="datetime-local"
-                value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", {
-                  locale: it,
-                })}
+                value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", { locale: it })}
                 onChange={handleDateChange}
               />
-
               <FormField
                 id="end-date"
                 name="end"
@@ -180,6 +175,7 @@ const ModalBody = memo(({
             </>
           )}
 
+          {/* Campo location */}
           <FormField
             id="event-location"
             name="location"
@@ -233,6 +229,7 @@ const FormField = memo(({ id, name, label, type, value, onChange, ...rest }) => 
   </div>
 ));
 
+// COMPONENTE ModalFooter - Footer del modal con i pulsanti di azione
 const ModalFooter = memo(({
   isEditing,
   handleSaveEvent,
