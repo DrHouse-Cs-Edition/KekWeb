@@ -114,14 +114,14 @@
 
 .navLink:hover,
 .navLink:focus {
-  background: rgba(255, 140, 107, 0.15);
+  background: rgba(109, 69, 201, 0.35);
   color: var(--navbar-link-hover);
   transform: translateY(-2px) scale(1.04);
 }
 
 .navLink:active {
   background: rgba(255, 140, 107, 0.25);
-  color: #fff;
+  color: #ffffff;
 }
 
 /* Tablet Enhancement (641px+) */
@@ -158,7 +158,7 @@
   }
   
   .navLink:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color:rgba(109, 69, 201, 0.35);
     transform: translateY(-1px);
   }
 }
