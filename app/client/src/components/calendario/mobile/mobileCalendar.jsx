@@ -21,7 +21,7 @@ const MobileCalendarApp = () => {
     end: new Date(),
     location: "",
     recurrenceRule: "",
-    desc: "",
+    description: "", // Cambiato da desc a description
   });
 
   // Carico tutti gli eventi quando parte l'app
@@ -48,7 +48,7 @@ const MobileCalendarApp = () => {
                 cyclesLeft: event.cyclesLeft,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
-                desc: event.description,
+                description: event.description, // Cambiato da desc a description
                 activityDate: event.activityDate ? new Date(event.activityDate) : null,
               },
             };
@@ -209,10 +209,10 @@ const MobileCalendarApp = () => {
       cyclesLeft: null,
       activityDate: new Date(selectedDate), 
       start: new Date(selectedDate), 
-      end: new Date(new Date(selectedDate).getTime() + 60 * 60 * 1000), // 1 ora dopo
+      end: new Date(new Date(selectedDate).getTime() + 60 * 60 * 1000),
       location: "",
       recurrenceRule: "",
-      desc: "",
+      description: "", // Cambiato da desc a description
     });
     setShowModal(true);
   };
@@ -237,7 +237,7 @@ const MobileCalendarApp = () => {
       type: eventData.extendedProps.type || "event",
       location: eventData.extendedProps.location || "",
       recurrenceRule: recurrenceValue,
-      desc: eventData.extendedProps.desc || "",
+      description: eventData.extendedProps.description || "", // Cambiato da desc a description
     };
 
     // Aggiungo le proprietà specifiche per tipo
@@ -311,7 +311,7 @@ const MobileCalendarApp = () => {
     // Preparo i dati per il backend
     let eventData = {
       title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
-      description: newEvent.desc || "",
+      description: newEvent.description || "", // Cambiato da newEvent.desc a newEvent.description
       location: newEvent.location || "",
       type: newEvent.type,
     };
@@ -387,7 +387,7 @@ const MobileCalendarApp = () => {
       end: new Date(),
       location: "",
       recurrenceRule: "",
-      desc: "",
+      description: "", // Cambiato da desc a description
     });
     setIsEditing(false);
   };
