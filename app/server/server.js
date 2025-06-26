@@ -35,21 +35,31 @@ const { notifications } = require ("./jobs/notifications.js");
 
 const cron = require('node-cron');
 const { addDays, addMinutes } = require('date-fns');
-/*
-cron.schedule('* * * * *', async () => { // /5 per controllare ogni 5 minuti invece
-        let  now = new Date();
-        if(time_shift != 0)
-            now = addMinutes(now, time_shift);
 
-        //notifications(now);
+const check = () => {
+    let  now = new Date();
+    if(time_shift != 0)
+        now = addMinutes(now, time_shift);
 
-        // controllo di mezzanotte
-        if (now.getHours() === 0 && now.getMinutes() === 0) {
-            // MUOVI POMODORI
-            // MUOVI ATTIVITA' SCADUTE
-        }
-    });
-*/
+    // debugging (controlla che si attivi ogni minuto)
+    if(now.getMinutes%2 === 0)
+        console.log("tick")
+    else
+        console.log("tack")
+
+    notifications(now);
+
+    // controllo di mezzanotte
+    if (now.getHours() === 0 && now.getMinutes() === 0) {
+        // MUOVI POMODORI
+        // MUOVI ATTIVITA' SCADUTE
+    }
+}
+
+cron.schedule('* * * * *', async () => { // any time = ogni minuto
+    check();
+});
+
 // percorsi
 
 app.get('/',(request,response)=>{
@@ -93,6 +103,7 @@ app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
   console.log(time_shift);
   // const now = new Date;
   // notifications(addMinutes(now, time_shift))
+  check();
   res.json({success: true})
 })
 
