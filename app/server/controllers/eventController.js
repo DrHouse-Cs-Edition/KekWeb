@@ -1,4 +1,5 @@
 const Event = require('../mongoSchemas/Event.js');
+const { subMinutes } = require('date-fns');
 
 const saveEvent = async (request, response) => {
     const eventInput = request.body;
@@ -14,7 +15,14 @@ const saveEvent = async (request, response) => {
       end: eventInput.end ? new Date(eventInput.end) : null,
       recurrenceRule: eventInput.recurrenceRule,
       urgencyLevel: eventInput.urgencyLevel || 0,
-      completed: eventInput.completed || false
+      completed: eventInput.completed || false,
+      alarm: {
+        earlyness: 10, // quanto prima (minuti) suonare
+        repeat_times: 3, // quante volte ripetere
+        repeat_every: 10 // ogni quanto ripetere
+      },
+      nextAlarm: subMinutes(eventInput.start, 10), // eventInput.alarm.earlyness
+      repeated: 0,
     });
 
   try{
