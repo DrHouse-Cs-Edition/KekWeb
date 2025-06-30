@@ -12,6 +12,7 @@ const Subscription = require('../mongoSchemas/Subscription.js');
 
 const subscribe = async (req,res) => {
     inputSub = req.body;
+    console.log(inputSub)
     const sub = new Subscription({
         user: req.user,
         endpoint: inputSub.endpoint,
