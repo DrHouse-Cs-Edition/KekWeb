@@ -1,14 +1,3 @@
-:root {
-  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
-  --dusk-card: rgba(36, 41, 73, 0.95);
-  --dusk-border: #5c3c6e;
-  --dusk-accent: #ff8c6b;
-  --dusk-accent-light: #ffb997;
-  --dusk-text: #ffe5d9;
-  --dusk-muted: #b3a1c7;
-  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
-}
-
 /* ========== Container ========== */
 .container {
   width: 100%;
@@ -54,14 +43,14 @@
 
 .loadingTitle {
   height: 2rem;
-  background-color: #e5e7eb;
+  background-color: rgba(255, 229, 217, 0.2);
   border-radius: 0.375rem;
   margin-bottom: 1.5rem;
 }
 
 .loadingCard {
-  background-color: white;
-  border: 1px solid #e5e7eb;
+  background-color: var(--dusk-card);
+  border: 1px solid var(--dusk-border);
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -69,7 +58,7 @@
 
 .loadingLine,
 .loadingLineShort {
-  background-color: #e5e7eb;
+  background-color: rgba(255, 229, 217, 0.2);
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
 }
@@ -121,9 +110,8 @@
 
 /* ========== Empty State ========== */
 .emptyState {
-  background: rgba(44, 37, 80, 0.5);
-  background-color: #f9fafb;
-  border: 2px dashed #d1d5db;
+  background: var(--dusk-input-bg);
+  border: 2px dashed var(--dusk-border);
   border-radius: 0.5rem;
   padding: 1.5rem;
   text-align: center;
@@ -133,18 +121,18 @@
 .emptyIcon {
   width: 2rem;
   height: 2rem;
-  color: #9ca3af;
+  color: var(--dusk-muted);
   margin: 0 auto 0.75rem auto;
 }
 
 .emptyText {
-  color: #6b7280;
+  color: var(--dusk-text);
   font-size: 0.875rem;
   margin: 0 0 0.25rem 0;
 }
 
 .emptySubtext {
-  color: #9ca3af;
+  color: var(--dusk-muted);
   font-size: 0.75rem;
   margin: 0;
 }
@@ -261,7 +249,6 @@
 
 .modal {
   background: var(--dusk-card);
-  background-color: white;
   color: var(--dusk-text);
   border: 1px solid var(--dusk-border);
   border-radius: 0.5rem;
@@ -305,7 +292,7 @@
 .closeIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #6b7280;
+  color: var(--dusk-muted);
 }
 
 .modalContent {
@@ -322,14 +309,14 @@
 .modalEventIcon {
   width: 1rem;
   height: 1rem;
-  color: #3b82f6;
+  color: var(--dusk-accent);
 }
 
 .modalEventTitle {
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
-  color: #111827;
+  color: var(--dusk-text);
 }
 
 .modalEventDetails {
@@ -342,7 +329,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6b7280;
+  color: var(--dusk-muted);
 }
 
 .modalDetailIcon {
@@ -356,12 +343,12 @@
 
 .modalDescriptionTitle {
   font-weight: 500;
-  color: #111827;
+  color: var(--dusk-text);
   margin: 0 0 0.5rem 0;
 }
 
 .modalDescriptionText {
-  color: #6b7280;
+  color: var(--dusk-muted);
   font-size: 0.875rem;
   line-height: 1.6;
   margin: 0;
@@ -430,14 +417,4 @@
   .eventDescription {
     font-size: 0.7rem;
   }
-}
-
-/* ========== Scrollbar ========== */
-::-webkit-scrollbar {
-  width: 8px;
-  background: #2d3356;
-}
-::-webkit-scrollbar-thumb {
-  background: #5c3c6e;
-  border-radius: 4px;
 }

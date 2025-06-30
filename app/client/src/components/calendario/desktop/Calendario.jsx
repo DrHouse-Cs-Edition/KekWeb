@@ -7,6 +7,7 @@ import { RRule } from "rrule";
 import styles from "./Calendario.module.css";
 
 export default function CalendarApp() {
+  // Stati per gestire il calendario
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -26,24 +27,36 @@ export default function CalendarApp() {
     end: new Date(),
     location: "",
     recurrenceRule: "",
-    desc: "",
+    description: "",
+    alarm: {
+      earlyness: 15,
+      repeat_times: 1,
+      repeat_every: 0
+    }
   });
 
+  // Carico tutti gli eventi quando il componente si monta
   useEffect(() => {
-    fetchAllEvents();
+    loadAllEvents();
   }, []);
 
-  const fetchAllEvents = () => {
+  // Funzione per caricare tutti gli eventi dal server
+  const loadAllEvents = () => {
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
-      credentials: "include",
+      credentials: "include", // Serve per mandare i cookie
     })
       .then((response) => response.json())
-      .then((json) => {
-        if (json.success) {
-          const formattedEvents = json.list.map((event) => {
-            // Base event object
-            const formattedEvent = {
+      .then((data) => {
+        if (data.success) {
+          console.log("Eventi caricati dal server:", data.list);
+          
+          // Trasformo gli eventi per FullCalendar
+          let eventsForCalendar = data.list.map((event) => {
+            console.log("Elaboro evento:", event.title, "tipo:", event.type);
+            
+            // Creo l'oggetto base
+            let eventObj = {
               id: event._id,
               title: event.title,
               extendedProps: {
@@ -51,116 +64,131 @@ export default function CalendarApp() {
                 pomodoro: event.pomodoro,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
-                desc: event.description,
+                description: event.description,
+                alarm: event.alarm || {
+                  earlyness: 15,
+                  repeat_times: 1,
+                  repeat_every: 0
+                }
               },
             };
-
-            // Handle different event types differently
-            switch (event.type) {
-              case "activity":
-                // For activities, use activityDate for both start and end
-                const activityDate = event.activityDate ? new Date(event.activityDate) : new Date();
-                formattedEvent.start = activityDate;
-                formattedEvent.end = activityDate;
-                formattedEvent.allDay = true; // Make activities appear as all-day events
-                formattedEvent.backgroundColor = "#4285F4"; // Blue for activities
-                formattedEvent.extendedProps.activityDate = activityDate;
+            
+            // Gestisco i diversi tipi di eventi
+            if (event.type === "activity") {
+              // Per le attività uso activityDate
+              let actDate = event.activityDate ? new Date(event.activityDate) : new Date();
+              eventObj.start = actDate;
+              eventObj.end = actDate;
+              eventObj.allDay = true; // Le attività durano tutto il giorno
+              eventObj.backgroundColor = "#4285F4"; // Blu per le attività
+              eventObj.extendedProps.activityDate = actDate;
                 
-                // Handle recurrence rule for activities too
-                if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
-                  try {
-                    const freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
-                    if (freqMatch && freqMatch[1]) {
-                      formattedEvent.rrule = {
-                        freq: freqMatch[1].toLowerCase(),
-                        dtstart: activityDate.toISOString()
-                      };
-                      console.log("Created rrule object for activity:", formattedEvent.rrule);
-                    }
-                  } catch (err) {
-                    console.error("Error parsing recurrence rule for activity:", err);
+              // Se ha ricorrenza la aggiungo
+              if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
+                try {
+                  let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
+                  if (freqMatch && freqMatch[1]) {
+                    eventObj.rrule = {
+                      freq: freqMatch[1].toLowerCase(),
+                      dtstart: actDate.toISOString()
+                    };
+                    console.log("Aggiunta ricorrenza all'attività:", eventObj.rrule);
                   }
+                } catch (err) {
+                  console.error("Errore ricorrenza attività:", err);
                 }
-                break;
+              }
+            } else if (event.type === "pomodoro") {
+              // Per i pomodoro
+              eventObj.start = event.start ? new Date(event.start) : new Date();
+              eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 25 * 60000); // 25 minuti
+              eventObj.backgroundColor = "#EA4335"; // Rosso per i pomodoro
+            } else {
+              // Per gli eventi normali
+              eventObj.start = event.start ? new Date(event.start) : new Date();
+              eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 3600000); // 1 ora
+              eventObj.backgroundColor = "#3174ad"; // Blu scuro per eventi
                 
-              case "pomodoro":
-                // For pomodoro events, use start date or today if none
-                formattedEvent.start = event.start ? new Date(event.start) : new Date();
-                formattedEvent.end = event.end ? new Date(event.end) : new Date(formattedEvent.start.getTime() + 25 * 60000); // 25 minutes
-                formattedEvent.backgroundColor = "#EA4335"; // Red for pomodoro
-                break;
-                
-              case "event":
-              default:
-                // For regular events
-                formattedEvent.start = event.start ? new Date(event.start) : new Date();
-                formattedEvent.end = event.end ? new Date(event.end) : new Date(formattedEvent.start.getTime() + 3600000); // 1 hour
-                formattedEvent.backgroundColor = "#3174ad"; // Default blue
-                
-                // Handle recurrence rule for FullCalendar
-                if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
-                  try {
-                    const freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
-                    if (freqMatch && freqMatch[1]) {
-                      formattedEvent.rrule = {
-                        freq: freqMatch[1].toLowerCase(),
-                        dtstart: formattedEvent.start.toISOString()
-                      };
-                      console.log("Created rrule object:", formattedEvent.rrule);
-                    }
-                  } catch (err) {
-                    console.error("Error parsing recurrence rule:", err);
+              // Gestisco la ricorrenza anche per gli eventi normali
+              if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
+                try {
+                  let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
+                  if (freqMatch && freqMatch[1]) {
+                    eventObj.rrule = {
+                      freq: freqMatch[1].toLowerCase(),
+                      dtstart: eventObj.start.toISOString()
+                    };
+                    console.log("Aggiunta ricorrenza all'evento:", eventObj.rrule);
                   }
+                } catch (err) {
+                  console.error("Errore ricorrenza evento:", err);
                 }
-                break;
+              }
             }
-
-            return formattedEvent;
+            return eventObj;
           });
-          setEvents(formattedEvents);
+          
+          setEvents(eventsForCalendar);
+          console.log("Eventi pronti per il calendario:", eventsForCalendar.length);
+        } else {
+          console.log("Nessun evento trovato");
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error("Errore nel caricamento eventi:", err);
+        alert("Errore nel caricamento degli eventi");
+      });
   };
 
+  // Quando clicco su una data per creare un nuovo evento
   const handleDateSelect = (selectInfo) => {
-    setIsEditing(false);
-    setNewEvent((prev) => ({
-      ...prev,
-      id: uuidv4(),
+    console.log("Data selezionata:", selectInfo.start, "a", selectInfo.end);
+    
+    setIsEditing(false); // Sto creando, non modificando
+    setNewEvent({
+      ...newEvent,
+      id: uuidv4(), // ID casuale
       start: selectInfo.start,
       end: selectInfo.end,
-      type: "event", // Reset to event type when creating new
-      recurrenceRule: "", // Reset recurrence rule
-      activityDate: selectInfo.start, // Set activity date to start date
-    }));
-    setShowModal(true);
-    selectInfo.view.calendar.unselect();
+      type: "event", // Evento normale di default
+      recurrenceRule: "",
+      activityDate: selectInfo.start,
+    });
+    setShowModal(true); // Apro il modal
+    selectInfo.view.calendar.unselect(); // Tolgo la selezione dal calendario
   };
 
+  // Quando clicco su un evento esistente per modificarlo
   const handleEventClick = (clickInfo) => {
-    // Extract recurrence pattern from the stored rule if it exists
-    let recurrenceValue = "";
+    console.log("Evento cliccato:", clickInfo.event.title);
+    
+    // Estraggo la ricorrenza se c'è
+    let recurrence = "";
     if (clickInfo.event.extendedProps.recurrenceRule) {
-      const freqMatch = clickInfo.event.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
+      let freqMatch = clickInfo.event.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
       if (freqMatch && freqMatch[1]) {
-        recurrenceValue = freqMatch[1].toLowerCase();
-        console.log("Extracted recurrence value:", recurrenceValue);
+        recurrence = freqMatch[1].toLowerCase();
+        console.log("Ricorrenza trovata:", recurrence);
       }
     }
 
-    // Make sure we have valid dates
-    const start = clickInfo.event.start || new Date();
-    const end = clickInfo.event.end || new Date(start.getTime() + 3600000); // Default to 1 hour later if no end
+    // Mi assicuro che le date siano valide
+    let startDate = clickInfo.event.start || new Date();
+    let endDate = clickInfo.event.end || new Date(startDate.getTime() + 3600000);
     
-    // Create event object based on the event type
-    const eventData = {
+    // Preparo i dati dell'evento per il form
+    let eventData = {
       id: clickInfo.event.id,
       title: clickInfo.event.title || "",
       type: clickInfo.event.extendedProps.type || "event",
       location: clickInfo.event.extendedProps.location || "",
-      recurrenceRule: recurrenceValue,
-      desc: clickInfo.event.extendedProps.desc || "",
+      recurrenceRule: recurrence,
+      description: clickInfo.event.extendedProps.description || "",
+      alarm: clickInfo.event.extendedProps.alarm || {
+        earlyness: 15,
+        repeat_times: 1,
+        repeat_every: 0
+      }
     };
     
     // Add type-specific properties
@@ -188,64 +216,74 @@ export default function CalendarApp() {
         break;
     }
     
-    setIsEditing(true);
-    setNewEvent(eventData);
-    setShowModal(true);
+    setIsEditing(true); // Sto modificando
+    setNewEvent(eventData); // Riempio il form
+    setShowModal(true); // Apro il modal
   };
 
+  // Funzione per salvare l'evento (nuovo o modificato)
   const handleSaveEvent = () => {
-    if (!newEvent.title && newEvent.type !== "pomodoro") return;
+    console.log("Salvo evento:", newEvent.title, "tipo:", newEvent.type);
+    
+    // Controllo che ci sia un titolo (tranne per i pomodoro)
+    if (!newEvent.title && newEvent.type !== "pomodoro") {
+      alert("Inserisci un titolo!");
+      return;
+    }
 
-    const url = isEditing
+    // Scelgo URL e metodo in base se sto creando o modificando
+    let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
-    const method = isEditing ? "PUT" : "POST";
+    let method = isEditing ? "PUT" : "POST";
 
+    // Gestisco la ricorrenza se è stata impostata
     let rruleString = null;
     if ((newEvent.type === "event" || newEvent.type === "activity") && newEvent.recurrenceRule) {
       try {
-        // Map the dropdown values to RRule frequency constants
-        const frequencyMap = {
+        console.log("Creo ricorrenza per:", newEvent.recurrenceRule);
+        
+        // Mappo le opzioni del dropdown
+        let frequencyMap = {
           'daily': RRule.DAILY,
           'weekly': RRule.WEEKLY,
           'monthly': RRule.MONTHLY,
           'yearly': RRule.YEARLY
         };
         
-        const freq = frequencyMap[newEvent.recurrenceRule];
+        let freq = frequencyMap[newEvent.recurrenceRule];
         
         if (freq !== undefined) {
-          // Use the appropriate date as the start date for the recurrence rule
-          const startDate = newEvent.type === "activity" 
+          let startDate = newEvent.type === "activity" 
             ? (newEvent.activityDate || new Date()) 
             : (newEvent.start || new Date());
           
-          // Create a proper RRule string with correct frequency
-          const rruleObj = new RRule({
+          let rruleObj = new RRule({
             freq: freq,
             dtstart: startDate
           });
           rruleString = rruleObj.toString();
-          console.log("Created RRule string:", rruleString);
+          console.log("RRule creata:", rruleString);
         } else {
-          console.error("Invalid recurrence rule value:", newEvent.recurrenceRule);
-          alert("Invalid recurrence rule");
+          console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
+          alert("Ricorrenza non valida");
           return;
         }
       } catch (error) {
-        console.error("Error creating rrule:", error);
-        alert("Invalid recurrence rule");
+        console.error("Errore creazione ricorrenza:", error);
+        alert("Errore nella ricorrenza");
         return;
       }
     }
 
-    // Create event data object with shared properties
-    const eventData = {
-      title: newEvent.title || (newEvent.type === "pomodoro" ? "Pomodoro Session" : ""),
-      description: newEvent.desc || "",
+    // Preparo i dati per il server
+    let eventData = {
+      title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
+      description: newEvent.description || "",
       location: newEvent.location || "",
       type: newEvent.type,
       user: newEvent.user,
+      alarm: newEvent.alarm
     };
     
     // Add type-specific properties
@@ -268,10 +306,10 @@ export default function CalendarApp() {
         break;
     }
     
-    console.log("Event Data Sent to Backend:", eventData);
-
     if (isEditing) eventData._id = newEvent.id;
+    console.log("Dati da inviare al server:", eventData);
 
+    // Invio al server
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -279,37 +317,58 @@ export default function CalendarApp() {
       credentials: "include",
     })
       .then((response) => response.json())
-      .then((json) => {
-        if (json.success) {
-          fetchAllEvents();
-          setShowModal(false);
-          resetForm();
+      .then((result) => {
+        console.log("Risposta server:", result);
+        if (result.success) {
+          console.log("Evento salvato con successo!");
+          loadAllEvents(); // Ricarico la lista
+          setShowModal(false); // Chiudo il modal
+          resetForm(); // Pulisco il form
         } else {
-          alert(json.message);
+          console.error("Errore dal server:", result.message);
+          alert(result.message);
         }
       })
-      .catch((err) => console.error("Error saving event:", err));
+      .catch((err) => {
+        console.error("Errore nel salvataggio:", err);
+        alert("Errore di connessione");
+      });
   };
 
+  // Funzione per eliminare un evento
   const handleDeleteEvent = () => {
+    if (!window.confirm("Sei sicuro di voler eliminare questo evento?")) {
+      return;
+    }
+    
+    console.log("Elimino evento:", newEvent.id);
+    
     fetch(`http://localhost:5000/api/events/remove/${newEvent.id}`, {
       method: "DELETE",
       credentials: "include",
     })
       .then((response) => response.json())
-      .then((json) => {
-        if (json.success) {
-          fetchAllEvents();
-          setShowModal(false);
-          resetForm();
+      .then((result) => {
+        console.log("Risposta eliminazione:", result);
+        if (result.success) {
+          console.log("Evento eliminato!");
+          loadAllEvents(); // Ricarico la lista
+          setShowModal(false); // Chiudo il modal
+          resetForm(); // Pulisco il form
         } else {
-          alert(json.message);
+          console.error("Errore eliminazione:", result.message);
+          alert(result.message);
         }
       })
-      .catch((err) => console.error("Error deleting event:", err));
+      .catch((err) => {
+        console.error("Errore nell'eliminazione:", err);
+        alert("Errore di connessione");
+      });
   };
 
+  // Funzione per resettare il form
   const resetForm = () => {
+    console.log("Resetto il form");
     setNewEvent({
       id: "",
       title: "",
@@ -326,19 +385,23 @@ export default function CalendarApp() {
       end: new Date(),
       location: "",
       recurrenceRule: "",
-      desc: "",
+      description: "",
+      alarm: {
+        earlyness: 15,
+        repeat_times: 1,
+        repeat_every: 0
+      }
     });
     setIsEditing(false);
   };
 
   return (
-    <div className={styles.calendarContainer}>  {/* Changed class name */}
+    <div className={styles.calendarContainer}>
       <CalendarView
         events={events}
         handleDateSelect={handleDateSelect}
         handleEventClick={handleEventClick}
         locale={itLocale}
-        
       />
 
       {showModal && (

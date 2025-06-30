@@ -1,19 +1,55 @@
-.PomodoroDiv{
-    justify-content: space-between;
-    height: 50vh;
-    background-color: antiquewhite;
+.container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
 }
 
-.CalendarDiv{
-    display: flex;
-    justify-content: space-between;
-    height: 50vh;
-    background-color: cadetblue;
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  align-items: start;
 }
 
-.NoteDiv{
-    display: flex;
-    justify-content: space-between;
-    height: 50vh;
-    background-color: darksalmon;
+.eventsSection {
+  min-height: 0; /* Allows flex children to shrink */
+}
+
+.todoSection {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: none;
+    padding: 0 0.5rem;
+  }
+  
+  .todoSection {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .layout {
+    gap: 1rem;
+    padding: 0;
+  }
 }

@@ -16,6 +16,16 @@ const eventSchema = new Schema({
     end: Date,
     // For activities (date without time)
     activityDate: Date,
+    completed: {
+      type: Boolean,
+      default: false
+    },
+    urgencyLevel: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: 0  
+    }, // 0-10
     // For pomodoro
     pomodoro: { //pomodoroTitle
       type : Schema.Types.String,
@@ -33,13 +43,11 @@ const eventSchema = new Schema({
         dtstart: 
         until: A date string representing the date on which to end repetition. Must be friendly to Date()
     */
-    alarm: Object,
-    /*
-        earlyness: quanto prima (minuti)
-        repeat_times: number
-        repeat_every: minutes
-    */
-    //extra
+    alarm: {
+      earlyness: { type: Number}, // quanto prima (minuti) suonare
+      repeat_times: { type: Number}, // quante volte ripetere
+      repeat_every: { type: Number} // ogni quanto ripetere
+    },
     nextAlarm: Date,
     repeated: Number,
     user: { 

@@ -1,0 +1,23 @@
+.background {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Keeps aspect ratio while filling space */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1; /* Ensures content-box stays on top */
+}
+.contenent {
+  margin: 2%;
+}
+.title{
+  font-size: 2em;
+  font-weight: bold;
+  color: aquamarine;
+}
+.selecto{
+  margin-top: 1em;
+  margin-bottom: 2em;
+  margin-left: 0px;
+  margin-right: 0px;
+}

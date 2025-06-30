@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Prewiew from '../components/Note/Prewiew.jsx';
 import { useNavigate } from "react-router-dom";
-// import Style from './Note_navigation.module.css'
+import Style from './NoteNavigation.module.css'
 
 function NoteNavigation() {
 
@@ -121,24 +121,33 @@ function NoteNavigation() {
 
   return (
     <>
-      <header>Note</header>
+      <img
+        src="sfondo.jpg" 
+        /*alt="sfondo (tramonto su città)" */c
+        className={Style.background}
+      />
 
-      <select value={sortOption} onChange={handleSortChange}>
-        <option value="">Seleziona...</option>
-        <option value="asc">Alfabetico A-Z</option>
-        <option value="desc">Alfabetico Z-A</option>
-        <option value="date">Per data</option>
-        <option value="length">Per lunghezza</option>
-      </select>
+      <div className={Style.contenent}>
 
-      <button onClick={()=>handleAdd()}>
-        Aggiungi nota
-      </button>
+        <header className={Style.title}>Note</header>
 
-      <div>
-        {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
+        <select className={Style.selecto} value={sortOption} onChange={handleSortChange}>
+          <option value="">Seleziona...</option>
+          <option value="asc">Alfabetico A-Z</option>
+          <option value="desc">Alfabetico Z-A</option>
+          <option value="date">Per data</option>
+          <option value="length">Per lunghezza</option>
+        </select>
+
+        <button onClick={()=>handleAdd()}>
+          Aggiungi nota
+        </button>
+
+        <div>
+          {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
+        </div>
+
       </div>
-      <footer>Footer: Note V2.0</footer>
     </>
   );
   // array.map( (elem) => {funz} ) = funzione js che esegue "funz" una volta per ogni elemento "elem" dell'array

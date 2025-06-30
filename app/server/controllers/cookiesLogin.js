@@ -17,7 +17,7 @@ exports.login = async function (req, res){
                 sameSite: "strict",
             });
             res.status(200).json({ // ***************************************************************** nel caso è DA ELIMINARE (e modificare client di conseguenza)
-                message : "login successfulll",
+                message : "login successful",
                 success: true,
                 token: token
                 // refreshToken : token 

@@ -1,30 +1,3 @@
-:global(:root) {
-  --dusk-bg: linear-gradient(135deg, #232b4d 0%, #4b3570 60%, #ff8c6b 100%);
-  --dusk-card: rgba(36, 41, 73, 0.95); /* Adjusted alpha for card background */
-  --dusk-card-solid: #242949; /* A solid version of the card bg */
-  --dusk-border: #5c3c6e;
-  --dusk-accent: #ff8c6b;
-  --dusk-accent-light: #ffb997;
-  --dusk-text: #ffffff; /* Changed to pure white for better visibility */
-  --dusk-text-header: #ffffff; /* For main headers against dark backgrounds */
-  --dusk-muted: #d1c7e0; /* Lightened for better visibility */
-  --dusk-shadow: 0 4px 24px 0 rgba(44, 37, 80, 0.35);
-  --dusk-button-bg: rgba(255, 140, 107, 0.2); /* Accent with alpha for buttons */
-  --dusk-button-hover-bg: rgba(255, 140, 107, 0.3);
-  --dusk-button-disabled-bg: rgba(255, 140, 107, 0.1);
-  --dusk-input-bg: rgba(59, 45, 90, 0.5); /* Darker input background */
-  --dusk-input-border: #5c3c6e;
-  --dusk-input-focus-border: var(--dusk-accent);
-  --dusk-input-focus-shadow: 0 0 0 3px rgba(255, 140, 107, 0.2);
-  --dusk-today-bg: rgba(255, 140, 107, 0.15);
-  --dusk-modal-overlay: rgba(15, 18, 36, 0.7); /* Darker overlay */
-  
-  /* New variables for better event text visibility */
-  --event-text-primary: #ffffff;
-  --event-text-secondary: #f0f0f0;
-  --event-bg-opacity: 0.85; /* Higher opacity for event backgrounds */
-}
-
 /* Calendar Container */
 .calendarContainer {
   width: 100%;
@@ -438,7 +411,183 @@
   background: #900c3f; /* Darker red on hover */
 }
 
-/* Mobile Responsive Styles REMOVED */
+/* Custom Navigation Styles */
+.calendarWrapper {
+  width: 100%;
+}
+
+.customHeader {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.navigationGroup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.todayBtn {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.todayBtn:hover {
+  background-color: #1565c0;
+}
+
+.dateSearchWrapper {
+  position: relative;
+}
+
+.searchBtn {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.searchBtn:hover {
+  background-color: #e0e0e0;
+}
+
+.datePickerDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 200px;
+}
+
+.dateInput {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 1;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.closePicker {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  border-radius: 2px;
+}
+
+.closePicker:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Notification Settings Styles */
+.notificationGroup {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(75, 53, 112, 0.3);
+  border-radius: 10px;
+  border: 1px solid var(--dusk-border);
+}
+
+.notificationCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.notificationCheckbox input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.1);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationCheckbox label {
+  margin: 0 !important;
+  font-weight: 500;
+  color: var(--dusk-text);
+  cursor: pointer;
+}
+
+.notificationSubSettings {
+  margin-top: 16px;
+  padding-left: 24px;
+  border-left: 2px solid var(--dusk-accent);
+  background: rgba(75, 53, 112, 0.2);
+  border-radius: 0 8px 8px 0;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.notificationTypeGroup {
+  margin-top: 12px;
+}
+
+.notificationTypeLabel {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--dusk-muted) !important;
+  margin-bottom: 8px !important;
+}
+
+.notificationTypeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notificationTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notificationTypeOption input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.05);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationTypeOption label {
+  font-size: 0.875rem !important;
+  font-weight: normal !important;
+  color: var(--dusk-text) !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
 
 /* High DPI / Retina Display Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
@@ -481,7 +630,7 @@
   
   .calendarContainer {
     box-shadow: none;
-    background: #fff; /* Ensure light background for printing */
+    background: #fff;
   }
   
   .calendarContainer :global(.fc) {
@@ -513,14 +662,5 @@
   .calendarContainer :global(.custom-event) {
     color: #333 !important; /* Dark text for custom events */
     text-shadow: none !important;
-  }
-  .calendarContainer :global(.custom-event-event) {
-    background: #ddeeff !important; /* Light blue for event type */
-  }
-  .calendarContainer :global(.custom-event-activity) {
-    background: #d4edda !important; /* Light green for activity type */
-  }
-  .calendarContainer :global(.custom-event-pomodoro) {
-    background: #f8d7da !important; /* Light red for pomodoro type */
   }
 }
