@@ -1,5 +1,5 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
 import {Input} from "../utils/InputV2.jsx";
@@ -13,6 +13,7 @@ import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.js
 function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
     const {token, setToken} = UseToken();
+    const location = useLocation();
     //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [pomodoroId, setPomodoroId] = useState(0);
@@ -75,12 +76,34 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         setDisableRun(0);
     }
 
-    function loadPomodoro(id, title, studyT, breakT, cycles){
+    function loadPomodoro (id, title, studyT, breakT, cycles){
       passTimeData(studyT, breakT, cycles);
       setPomodoroId(id);
       setPomodoroTitle(title);
-      console.log("loading pomodoro from Pomodoro: ", title);
+      console.log("data recieved: ", id, title, studyT, breakT, cycles);
     }
+
+    function serverSideUpdateCycles(x){
+        fetch('/api/Pomodoro/cyclesUpdate', {
+            method: 'UPDATE',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body : {
+                id: pomodoroId,
+                cycles: x,
+            }
+        })
+    }
+
+    useEffect( ()=>{
+        if(location.state){
+            const {_id, title, studyTime, breakTime, cycles} = location.state;
+            loadPomodoro(_id, title, studyTime, breakTime, cycles);
+        }
+    },[])
 
     useEffect(()=>{
         if( pomodoroId || pomodoroTitle)     //if there is an ID present, i am updating a pomodoro
@@ -103,14 +126,18 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                     if(seconds == 0){
                         if(minutes == 0){
                             if(curTimer){//break timer ended, initializing study timer
-                                setCyclesLeft(cyclesLeft-1);
+                                let x = cyclesLeft -1;
+                                setCyclesLeft(x);
+                                serverSideUpdateCycles(x);
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
+                                    //TODO fetch for deleting pomodoro after completition?
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));
                                     setMinutes(Math.trunc(StudyTime/60%60));
-                                    alert("ugh, back to studying huh?")
+                                    alert("ugh, back to studying huh?");
+                                    //TODO fetch for removing one cycle
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));

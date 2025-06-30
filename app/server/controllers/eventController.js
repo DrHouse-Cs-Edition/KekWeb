@@ -1,6 +1,7 @@
 const Event = require('../mongoSchemas/Event.js');
 
 const saveEvent = async (request, response) => {
+    console.log("recieved backend event: ", request.body);
     const eventInput = request.body;
     const eventDB = new Event({
       user: request.user, // Add user association
@@ -8,7 +9,7 @@ const saveEvent = async (request, response) => {
       description: eventInput.description,
       location: eventInput.location,
       type: eventInput.type,
-      cyclesLeft: eventInput.cyclesLeft,
+      pomodoro: eventInput.pomodoro,
       activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
       start: eventInput.start ? new Date(eventInput.start) : null,
       end: eventInput.end ? new Date(eventInput.end) : null,
@@ -34,6 +35,7 @@ const saveEvent = async (request, response) => {
 
 
 const updateEvent = async (request, response) => {
+    console.log("recieved backend event for UPDATE: ", request.body);
     const id = request.params.id;
     const eventInput = request.body;
   
@@ -43,7 +45,7 @@ const updateEvent = async (request, response) => {
         description: eventInput.description,
         location: eventInput.location,
         type: eventInput.type,
-        cyclesLeft: eventInput.cyclesLeft,
+        pomodoro: eventInput.pomodoro,
         activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
         start: eventInput.start ? new Date(eventInput.start) : null,
         end: eventInput.end ? new Date(eventInput.end) : null,
@@ -126,7 +128,7 @@ const allEvent = async (request, response) => {
                     start: event.start,
                     end: event.end,
                     activityDate: event.activityDate,
-                    cyclesLeft: event.cyclesLeft,
+                    pomodoro: event.pomodoro,
                     location: event.location,
                     description: event.description,
                     recurrenceRule: event.recurrenceRule
@@ -148,4 +150,10 @@ const allEvent = async (request, response) => {
     }
 };
 
+const isPomodoroScheduled = (req, res, next)=>{
+    
+}
+
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent };
+
+

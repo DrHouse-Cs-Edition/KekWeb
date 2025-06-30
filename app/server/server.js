@@ -59,7 +59,6 @@ app.delete("/api/user/logout", UserRoutes.logout);
 //*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
-
 // gestione api eventi
 app.use('/api/events', eventRoutes);
 // gestione api note
@@ -71,6 +70,7 @@ app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 app.post("/api/Pomodoro/renameP", pomodoroRoutes.renameP);
 app.delete("/api/Pomodoro/deleteP/:id", pomodoroRoutes.deleteP);
+app.update("/api/Pomodoro/cyclesUpdate", pomodoroRoutes.updateCycles)
 
 //************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);

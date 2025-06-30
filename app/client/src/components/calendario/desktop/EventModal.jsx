@@ -2,6 +2,9 @@ import styles from "./Calendario.module.css"; // Import the CSS Module
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo, useRef } from "react";
+import Pomodoro from "../../../pages/Pomodoro";
+import { redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Memoized component for better performance
 const EventModal = memo(function EventModal({
@@ -107,6 +110,14 @@ const ModalBody = memo(({
     const { name, value } = e.target;
     setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
   }, [setNewEvent]);
+
+  // const loadPomodoro = ()=>{
+  //   //function temporarily stores pomodoro data to the session storage
+  //   //it is then used to populate the form fields
+  //   //it is the Pomodoro component 's responsibility to erase the data from storage
+  //   sessionStorage.setItem("", JSON.stringify(newEvent.pomodoro))
+
+  // }
   return (
     <div className={styles.modalBody}>
       <div className={styles.formGroup}>
@@ -125,7 +136,7 @@ const ModalBody = memo(({
 
       {newEvent.type === "pomodoro" ? (
         <>
-        <SelectPomodoros setNewEvent = {setNewEvent}></SelectPomodoros>
+        <SelectPomodoros newEvent = {newEvent} setNewEvent = {setNewEvent}></SelectPomodoros>
         <FormField
           id="studyTime"
           name="studyTime"
@@ -133,6 +144,7 @@ const ModalBody = memo(({
           type="number"
           value={newEvent.pomodoro.studyTime || 0}
           onChange={handleInputChange}
+
           required
         />
         <FormField
@@ -154,7 +166,8 @@ const ModalBody = memo(({
           min="1"
           required
         />
-        </>        
+        <Link to="/pomodoro" className="btn btn-primary" state={newEvent.pomodoro}>See pomodoro</Link>
+        </> 
       ) : (
         <>
           <FormField
@@ -279,7 +292,7 @@ const ModalFooter = memo(({
 export default EventModal;
 
 
-const SelectPomodoros = ( {setNewEvent} )=>{
+const SelectPomodoros = ( {newEvent, setNewEvent} )=>{
 
 const [pomodoroOptions, setPomodoroOptions] = useState([]);
 const [currentPomodoro, setCurrentPomodoro] = useState(null);
@@ -298,36 +311,47 @@ fetch("api/Pomodoro/getP", {
   .then(res => res.json()
   ).then(
     (data) =>{
-      setPomodoroOptions(data.body)      
-      }
-    )}, [])
+      setPomodoroOptions(data.body)
+      if(newEvent.pomodoro)
+      {
+        const initialPomodoro = data.body.find(p => p.title === newEvent.pomodoro);
+        if(initialPomodoro)
+          setNewEvent( prev => ({ ...prev, pomodoro: initialPomodoro }));
+      }}
+    )}, [pomodoroOptions, setNewEvent])
 
   // Gestore per il cambio dell'opzione selezionata
   const handleSelectChange = useCallback(e => {
-    const selectedId = e.target.value;
+    const selectedTitle = e.target.value;
     //ritorna se si è passati al valore base
-    if(selectedId == "")
+    if(selectedTitle == "")
       return;
     // Trova l'oggetto pomodoro corrispondente all'ID selezionato
-    const foundPomodoro = pomodoroOptions.find(p => p._id === selectedId);
+    const foundPomodoro = pomodoroOptions.find(p => p.title === selectedTitle);
     setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
     console.log("Selected Pomodoro Object:", foundPomodoro);
     setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
 
   }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
 
-useEffect(()=>{FetchPomodoros()},[]);
+useEffect(()=>{FetchPomodoros();
+  console.log("recievend new event pomodoro: ", newEvent.pomodoro);
+},[]);
 
   return(
     <select
     ref={selectRef}
     onChange={handleSelectChange}
-    value={currentPomodoro ? currentPomodoro._id : ""} >
+    value={
+    typeof newEvent.pomodoro === 'string'
+      ? newEvent.pomodoro // If it's a string (initial state)
+      : newEvent.pomodoro?.title || "" // If it's an object or null/undefined
+    } >
       <option value="">
         select a pomodoro
       </option>
       {pomodoroOptions.map(el =>(
-        <option value={el._id} key={el._id}>
+        <option value={el.title} key={el.title} {...newEvent?.pomodoro?.title === el.title ? "selected" : ""}>
           {el.title}
         </option>
       ))}
