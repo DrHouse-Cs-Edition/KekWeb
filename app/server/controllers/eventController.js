@@ -14,7 +14,8 @@ const saveEvent = async (request, response) => {
       end: eventInput.end ? new Date(eventInput.end) : null,
       recurrenceRule: eventInput.recurrenceRule,
       urgencyLevel: eventInput.urgencyLevel || 0,
-      completed: eventInput.completed || false
+      completed: eventInput.completed || false,
+      alarm: eventInput.alarm // Add alarm field
     });
 
   try{
@@ -50,7 +51,8 @@ const updateEvent = async (request, response) => {
         end: eventInput.end ? new Date(eventInput.end) : null,
         recurrenceRule: eventInput.recurrenceRule,
         urgencyLevel: eventInput.urgencyLevel,
-        completed: eventInput.completed
+        completed: eventInput.completed,
+        alarm: eventInput.alarm // Add alarm field
       });
       
       response.json({
@@ -162,7 +164,8 @@ const allEvent = async (request, response) => {
                     description: event.description,
                     recurrenceRule: event.recurrenceRule,
                     urgencyLevel: event.urgencyLevel || 0,
-                    completed: event.completed || false
+                    completed: event.completed || false,
+                    alarm: event.alarm // Add alarm field to response
                 })),
                 message: "Events found"
             });
