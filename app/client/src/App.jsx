@@ -29,7 +29,7 @@ function App() {
       <Navbar />
       <div className="content">
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/calendario" element={<Calendar />} />
           <Route path="/noteEditor/:id" element={<Note />} />
           <Route path="/note" element={<NoteNavigation />} />

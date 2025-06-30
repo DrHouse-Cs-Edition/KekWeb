@@ -509,6 +509,86 @@
   color: #333;
 }
 
+/* Notification Settings Styles */
+.notificationGroup {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(75, 53, 112, 0.3);
+  border-radius: 10px;
+  border: 1px solid var(--dusk-border);
+}
+
+.notificationCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.notificationCheckbox input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.1);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationCheckbox label {
+  margin: 0 !important;
+  font-weight: 500;
+  color: var(--dusk-text);
+  cursor: pointer;
+}
+
+.notificationSubSettings {
+  margin-top: 16px;
+  padding-left: 24px;
+  border-left: 2px solid var(--dusk-accent);
+  background: rgba(75, 53, 112, 0.2);
+  border-radius: 0 8px 8px 0;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.notificationTypeGroup {
+  margin-top: 12px;
+}
+
+.notificationTypeLabel {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--dusk-muted) !important;
+  margin-bottom: 8px !important;
+}
+
+.notificationTypeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notificationTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notificationTypeOption input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.05);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationTypeOption label {
+  font-size: 0.875rem !important;
+  font-weight: normal !important;
+  color: var(--dusk-text) !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+
 /* High DPI / Retina Display Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .calendarContainer :global(.fc-button-primary) {
