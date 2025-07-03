@@ -196,7 +196,7 @@ export default function CalendarApp() {
       case "activity":
         eventData.activityDate = clickInfo.event.extendedProps.activityDate 
           ? new Date(clickInfo.event.extendedProps.activityDate) 
-          : start;
+          : startDate;
         break;
       case "pomodoro":
         //load up a pomodoro Obj with: Title, studyTime, breakTime and cycles
@@ -206,13 +206,13 @@ export default function CalendarApp() {
           breakTime: null,
           cycles: null,
         };
-        eventData.start = start;
-        eventData.end = end;
+        eventData.start = startDate;
+        eventData.end = endDate;
         break;
       case "event":
       default:
-        eventData.start = start;
-        eventData.end = end;
+        eventData.start = startDate;
+        eventData.end = endDate;
         break;
     }
     

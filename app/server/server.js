@@ -16,7 +16,8 @@ connectDB();
 let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
-const pushRoutes = require('./routes/pushNotifications')
+const pushRoutes = require('./routes/pushNotifications');
+const eventControllerRoutes = require("./controllers/eventController.js")
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
@@ -88,7 +89,7 @@ app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 app.post("/api/Pomodoro/renameP", pomodoroRoutes.renameP);
 app.delete("/api/Pomodoro/deleteP/:id", pomodoroRoutes.deleteP);
-app.update("/api/Pomodoro/cyclesUpdate", pomodoroRoutes.updateCycles)
+app.put("/api/Pomodoro/cyclesUpdate", eventControllerRoutes.isPomodoroScheduled, pomodoroRoutes.updateCycles)
 
 //************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);

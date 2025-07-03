@@ -1,7 +1,8 @@
 import styles from "./Calendario.module.css";  
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
+import { Link } from 'react-router'
 
 // Modal per creare o modificare eventi
 const EventModal = function EventModal({
@@ -121,7 +122,7 @@ const ModalBody = ({
     let value = e.target.value;
     console.log("Data cambiata:", name, "=", value);
     setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
-  }, [setNewEvent]);
+  };
 
   return (
     <div className={styles.modalBody}>

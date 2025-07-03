@@ -1,6 +1,7 @@
 const { request } = require("http");
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
 const { title } = require("process");
+const { accessSync } = require("fs");
 
 
 //*SAVE POMODORO SETTINGS
@@ -73,4 +74,29 @@ exports.deleteP = async function (req,res) {
         success: true,
         message: "Pomodoro eliminato"
     });
+}
+
+
+exports.updateCycles = function (req, res){
+    console.log("update cycles");
+    const [id, cycles] = req.body;
+    console.log(id, " -_- " ,cycles);
+    Pomodoro.findById(id)
+    .then(p => {
+        if(p.cycles == 1)
+        {
+            Pomodoro.findByIdAndDelete(id);
+            console.log("Pomodoro cycles reached 1. Deletion logic needed.");
+            return res.status(200).send("Pomodoro will be deleted.");
+        }else if (p.cycles > 1){
+            p.cycles --;
+            return p.save() // Save the updated document
+          .then((updatedP) => {
+            console.log("Pomodoro updated:", updatedP);
+            res.status(200).json(updatedP);
+          })
+        }else{
+            console.log("error");
+        }
+    })
 }
