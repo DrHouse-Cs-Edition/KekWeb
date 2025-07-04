@@ -3,11 +3,13 @@
     max-height: 2em;
 }
 .div{
+    margin-bottom: 5%;
+    padding: 1%;
     background-color: aquamarine;
     border-radius: 20px; /* Stonda tutti e 4 i bordi */
 }
-.tytle{
-    color: red;
+.title{
+
 }
 .categories{
     font-weight: bold;
@@ -19,5 +21,5 @@
     font-style: italic;
 }
 .button{
-
+    
 }
