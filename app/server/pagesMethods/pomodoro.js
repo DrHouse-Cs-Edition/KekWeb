@@ -77,17 +77,22 @@ exports.deleteP = async function (req,res) {
 }
 
 
-exports.updateCycles = function (req, res){
+exports.subCycles = function (req, res){
     console.log("update cycles");
-    const [id, cycles] = req.body;
+    const {id, cycles} = req.body;
     console.log(id, " -_- " ,cycles);
     Pomodoro.findById(id)
     .then(p => {
         if(p.cycles == 1)
         {
-            Pomodoro.findByIdAndDelete(id);
             console.log("Pomodoro cycles reached 1. Deletion logic needed.");
-            return res.status(200).send("Pomodoro will be deleted.");
+            Pomodoro.findByIdAndDelete(id)
+            .then(
+                res.json({
+                    success: true,
+                    message: "Pomodoro eliminato",
+                    })
+            )
         }else if (p.cycles > 1){
             p.cycles --;
             return p.save() // Save the updated document
@@ -99,4 +104,27 @@ exports.updateCycles = function (req, res){
             console.log("error");
         }
     })
+}
+//*ALLOWS FOR UPDATES OF SINGLE FIELDS
+//fields without a value will be kept to the previous values
+exports.updateP = function (req, res ){
+    console.log("update");
+    const body = req.body;
+    console.log(
+        body.studyTime ? "caterpillar" : "magno"
+    );
+    //function updates the fields of the body based on wheter they have been provided or not
+    //id is mandatory
+    const {id, title, studyTime, breakTime, cycles} = body;
+    Pomodoro.findById(id)
+    .then(p =>
+        {
+            title ? p.title=title : "";
+            studyTime ? p.studyTime=studyTime : "";
+            breakTime ? p.breakTime=breakTime : "";
+            cycles ? p.cycles=cycles : "";
+            console.log(p);
+            return p.save() // Save the updated document
+        }
+    )
 }

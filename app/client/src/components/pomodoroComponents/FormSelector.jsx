@@ -5,7 +5,8 @@ import {Input} from "../../utils/Input"  // elemento di input customizzabile che
 
 
 
-function CyclesForm ( {passTimeData}){
+function CyclesForm ( {passTimeData}, isNewPomodoro) {
+
 
     let formMethods = useForm();
 
@@ -33,8 +34,10 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"45"}
                     validationMessage={"insert a study time between 30 and 45 minutes"}
                     min = {30}
-                    max = {45}>
-                    </Input> <br/>
+                    max = {45}
+                    isRequired = {0}
+                    >
+                    </Input>
 
                     <Input 
                     label = {"breakTime"}
@@ -43,8 +46,10 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"15"}
                     validationMessage={"insert a break time between 5 and 15 minutes"}
                     max = {15}
-                    min = {5}>
-                    </Input> <br/>
+                    min = {5}
+                    isRequired = {0}
+                    >
+                    </Input>
 
                     <Input 
                     label = {"cycles"}
@@ -53,8 +58,10 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"4"}
                     validationMessage={"insert the number of cycles"}
                     min={1}
-                    max = {24}>
-                    </Input> <br/>
+                    max = {24}
+                    isRequired = {0}
+                    >
+                    </Input>
 
                     <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Register Data</button>
                 </div>
@@ -65,7 +72,7 @@ function CyclesForm ( {passTimeData}){
 }
 export {CyclesForm};
 
-function TTform( {passTimeData}){
+function TTform( {passTimeData}, isNewPomodoro){
 
     const [studyTime, setStudyTime] = useState(30); //min = 30, max = 45
     const [breakTime, setBreakTime] = useState(5);  //min = 5, max = 15
@@ -166,7 +173,9 @@ function TTform( {passTimeData}){
                         placeholder={"120"}
                         validationMessage={"insert a total time thats more than 0"}
                         min = {0}
-                        max = {1440}>
+                        max = {1440}
+                        isRequired = {isNewPomodoro}
+                        >
                         </Input> <br/>
 
                         <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(

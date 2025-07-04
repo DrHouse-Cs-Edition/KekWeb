@@ -89,7 +89,8 @@ app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 app.post("/api/Pomodoro/renameP", pomodoroRoutes.renameP);
 app.delete("/api/Pomodoro/deleteP/:id", pomodoroRoutes.deleteP);
-app.put("/api/Pomodoro/cyclesUpdate", eventControllerRoutes.isPomodoroScheduled, pomodoroRoutes.updateCycles)
+app.post("/api/Pomodoro/cyclesUpdate", eventControllerRoutes.isPomodoroScheduled, pomodoroRoutes.subCycles)//, pomodoroRoutes.subCycles
+app.post("/api/Pomodoro/updateP", pomodoroRoutes.updateP);
 
 //************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);

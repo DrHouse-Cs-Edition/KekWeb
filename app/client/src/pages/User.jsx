@@ -161,7 +161,7 @@ const User = ()=>{
                 type = "string"
                 id = "name"
                 value={name}
-                validationMessage={"please enter your surname"}
+                validationMessage={"please enter your name"}
                 readonly={lock}
                 isRequired = {0}
                 onInput={(event)=>{setName(event.target.value)}}

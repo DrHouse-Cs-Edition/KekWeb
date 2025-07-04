@@ -1,8 +1,9 @@
+import { preventDefault } from "@fullcalendar/core/internal";
 import styles from "./Calendario.module.css";  
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo, useRef } from "react";
-import { Link } from 'react-router'
+import { Navigate, useNavigate, Link } from "react-router-dom";
 
 // Modal per creare o modificare eventi
 const EventModal = function EventModal({
@@ -152,7 +153,6 @@ const ModalBody = ({
           type="number"
           value={newEvent.pomodoro.studyTime || 0}
           onChange={handleInputChange}
-
           required
         />
         <FormField
@@ -174,7 +174,8 @@ const ModalBody = ({
           min="1"
           required
         />
-        <Link to="/pomodoro" className="btn btn-primary" state={newEvent.pomodoro}>See pomodoro</Link>
+
+        <Link to={"/pomodoro"} state={newEvent?.pomodoro}>Pahim leso</Link>     
         </> 
       ) : (
         // Per eventi normali e attività
@@ -467,6 +468,7 @@ fetch("api/Pomodoro/getP", {
       setPomodoroOptions(data.body)
       if(newEvent.pomodoro)
       {
+        console.log("newEvent.pomodoro reached")
         const initialPomodoro = data.body.find(p => p.title === newEvent.pomodoro);
         if(initialPomodoro)
           setNewEvent( prev => ({ ...prev, pomodoro: initialPomodoro }));
@@ -487,7 +489,8 @@ fetch("api/Pomodoro/getP", {
 
   }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
 
-useEffect(()=>{FetchPomodoros();
+useEffect(()=>{
+  FetchPomodoros();
   console.log("recievend new event pomodoro: ", newEvent.pomodoro);
 },[]);
 

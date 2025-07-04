@@ -1,14 +1,21 @@
 .mainDiv {
-    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     z-index: 2;
     overflow-y: scroll;
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin: 0 0 0.25rem 0;
+    color: var(--dusk-text)
 }
 
 .PomodoroTitleDiv>label {
   visibility: hidden;
   z-index: -1;
+}
+
+.headerDiv {
+  font-size: large;
 }

@@ -72,8 +72,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
-
-        setDisableRun(0);
     }
 
     function loadPomodoro (id, title, studyT, breakT, cycles){
@@ -85,21 +83,23 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
     function serverSideUpdateCycles(x){
         fetch('/api/Pomodoro/cyclesUpdate', {
-            method: 'UPDATE',
+            method: 'POST',
             mode: 'cors',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body : {
+            body : JSON.stringify({
                 id: pomodoroId,
                 cycles: x,
-            }
+                title: pomodoroTitle
+            })
         })
     }
 
     useEffect( ()=>{
-        if(location.state){
+        console.log("location is: ", location);
+        if(location?.state){
             const {_id, title, studyTime, breakTime, cycles} = location.state;
             loadPomodoro(_id, title, studyTime, breakTime, cycles);
         }
@@ -112,9 +112,16 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
             setDisableSave(1);
     },[pomodoroId, pomodoroTitle]);
 
+    useEffect(()=>{
+        if(StudyTime,BreakTime, Cycles)
+            setDisableRun(0)
+        else
+            setDisableRun(1);
+    },[StudyTime, BreakTime, Cycles])
+
     //*FORMCOMPONENTS IS AN OBJECT USED FOR STORING THE FORMCOMPONENTS USED FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
     //It is possible to access it's fields as if it was an array using the square brackets []
-    let formComponents = { TT : <TTform passTimeData={passTimeData} ></TTform>, Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm> }   
+    let formComponents = { TT : <TTform passTimeData={passTimeData} isNewPomodoro = {pomodoroId ? 0 : 1}></TTform>, Cycles : <CyclesForm passTimeData={passTimeData} isNewPomodoro = {pomodoroId ? 0 : 1}></CyclesForm> }   
 
     //*USE FOR STORING THE SETTIMEOUT RETURN VALUE
     let pomodoroInterval;
@@ -204,7 +211,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     const onSubmit = async (data)=>{
         console.log(pomodoroTitle + " titolo")
         if(pomodoroId){ //updating existing pomodoro
-            fetch('/api/Pomodoro/renameP', {
+            fetch('/api/Pomodoro/updateP', {
             method : 'POST',
             mode: 'cors',
             headers: {
