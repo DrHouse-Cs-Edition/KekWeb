@@ -190,16 +190,16 @@ const allEvent = async (request, response) => {
 const isPomodoroScheduled = (req, res, next)=>{
     const {title} = req.body;
     console.log("pomodoro scheduling verification for: ", title);
-    if(Event.find({pomodoro : title}))
-      {
-        console.log("found pomodoro")
-        next();
-      }
-    else
-    {
-      console.log("no pomodoro found")
-      return;
-    }
-      
+    Event.find({pomodoro : title}).lean()
+    .then(
+      (events) =>{
+        console.log("pomodoro events found: ", events.length);
+        if(events.length > 0){
+          console.log("found pomodoro")
+          next();
+        }else{
+          console.log("no pomodoro found")
+          return;
+        }})      
 }
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled };

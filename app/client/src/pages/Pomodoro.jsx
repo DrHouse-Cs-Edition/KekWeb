@@ -9,12 +9,13 @@ import { Animation } from "../components/pomodoroComponents/Animation/Animation.
 import style from "./Pomodoro.module.css"
 import {UseToken} from '../components/login_signup/UserHooks.jsx';
 import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.jsx';
+import { useCallback } from 'react';
 
 function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
     const {token, setToken} = UseToken();
     const location = useLocation();
-    //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
+    //* THESE 5 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [pomodoroId, setPomodoroId] = useState(0);
     const [pomodoroTitle, setPomodoroTitle] = useState(0);
@@ -25,6 +26,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
     //*THIS STATE CONTAINS THE CURRENT FORM SELECTED
     const [formType, updateFormType] = useState('Cycles');
+    const [isModing, updateModing] = useState(0);
 
     //* THESE STATES CONTAIN THE CURRENT TIME AND CYCLES LEFT TO RUN
     //* THEY ARE NOT THE SETTINGS FOR THE POMODORO, THEY ARE EFFECTIVELY THE RUNNING CLOCK + OTHER TOOLS
@@ -82,6 +84,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     }
 
     function serverSideUpdateCycles(x){
+
         fetch('/api/Pomodoro/cyclesUpdate', {
             method: 'POST',
             mode: 'cors',
@@ -90,9 +93,9 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                 'Accept': 'application/json',
             },
             body : JSON.stringify({
-                id: pomodoroId,
+                id: pomodoroId+"",
                 cycles: x,
-                title: pomodoroTitle
+                title: pomodoroTitle+""
             })
         })
     }
@@ -106,6 +109,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     },[])
 
     useEffect(()=>{
+        console.log("loading disable save");
         if( pomodoroId || pomodoroTitle)     //if there is an ID present, i am updating a pomodoro
             setDisableSave(0);
         else
@@ -113,11 +117,17 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     },[pomodoroId, pomodoroTitle]);
 
     useEffect(()=>{
-        if(StudyTime,BreakTime, Cycles)
-            setDisableRun(0)
-        else
+        console.log("loading disable run");
+        if(isModing){
             setDisableRun(1);
-    },[StudyTime, BreakTime, Cycles])
+        }else{
+            if(StudyTime && BreakTime && Cycles){
+                setDisableRun(0);        //can run if there is a pomodoro loaded and is not being modified
+            }else{
+                setDisableRun(1);
+            }
+        }
+    },[StudyTime, BreakTime, Cycles, isModing])
 
     //*FORMCOMPONENTS IS AN OBJECT USED FOR STORING THE FORMCOMPONENTS USED FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
     //It is possible to access it's fields as if it was an array using the square brackets []
@@ -134,17 +144,16 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                         if(minutes == 0){
                             if(curTimer){//break timer ended, initializing study timer
                                 let x = cyclesLeft -1;
-                                setCyclesLeft(x);
                                 serverSideUpdateCycles(x);
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
-                                    //TODO fetch for deleting pomodoro after completition?
+                                    newPomodoro();
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));
                                     setMinutes(Math.trunc(StudyTime/60%60));
                                     alert("ugh, back to studying huh?");
-                                    //TODO fetch for removing one cycle
+                                    setCyclesLeft(x);
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));
@@ -259,32 +268,33 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     return(
       <div className={style.Pomodoro} id='mainDiv' >
         <div className={style.mainDiv}>
-          <div className={style.headerDiv}>
-            <span className={style.timerDisplay}>{titleComponent2} </span><br></br>
+          <div className={style.headerDiv} style={{display: isModing ? "none" : "block"}}>
+            <span className={style.timerDisplay}> {pomodoroTitle}</span>
             <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
             <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
-          </div>
+            <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
+          
               
-          <div id = {style.timerCurrentVals}>
-              <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
-          </div>
-          <div id={style.buttonsDiv} >
-              <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
-              <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
-              <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
-              <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
-              <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
+            <div id={style.buttonsDiv} >
+                <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
+                <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
+                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+                <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
+                <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
+            </div>
           </div>
 
-          <div id= "FormDiv" style={{textAlign : 'center'}}>
-              {formComponents[formType]}
-              <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
+          <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
+            <span className={style.timerDisplay}>{titleComponent2} </span><br></br>
+            {formComponents[formType]}
+            <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>
+            <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
           </div>
-
+        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+            {isModing ? "ready to run!": "create Pomodoro"}            
+        </button> }
           <br></br>
-          <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>                
-          <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
-
           <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
         </div>
         <div className={style.sideBar}>

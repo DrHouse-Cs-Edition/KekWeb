@@ -91,7 +91,7 @@ exports.subCycles = function (req, res){
                 res.json({
                     success: true,
                     message: "Pomodoro eliminato",
-                    })
+                })
             )
         }else if (p.cycles > 1){
             p.cycles --;
@@ -119,12 +119,25 @@ exports.updateP = function (req, res ){
     Pomodoro.findById(id)
     .then(p =>
         {
-            title ? p.title=title : "";
-            studyTime ? p.studyTime=studyTime : "";
-            breakTime ? p.breakTime=breakTime : "";
-            cycles ? p.cycles=cycles : "";
-            console.log(p);
-            return p.save() // Save the updated document
+            if(p){
+                title ? p.title=title : "";
+                studyTime ? p.studyTime=studyTime : "";
+                breakTime ? p.breakTime=breakTime : "";
+                cycles ? p.cycles=cycles : "";
+                console.log(p);
+                p.save() // Save the updated document
+                .then(
+                    res.status(200).json({
+                        success: true,
+                        message: "Pomodoro updated",
+                    })
+                )
+            }else{
+                res.status(400).json({
+                    success: false,
+                    message: "Pomodoro non trovato",
+                })
+            }
         }
     )
 }
