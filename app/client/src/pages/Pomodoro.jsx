@@ -18,7 +18,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     //* THESE 5 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [pomodoroId, setPomodoroId] = useState(0);
-    const [pomodoroTitle, setPomodoroTitle] = useState(0);
+    const [pomodoroTitle, setPomodoroTitle] = useState("");
     const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);                 //indicates the number of full Cycles
@@ -74,6 +74,8 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
+        if(pomodoroTitle)
+            setDisableSave(0)
     }
 
     function loadPomodoro (id, title, studyT, breakT, cycles){
@@ -110,7 +112,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
     useEffect(()=>{
         console.log("loading disable save");
-        if( pomodoroId || pomodoroTitle)     //if there is an ID present, i am updating a pomodoro
+        if( pomodoroId || pomodoroTitle && StudyTime && BreakTime && Cycles)     //if there is an ID present, i am updating a pomodoro
             setDisableSave(0);
         else
             setDisableSave(1);

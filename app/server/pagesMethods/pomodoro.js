@@ -1,5 +1,6 @@
 const { request } = require("http");
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
+const Event = require ("../mongoSchemas/Event.js");
 const { title } = require("process");
 const { accessSync } = require("fs");
 
@@ -77,38 +78,31 @@ exports.deleteP = async function (req,res) {
 }
 
 
-exports.subCycles = function (req, res){
-    console.log("update cycles");
+exports.subCycles = async function (req, res){
     const {id, cycles} = req.body;
-    console.log(id, " -_- " ,cycles);
     Pomodoro.findById(id)
-    .then(p => {
+    .then(async p => {
         if(p.cycles == 1)
         {
-            console.log("Pomodoro cycles reached 1. Deletion logic needed.");
+            let titolo = p.title;
+            let foundEvent =  await Event.deleteMany({"pomodoro" : p.title});
+            console.log("found ", foundEvent);
             Pomodoro.findByIdAndDelete(id)
-            .then(
-                res.json({
-                    success: true,
-                    message: "Pomodoro eliminato",
-                })
-            )
+            .then(res.json({ success: true, message: "Pomodoro eliminato"}))
         }else if (p.cycles > 1){
             p.cycles --;
             return p.save() // Save the updated document
-          .then((updatedP) => {
-            console.log("Pomodoro updated:", updatedP);
+            .then((updatedP) => {
             res.status(200).json(updatedP);
           })
         }else{
-            console.log("error");
+            console.log("error in subCycles");
         }
     })
 }
 //*ALLOWS FOR UPDATES OF SINGLE FIELDS
 //fields without a value will be kept to the previous values
 exports.updateP = function (req, res ){
-    console.log("update");
     const body = req.body;
     console.log(
         body.studyTime ? "caterpillar" : "magno"

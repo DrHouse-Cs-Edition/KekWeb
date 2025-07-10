@@ -1,5 +1,7 @@
+const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
 const { subMinutes } = require('date-fns');
+const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
 
 const saveEvent = async (request, response) => {
     console.log("recieved backend event: ", request.body);
@@ -202,4 +204,59 @@ const isPomodoroScheduled = (req, res, next)=>{
           return;
         }})      
 }
-module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled };
+
+const movePomodoros = ()=>{
+  console.log("proceding to move pomodoros");
+  let date = new Date();
+  let datePlus = new Date();
+  datePlus.setDate(datePlus.getDate() + 1)
+  Event.find({type : "pomodoro"})
+  .then(p => {
+    p.forEach( (evento)=>{
+      if (evento.end < Date.now() && evento.completed == false){
+        
+        evento.start = date;
+        evento.end = datePlus;
+        evento.save();
+    }})
+  })
+}
+
+const latestP = async function (req, res){
+  try {
+    const LP_ev = await Event.findOne({type: "pomodoro"}).sort("end");
+    const LP_pom = await Pomodoro.find({title : LP_ev.title});
+    
+    const latestPomodoro ={
+      title: LP_pom.title,
+      Pid: LP_pom._id,
+      Eid: LP_ev._id,
+      studyT: LP_pom.studyTime,
+      breakT: LP_pom.breakTime,
+      cycles: LP_pom.cycles,
+      date : LP_ev.end,
+    }
+    console.log("latestP: ", latestPomodoro);
+
+    //TODO what if no event?
+    if(!latestPomodoro)
+      res.status(404).json({
+        success: false,
+        message: "no pomodoro event found"
+      })
+    res.status(200).json({
+      success : true,
+      pomodoro: latestPomodoro,
+      message: "pomodoro event has been found"
+    })
+  }catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "error retrieving pomodoro",
+      error: e,
+    })
+  }  
+  
+}
+module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled, movePomodoros, latestP };

@@ -13,7 +13,7 @@ const connectDB = require('./config/database.js');
 connectDB();
 
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
-let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
+const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
 const pushRoutes = require('./routes/pushNotifications');
@@ -49,9 +49,9 @@ const check = () => {
         console.log("tack")
 
     notifications(now);
-
     // controllo di mezzanotte
     if (now.getHours() === 0 && now.getMinutes() === 0) {
+        eventControllerRoutes.movePomodoros();
         // MUOVI POMODORI
         // MUOVI ATTIVITA' SCADUTE
     }
@@ -81,6 +81,7 @@ app.use('/api/notes', noteRoutes);
 // gestione notifiche
 app.use('/api/pushNotifications', pushRoutes)
 const not = require ("./controllers/pushNotificationController.js");
+const { debug } = require('console');
 // app.post('api/pushNotifications/subscribe',not.subscribe)
 
 //************* POMODORO METHODS **************************** */
