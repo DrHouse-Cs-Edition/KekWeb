@@ -84,7 +84,6 @@ exports.subCycles = async function (req, res){
     .then(async p => {
         if(p.cycles == 1)
         {
-            let titolo = p.title;
             let foundEvent =  await Event.deleteMany({"pomodoro" : p.title});
             console.log("found ", foundEvent);
             Pomodoro.findByIdAndDelete(id)

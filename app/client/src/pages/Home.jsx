@@ -10,7 +10,7 @@ function Home(){
                 <div className={style.eventsSection}>
                     <ListaEventiGiornalieri />
                 </div>
-                <div>
+                <div className={style.lastPomodoro}>
                     <PomodoroDisplayer/>
                 </div>
                 <div className={style.todoSection}>

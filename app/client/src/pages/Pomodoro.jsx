@@ -86,7 +86,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     }
 
     function serverSideUpdateCycles(x){
-
         fetch('/api/Pomodoro/cyclesUpdate', {
             method: 'POST',
             mode: 'cors',
@@ -102,9 +101,14 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         })
     }
 
+
     useEffect( ()=>{
         console.log("location is: ", location);
         if(location?.state){
+            // switch (location.state.source){
+            //     case  "":
+            //         break;
+            // }
             const {_id, title, studyTime, breakTime, cycles} = location.state;
             loadPomodoro(_id, title, studyTime, breakTime, cycles);
         }
@@ -267,42 +271,42 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         console.log("error in saving the pomodoro detected");
     }
 
+    //* primo div era Pomodoro
     return(
-      <div className={style.Pomodoro} id='mainDiv' >
-        <div className={style.mainDiv}>
-          <div className={style.headerDiv} style={{display: isModing ? "none" : "block"}}>
+    <div className={style.mainDiv}> 
+        <div className={style.headerDiv} style={{display: isModing ? "none" : "block"}}>
             <span className={style.timerDisplay}> {pomodoroTitle}</span>
             <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
             <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
-            <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
-          
-              
-            <div id={style.buttonsDiv} >
-                <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
-                <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
-                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
-                <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
-                <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
-            </div>
-          </div>
 
-          <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
+            <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
+        </div>
+
+        <div id={style.buttonsDiv} >
+            <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
+            <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
+            <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+            <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
+            <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
+        </div>
+
+        <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
             <span className={style.timerDisplay}>{titleComponent2} </span><br></br>
             {formComponents[formType]}
             <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>
             <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
             <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
-          </div>
-        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
-            {isModing ? "ready to run!": "create Pomodoro"}            
-        </button> }
-          <br></br>
-          <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
         </div>
+
+        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+            {isModing ? "ready to run!": "create Pomodoro"}            </button> }
+        <br></br>
+        <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
+
         <div className={style.sideBar}>
-          <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
-        </div>   
-      </div>
+            <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
+        </div>  
+    </div> 
     )
 }
 

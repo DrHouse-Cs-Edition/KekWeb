@@ -1,14 +1,14 @@
 .mainDiv {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 2;
-    overflow-y: scroll;
-    font-size: 1.125rem;
-    font-weight: bold;
-    margin: 0 0 0.25rem 0;
-    color: var(--dusk-text)
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  z-index: 2;
+  overflow-y: scroll;
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin: 0 0 0.25rem 0;
+  color: var(--dusk-text);
+  width: 100%;
 }
 
 .PomodoroTitleDiv>label {
@@ -16,6 +16,7 @@
   z-index: -1;
 }
 
-.headerDiv {
+/* .headerDiv {
   font-size: large;
-}
+  width: 100%;
+} */

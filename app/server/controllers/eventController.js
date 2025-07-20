@@ -224,31 +224,38 @@ const movePomodoros = ()=>{
 
 const latestP = async function (req, res){
   try {
-    const LP_ev = await Event.findOne({type: "pomodoro"}).sort("end");
-    const LP_pom = await Pomodoro.find({title : LP_ev.title});
-    
-    const latestPomodoro ={
-      title: LP_pom.title,
-      Pid: LP_pom._id,
-      Eid: LP_ev._id,
-      studyT: LP_pom.studyTime,
-      breakT: LP_pom.breakTime,
-      cycles: LP_pom.cycles,
-      date : LP_ev.end,
-    }
-    console.log("latestP: ", latestPomodoro);
-
-    //TODO what if no event?
-    if(!latestPomodoro)
-      res.status(404).json({
-        success: false,
-        message: "no pomodoro event found"
-      })
-    res.status(200).json({
-      success : true,
-      pomodoro: latestPomodoro,
-      message: "pomodoro event has been found"
+    const foundEV = await Event.findOne({type: "pomodoro"}).sort("end").then(ev =>{
+      //TODO imposta all'evento i dati
+      return ev;
+      // console.log(ev);
     })
+    const foundP = await Pomodoro.findOne({title : "NewPomodororo"}).then(pom =>{
+      return pom
+    })
+
+    // console.log("pomodoro found: ", foundP, "\n event found ", foundEV);   //dovrebbero essere trovati
+    const latestPomodoro2 ={
+      title: foundP.title,
+      Pid:  foundP._id,
+      Eid: foundEV._id,
+      studyT: foundP.studyTime,
+      breakT: foundP.breakTime,
+      cycles: foundP.cycles,
+      date : foundEV.start
+    }
+    if(!latestPomodoro2.title || !latestPomodoro2.Eid){   //verifica probabilmente non necessaria in questo modo, basterebbe vedere che non esiste l'evento
+    res.status(404).json({
+      success: false,
+      message: "no pomodoro event found"
+    })
+    }else{
+      res.status(200).json({
+      success : true,
+      pomodoro: latestPomodoro2,
+      message: "pomodoro event has been found"
+      })
+    }
+    
   }catch (e) {
     console.log(e);
     res.status(500).json({
@@ -257,6 +264,5 @@ const latestP = async function (req, res){
       error: e,
     })
   }  
-  
 }
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled, movePomodoros, latestP };

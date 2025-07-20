@@ -1,0 +1,133 @@
+/* Variables from TodoList.module.css for consistency */
+:root {
+    --dusk-bg: rgba(36, 41, 73, 0.95); /* Adjusted for the translucent background shown in the image */
+    --dusk-text: #ffe5d9;
+    --dusk-border: #5c3c6e;
+    --dusk-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    --dusk-light-text: #b3a1c7;
+    --dusk-accent: #ff8c6b;
+    --dusk-title-accent: #ffb997;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */
+    margin: 0 auto; /* Center it */
+    padding: 1rem;
+    background: var(--dusk-bg); /* Use the defined background variable */
+    color: var(--dusk-text);
+    border: 1px solid var(--dusk-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--dusk-shadow);
+    height: fit-content;
+    box-sizing: border-box;
+    /* Positioning adjustment if needed, but let's assume flexbox/grid in parent for layout */
+}
+
+.header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    text-align: left; /* Aligned left as per image */
+    border-bottom: 1px solid var(--dusk-border); /* Consistent border */
+}
+
+.title {
+    font-size: 1.5rem; /* Larger font for main title */
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    color: var(--dusk-text); /* White/light text for titles */
+    text-shadow: 0px 0px 8px rgba(255, 229, 217, 0.3); /* Subtle glow for titles */
+}
+
+.date {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--dusk-light-text); /* Lighter text for date */
+}
+
+.pomodoroBody {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    gap: 1rem; /* Space between sections */
+    align-items: flex-start; /* Align items to the start */
+}
+
+.pomodoroChart {
+    /* This would be where your chart component styling goes. */
+    /* For now, just a placeholder to show its area. */
+    width: 100%;
+    height: 150px; /* Example height for a chart */
+    background-color: rgba(92, 60, 110, 0.3); /* A translucent background for the chart area */
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dusk-text);
+    font-style: italic;
+    font-size: 0.9rem;
+    border: 1px dashed var(--dusk-border);
+}
+
+.pomodoroChart > div > ul{
+    color: #ffe5d9;
+}
+
+.pomodoroStats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 1.1rem; /* Larger font for stats */
+    color: var(--dusk-title-accent); /* Use a warm accent color for stats */
+    font-weight: 500;
+}
+
+.pomodoroStats span {
+    display: block; /* Ensure each span takes its own line */
+    /* Add specific styling if certain stats need to stand out */
+}
+
+.pomodoroDate {
+    font-size: 0.9rem;
+    color: var(--dusk-light-text);
+    margin-top: 0.5rem; /* Space from stats */
+}
+
+.linkButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    margin-top: 1rem;
+    background: var(--dusk-accent); /* Use the accent color for buttons */
+    color: #232b4d; /* Dark text for contrast on accent background */
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none; /* Remove underline from link */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.linkButton:hover {
+    background-color: #ff9d7d; /* Slightly lighter on hover */
+    transform: translateY(-1px);
+}
+
+.linkButton:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Keyframe for pulse effect (if you want to apply it for loading states) */
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.8;
+    }
+}
