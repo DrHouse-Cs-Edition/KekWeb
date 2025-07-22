@@ -1,0 +1,87 @@
+.image{
+    border-radius: 50%;
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    background-color: whitesmoke;
+}
+
+@media only screen and (max-width: 768px) {
+    .image{
+        width: 128px;
+        height: 128px;
+    }
+}
+
+/* Variables from TodoList.module.css for consistency */
+:root {
+    --dusk-bg: rgba(36, 41, 73, 0.95);
+    --dusk-text: #ffe5d9;
+    --dusk-border: #5c3c6e;
+    --dusk-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    --dusk-light-text: #b3a1c7;
+    --dusk-accent: #ff8c6b;
+    --dusk-title-accent: #ffb997;
+}
+
+.userBody {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center horizontally */
+    gap: 1.5rem; /* Space between main sections */
+    padding: 2rem; /* Overall padding for the body */
+    max-width: 800px; /* Max width for the whole user page */
+    margin: 0 auto; /* Center the entire user page */
+    background: rgba(36, 41, 73, 0.7); /* Slightly lighter background than cards */
+    border-radius: 1rem;
+    box-shadow: var(--dusk-shadow);
+    border: 1px solid var(--dusk-border);
+}
+
+.welcome {
+    color: var(--dusk-text); /* White/light text */
+    margin-bottom: 1rem; /* Space below the welcome title */
+    font-size: 2rem;
+    text-align: center;
+    text-shadow: 0px 0px 10px rgba(255, 229, 217, 0.3);
+}
+
+
+.dataBody {
+    font-size: x-large;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem; 
+    background: var(--dusk-bg);
+    color: var(--dusk-text);
+    border: 1px solid var(--dusk-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--dusk-shadow);
+    height: fit-content;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem 1rem; 
+    align-items: baseline; 
+}
+
+.dataLabel {
+    font-size: larger;
+    font-weight: 600;
+    color: var(--dusk-title-accent); 
+    font-size: 0.95rem;
+    text-align: right; 
+    white-space: nowrap; 
+}
+
+.dataDiv {
+    color: var(--dusk-light-text);
+    font-size: 0.95rem;
+    word-wrap: break-word; 
+}
+
+.data{
+    color: var(--dusk-text);
+    overflow-wrap: break-word;
+    font-size: large;
+}

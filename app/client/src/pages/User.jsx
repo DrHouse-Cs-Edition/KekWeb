@@ -13,33 +13,15 @@ const User = ()=>{
 
     //*********** Rendered Data ***********/
     const [email, setEmail] = useState(); const [bio, setBio] = useState(); const [birthday, setBirthday] = useState(); const [name, setName] = useState();
-    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState();
+    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState(); const [PFP, setPFP] = useState()
+    const [image, setImage] = useState()
 
     const [showForm, setShowForm] = useState(0);
     const [showCPW, setShowCPW] = useState(0);
     const [attempts, setAttempts] = useState(0);
 
-    //*FUNCTION GETS PERSONAL DATA FROM SERVER 
-    const updatePersonalData = async ()=>{
-        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1]]);
-        getPersonalData(params)
-        .then(data => data.json())
-        .then((data) =>{
-            let {email : e, bio : b, birthday : bd, name : rn, surname : rs} = data;
-            setEmail(e);
-            setBio(b);
-            const dateArr = bd?.split("T");
-            setBirthday(dateArr ? dateArr[0] : null);
-            setName(rn);
-            setSurname(rs);
-        }).then(setShowForm(1))
-    }
 
-    //update personal data on component render
-    useEffect(()=>{
-        updatePersonalData();
-    }, [])
-
+    //esegui il logout dell'utente
     const logout = ()=>{
         try{
             fetch("/api/user/logout", {
@@ -62,9 +44,10 @@ const User = ()=>{
         }  
     }
 
+
+    //apporta modifiche in base ai dati presenti nei form; è presente una password di conferma prima di effettuare queste modifiche 
     const onSubmit =  (data) =>{
         checkPassword(username, CPW, (result) => {
-        console.log("lezzo: ", result); 
         if(!result){  //if inserted password is wrong, clear it and ask for confirmation.
             if(attempts >= 3){
                 alert("logging out for security reasons");
@@ -87,7 +70,8 @@ const User = ()=>{
                     bio : data.Bio,
                     birthday : data.Birthday,
                     name : data.Name,
-                    surname : data.Surname
+                    surname : data.Surname,
+                    pfp : getBase64(data.Pfp)
                     })
                 }).then(res => res.json())
                 .then((res) => {
@@ -104,34 +88,91 @@ const User = ()=>{
         })
     }
 
+    //gestisci errori alla richiesta di salvataggio modifiche
     const onError = (e)=>{console.log("error in user page: ", e);}
+
+    //*FUNCTION GETS PERSONAL DATA FROM SERVER 
+    const updatePersonalData = async ()=>{
+        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1]]);
+        getPersonalData(params)
+        .then(data => data.json())
+        .then((data) =>{
+            let {email : e, bio : b, birthday : bd, name : rn, surname : rs} = data;
+            setEmail(e);
+            setBio(b);
+            const dateArr = bd?.split("T");
+            setBirthday(dateArr ? dateArr[0] : null);
+            setName(rn);
+            setSurname(rs);
+        }).then(setShowForm(1))
+    }
+
+    const handleMailChange = (event) =>{setEmail(event.target.value)}
+
+    //converte l'immagine in binario e la usa per chiamare la callback passata come parametro
+    //se non è presente una funzione di callback ritorna il valore in base 64
+    const getBase64 = async (file, callback)=>{
+        const reader = new FileReader();
+        console.log(typeof file, "\n file type");
+        let blob_file = new Blob([file], {type: 'image/jpeg'});
+        reader.readAsArrayBuffer(blob_file);
+        reader.onloadend = function(){
+            if (callback)
+                callback(reader.result);
+            else return reader.result;
+        }
+        reader.onError = ()=>{
+            console.log("error converting to base64")
+        }
+    }
+    //Attende la conversione in binario dell'immagine passata e la imposta come foto profilo nello stato
+    const handlePFPchange = (event)=>{
+        if (event.target.files && event.target.files[0]) {
+            console.log("setting image in if");
+            setImage(URL.createObjectURL(event.target.files[0]));
+        }else{
+            console.log("setting image NOT in if");
+            setImage(URL.createObjectURL(event.target.files[0]))
+        }
+        getBase64(event.target.value, setPFP);
+        
+    }   
+
+    //update personal data on component render
+    useEffect(()=>{
+        updatePersonalData();
+    }, [])
 
     const modifyButton = <button onClick={()=>{setLock(0); setShowCPW(1)}}>Modify</button>
     const saveButtonComponent = (formMethods)=>{
         return(
             <>
             <button onClick={formMethods.handleSubmit(onSubmit, onError)}>Save</button>
-            <button onClick={()=>{setShowCPW(0); setLock(1); updatePersonalData()}}>Abort</button>
+            <button onClick={()=>{ updatePersonalData()}}>Abort</button>
             </>   
         )
     }
+    const FullForm = ()=>{
+        return (<FormProvider {...formMethods} >
+                <Input 
+                label={"Pfp"}
+                type={"file"}
+                id = {"Pfp"}
+                value={null}
+                onInput={(event)=>{handlePFPchange(event)}}
+                onChange = {(event)=>{handlePFPchange(event)}}
+                readonly={lock}
+                ></Input>
 
-    const handleMailChange = (event) =>{setEmail(event.target.value)}
-
-    return(
-    <div className="user">
-        <h1> Welcome to your home page </h1>
-        <h1> {username} </h1>
-
-        <div className={style.info} style={{display : showForm ? 'block' : 'none'}}>
-            <FormProvider {...formMethods} >
+                <img src={image} alt="preview image" className={style.image}/>
+                
                 <Input
                 label = {"Email"}
                 type = "email"
                 id = "email"
                 placeholder={"email"}
                 value={email}
-                onInput={handleMailChange}
+                onInput={(event)=>{setEmail(event.target.value)}}
                 isRequired = {0}
                 readonly={lock}
                 ></Input>
@@ -177,22 +218,63 @@ const User = ()=>{
                 onInput={(event)=>{setSurname(event.target.value)}}
                 ></Input>
 
-                <div style={{display : showCPW ? "block" : "none" }}>
-                    <Input
-                    label = {"CPW"}
-                    type = "password"
-                    id = "CPW"
-                    placeholder={"enter password to proceed"}
-                    validationMessage={"enter password to proceed"}
-                    onInput={(event)=>{setCPW(event.target.value)}}
-                    isRequired={1}
-                    ></Input>
-                </ div>
-                <button onClick={logout}>Logout</button>   
+                <Input
+                label = {"CPW"}
+                type = "password"
+                id = "CPW"
+                placeholder={"enter password to proceed"}
+                validationMessage={"enter password to proceed"}
+                onInput={(event)=>{setCPW(event.target.value)}}
+                isRequired={1}
+                ></Input>   
                 { lock ? modifyButton : saveButtonComponent(formMethods)} 
-            </FormProvider>
-        </div>   
+            </FormProvider>)
+    }
+    
+
+    const userPage = ()=> {
+
+        return(
+            <div className={style.dataDiv}>
+                <img src={image} alt="preview image" className={style.image}/>
+                <div className={style.dataLabel}>
+                    Name:
+                    <div className={style.data}>{name}</div>
+                </div>
+                <div className={style.dataLabel}>
+                    Surname: <div className={style.data}>{surname}</div>
+                </div>
+                <div className={style.dataLabel}>
+                    Birthday: <div className={style.data}>{birthday}</div>
+                </div>
+                <div className={style.dataLabel}>
+                    email: <div className={style.data}>{email}</div>
+                </div>
+                <div className={style.dataLabel}>
+                    Bio: <div className={style.data}>{bio}</div>
+                </div>
+            </div>
+        )
+
+    }
+     
+
+    return(
+    <div className={style.userBody}>
+        <h1 className={style.welcome}> Welcome to your home page {username} </h1>
+        {
+            !showForm ? userPage() : FullForm()
+        }
+
+        {!showForm ? 
+            <button onClick={()=>{setShowForm(1)}}>Modify your data</button>
+        :
+            <button onClick={()=>{setShowForm(0)}}>Back to your home page</button>
+        }
+
+        <button onClick={logout}>Logout</button>
     </div>
-)}
+    )
+}
 
 export default User;
