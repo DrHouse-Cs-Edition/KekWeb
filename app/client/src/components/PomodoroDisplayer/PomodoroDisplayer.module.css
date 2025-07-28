@@ -1,14 +1,3 @@
-/* Variables from TodoList.module.css for consistency */
-:root {
-    --dusk-bg: rgba(36, 41, 73, 0.95); /* Adjusted for the translucent background shown in the image */
-    --dusk-text: #ffe5d9;
-    --dusk-border: #5c3c6e;
-    --dusk-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    --dusk-light-text: #b3a1c7;
-    --dusk-accent: #ff8c6b;
-    --dusk-title-accent: #ffb997;
-}
-
 .container {
     width: 100%;
     max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */

@@ -1,37 +1,28 @@
 .image{
     border-radius: 50%;
-    width: 170px;
+    max-width: 170px;
     height: 170px;
     object-fit: cover;
     background-color: whitesmoke;
+    display: block;
+    margin: 0 auto;
 }
 
 @media only screen and (max-width: 768px) {
     .image{
-        width: 128px;
+        max-width: 128px;
         height: 128px;
     }
-}
-
-/* Variables from TodoList.module.css for consistency */
-:root {
-    --dusk-bg: rgba(36, 41, 73, 0.95);
-    --dusk-text: #ffe5d9;
-    --dusk-border: #5c3c6e;
-    --dusk-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    --dusk-light-text: #b3a1c7;
-    --dusk-accent: #ff8c6b;
-    --dusk-title-accent: #ffb997;
 }
 
 .userBody {
     display: flex;
     flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center horizontally */
+    align-items: center; /* Center children horizontally within this container */
     gap: 1.5rem; /* Space between main sections */
     padding: 2rem; /* Overall padding for the body */
     max-width: 800px; /* Max width for the whole user page */
-    margin: 0 auto; /* Center the entire user page */
+    margin: 0 auto; /* Center the entire user page component */
     background: rgba(36, 41, 73, 0.7); /* Slightly lighter background than cards */
     border-radius: 1rem;
     box-shadow: var(--dusk-shadow);
@@ -46,31 +37,12 @@
     text-shadow: 0px 0px 10px rgba(255, 229, 217, 0.3);
 }
 
-
-.dataBody {
-    font-size: x-large;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem; 
-    background: var(--dusk-bg);
-    color: var(--dusk-text);
-    border: 1px solid var(--dusk-border);
-    border-radius: 0.75rem;
-    box-shadow: var(--dusk-shadow);
-    height: fit-content;
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.75rem 1rem; 
-    align-items: baseline; 
-}
-
 .dataLabel {
     font-size: larger;
     font-weight: 600;
     color: var(--dusk-title-accent); 
     font-size: 0.95rem;
-    text-align: right; 
+    text-align: center; 
     white-space: nowrap; 
 }
 
@@ -84,4 +56,55 @@
     color: var(--dusk-text);
     overflow-wrap: break-word;
     font-size: large;
+}
+
+input{
+    background-color: var(--dusk-input-bg);
+    border: 2px solid var(--dusk-input-border);
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: var(--dusk-text);
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 12px 16px;
+    transition: all .2s ease;
+    width: 100%;
+}
+
+.Button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    margin-top: 0.5rem;
+    background: var(--dusk-accent); /* Use the accent color for buttons */
+    color: #232b4d; /* Dark text for contrast on accent background */
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 300;
+    text-decoration: none; /* Remove underline from link */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.Button_logout{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    margin-top: 0.5rem;
+    background: var(--dusk-border); /* Use the accent color for buttons */
+    color: #e3e5f0; /* Dark text for contrast on accent background */
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none; /* Remove underline from link */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+label{
+    color: #fff; /* White text: dusk-text and dusk-text-header */
 }

@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import { Input } from "../../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { useUsername, getPersonalData } from "./UserHooks";
+import style from "./LoginPage.module.css"
 
 function loginAttempt(username, password) {
     try {
@@ -42,9 +43,11 @@ const LoginPage = ({updateToken})=>{
         setShowPassword(showPassword => showPassword ^ 1);
     }
 
-    const onSubmit = async (data)=>{
+    const onSubmit = async (e)=>{
+        // e.preventDefault();
         try{
-            let {username, password} = data;
+            let {username, password} = e;
+            console.log("username : ", username, " password : ", password);
             let tmpKek = await loginAttempt(username, password, updateToken);
                 updateToken(tmpKek);
                 password = null;
@@ -59,7 +62,7 @@ const LoginPage = ({updateToken})=>{
     const formMethods = useForm();
     return(
         <div>
-            <h2>Login</h2>
+            <h1>Login</h1>
             <FormProvider {...formMethods} >
                 <form>
                     <Input label = {"username"}
@@ -77,10 +80,11 @@ const LoginPage = ({updateToken})=>{
                     validationMessage={"please enter your password"}
                     minLenght={8}
                     ></Input>
-
-                    <button id="showPassowrdButton" type="button" onClick={alternateShowPassword }> {showPassword ? "Hide Password" :"Show Password"}</button>
-
-                    <button id="loginSend" type="button" onClick={formMethods.handleSubmit(onSubmit)}>Login</button>
+                <div className={style.buttonsDiv}>
+                    <button id="showPassowrdButton" className={style.loginButtons} type="button" onClick={alternateShowPassword }> {showPassword ? "Hide Password" :"Show Password"}</button>
+                    <button id="loginSend" type="submit" className={style.loginButtons} onClick={formMethods.handleSubmit(onSubmit)}>Login</button>
+                </div>
+                    
                 </form>
             </FormProvider>
         </div>

@@ -6,6 +6,7 @@ import {Input} from "../utils/InputV2.jsx";
 import {FormProvider, useForm} from "react-hook-form";
 import React from 'react';
 import { Animation } from "../components/pomodoroComponents/Animation/Animation.jsx";
+import Animation2 from "../components/pomodoroComponents/Animation/newAnimation.jsx"
 import style from "./Pomodoro.module.css"
 import {UseToken} from '../components/login_signup/UserHooks.jsx';
 import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.jsx';
@@ -301,7 +302,8 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
             {isModing ? "ready to run!": "create Pomodoro"}            </button> }
         <br></br>
-        <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
+        {/* <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/> */}
+        <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>
 
         <div className={style.sideBar}>
             <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
