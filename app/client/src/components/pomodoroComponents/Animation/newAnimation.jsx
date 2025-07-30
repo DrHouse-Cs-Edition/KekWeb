@@ -1,21 +1,21 @@
 import style from "./newAnimation.module.css"
-import React, { useState, Fragment, useRef, useEffect, createRef } from "react";
+import { useRef, useEffect} from "react";
+import CatAnimation from "./CatAnimation.jsx";
 
 export const Animation2 = ({currentTimer, studyTime, breakTime, run, resetFlag})=>{
-    console.log("animation 2 run is: ", run)
+    console.log("animation 2 run is: ", run);
     //testing
     // const [runn, setRun] = useState(1);
     // const [current, setCurrent] = useState(0);
 
     const animationDiv = useRef(null);
-    let loadingBar = {
-        0 : <StudyAnimation_new duration = {studyTime + "s"} run = {run && !currentTimer} resetFlag = {resetFlag}></StudyAnimation_new>,
-        1 : <BreakAnimation duration = {breakTime + "s"} run = {run && currentTimer} resetFlag = {resetFlag}></BreakAnimation>
-    }
 
     return(
         <div className={style.animationDiv} ref={animationDiv} >
-            {currentTimer ? <breakAnimation></breakAnimation> : <StudyAnimation_new duration = {studyTime + "s"} run = {run && !currentTimer} resetFlag = {resetFlag}></StudyAnimation_new>}
+            {currentTimer ? 
+                <div style={{height : "180px", width : "130"
+                }}><CatAnimation run = {run && currentTimer} resetFlag = {resetFlag}></CatAnimation></div> : 
+                <StudyAnimation_new run = {run && !currentTimer} resetFlag = {resetFlag}></StudyAnimation_new>}
             <br></br>
         </div>
     )
@@ -53,8 +53,6 @@ const StudyAnimation = ({duration, run, resetFlag})=>{
 //  */
 const BreakAnimation = ({duration, run, resetFlag})=>{
     const reference = useRef();
-    useEffect(()=>{
-    },[])
 
     useEffect(function resetAnimation(){
         reference.current.style.animationName = "none";
@@ -75,7 +73,7 @@ const BreakAnimation = ({duration, run, resetFlag})=>{
 
 //style={{animationPlayState: run ? "running" : "paused"}}
 
-const StudyAnimation_new = ({duration, run, resetFlag})=>{
+const StudyAnimation_new = ({run, resetFlag})=>{
     useEffect(()=>{
         console.log("run is: ", run);
     },[])

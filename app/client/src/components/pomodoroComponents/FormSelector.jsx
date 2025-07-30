@@ -63,7 +63,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     >
                     </Input>
 
-                    <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Register Data</button>
+                    <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Save settings</button>
                 </div>
             </form>
             </FormProvider>

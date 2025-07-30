@@ -1,14 +1,30 @@
+import {useRef, useEffect } from "react";
+
 import style from "./catAnimation.module.css"
 import cx from 'classnames'
 
-const CatAnimation = ()=>{
+const CatAnimation = ({run, resetFlag})=>{
+    const animationRef = useRef(null);
+
+    useEffect(function resetAnimation(){
+        console.log("animationRef ", animationRef.current)
+        if(animationRef.current && animationRef.current.style){
+            animationRef.current.style.animationName = "none";
+        setTimeout(()=>{
+            animationRef.current.style.animationName = "";
+        }, 100);
+        }
+    },[resetFlag]);
 
     return(
-            <div className={style.CatAnimation}>
+        <div className={style.CatAnimation_container}>
+            <div className={style.CatAnimation} style={{animationPlayState : run ? "running" : "paused"}} useRef={animationRef}>
             <div className={cx(style.ear, style.ear_left)}><Ear_outer/></div>
             <Cat_face></Cat_face>
             <div className={cx(style.ear, style.ear_right)}><Ear_outer/></div>
             </div>
+        </div>
+        
     )
 }
 

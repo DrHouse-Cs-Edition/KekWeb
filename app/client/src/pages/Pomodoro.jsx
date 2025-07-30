@@ -275,36 +275,40 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     //* primo div era Pomodoro
     return(
     <div className={style.mainDiv}> 
-        <div className={style.headerDiv} style={{display: isModing ? "none" : "block"}}>
+        <div className={style.headerDiv} style={{display: isModing ? "none" : "contents"}}>
             <span className={style.timerDisplay}> {pomodoroTitle}</span>
-            <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
-            <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
+            <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} minutes </span>
+            <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} seconds </span>
+
+            <div className={style.buttonsDiv} >            
+                {runTimer ? 
+                    <button onClick={()=>{stopTimer()}} ref={stopButtonRef} className={style.runButton}> Stop timer 
+                    <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2> </button> : 
+                    <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun} className={style.runButton}> run timer 
+                    <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2></button>}
+                <br></br>
+                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+                {/* <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button> */}
+                <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next </button>
+            </div>
 
             <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
-        </div>
-
-        <div id={style.buttonsDiv} >
-            <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
-            <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
-            <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
-            <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
-            <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
-        </div>
+        </div>        
 
         <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
-            <span className={style.timerDisplay}>{titleComponent2} </span><br></br>
+            <h2> Title of the Pomodoro </h2>
+            {titleComponent2}<br></br>
             {formComponents[formType]}
             <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>
             <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
             <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
-        </div>
-
-        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
-            {isModing ? "ready to run!": "create Pomodoro"}            </button> }
-        <br></br>
+        </div>        
         {/* <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/> */}
-        <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>
 
+        {/* {<Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>} */}
+        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+        {isModing ? "ready to run!": "create/modify Pomodoro"}            </button> }
+        <br></br>
         <div className={style.sideBar}>
             <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
         </div>  

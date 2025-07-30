@@ -1,21 +1,37 @@
 .mainDiv {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  z-index: 2;
-  overflow-y: scroll;
-  font-size: 1.125rem;
-  font-weight: bold;
-  margin: 0 0 0.25rem 0;
-  color: var(--dusk-text);
-  width: 100%;
+    width: 100%;
+    max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */
+    margin: 0 auto; /* Center it */
+    padding: 1rem;
+    background: var(--dusk-bg); /* Use the defined background variable */
+    color: var(--dusk-text);
+    border: 1px solid var(--dusk-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--dusk-shadow);
+    height: fit-content;
+    box-sizing: border-box;
+    /* Positioning adjustment if needed, but let's assume flexbox/grid in parent for layout */
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    z-index: 2;
+    overflow-y: scroll;
+    font-size: 1.125rem;
+    font-weight: bold;
 }
 
 .PomodoroTitleDiv>label {
   visibility: hidden;
   z-index: -1;
 }
+.buttonsDiv{
+  justify-content: center;
+  display: grid;
+}
 
+.runButton{
+  border-radius: 30%;
+}
 /* .headerDiv {
   font-size: large;
   width: 100%;

@@ -1,9 +1,13 @@
 {
   "name": "client",
   "version": "0.1.0",
+  "babel": {
+    "plugins": ["@babel/plugin-proposal-optional-chaining"]
+  },
   "proxy": "http://localhost:5000",
   "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@emotion/styled": "^11.14.1",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.8",
@@ -15,6 +19,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "babel": "^6.23.0",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
