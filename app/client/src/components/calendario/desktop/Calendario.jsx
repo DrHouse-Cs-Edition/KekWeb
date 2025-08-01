@@ -11,11 +11,17 @@ export default function CalendarApp() {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [newEvent, setNewEvent] = useState({
+  const [newEvent, setNewEvent] = useState({ //*holds all data regarding a possible event
     id: "",
     title: "",
     type: "event",
-    cyclesLeft: null,
+    pomodoro: {     //serverside is just the Title, here is the whole object
+      _id: "",
+      title: "",
+      studyTime: null,
+      breakTime: null,
+      cycles: null,
+    },   
     activityDate: null,
     start: new Date(),
     end: new Date(),
@@ -55,7 +61,7 @@ export default function CalendarApp() {
               title: event.title,
               extendedProps: {
                 type: event.type,
-                cyclesLeft: event.cyclesLeft,
+                pomodoro: event.pomodoro,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
                 description: event.description,
@@ -185,18 +191,29 @@ export default function CalendarApp() {
       }
     };
     
-    // Aggiungo le proprietà specifiche per ogni tipo
-    if (eventData.type === "activity") {
-      eventData.activityDate = clickInfo.event.extendedProps.activityDate 
-        ? new Date(clickInfo.event.extendedProps.activityDate) 
-        : startDate;
-    } else if (eventData.type === "pomodoro") {
-      eventData.cyclesLeft = clickInfo.event.extendedProps.cyclesLeft || 0;
-      eventData.start = startDate;
-      eventData.end = endDate;
-    } else {
-      eventData.start = startDate;
-      eventData.end = endDate;
+    // Add type-specific properties
+    switch(eventData.type) {
+      case "activity":
+        eventData.activityDate = clickInfo.event.extendedProps.activityDate 
+          ? new Date(clickInfo.event.extendedProps.activityDate) 
+          : startDate;
+        break;
+      case "pomodoro":
+        //load up a pomodoro Obj with: Title, studyTime, breakTime and cycles
+        eventData.pomodoro = clickInfo.event.extendedProps.pomodoro || {
+          title: "",
+          studyTime: null,
+          breakTime: null,
+          cycles: null,
+        };
+        eventData.start = startDate;
+        eventData.end = endDate;
+        break;
+      case "event":
+      default:
+        eventData.start = startDate;
+        eventData.end = endDate;
+        break;
     }
     
     setIsEditing(true); // Sto modificando
@@ -269,18 +286,24 @@ export default function CalendarApp() {
       alarm: newEvent.alarm
     };
     
-    // Aggiungo i dati specifici per ogni tipo
-    if (newEvent.type === "activity") {
-      eventData.activityDate = (newEvent.activityDate || new Date()).toISOString();
-      eventData.recurrenceRule = rruleString;
-    } else if (newEvent.type === "pomodoro") {
-      eventData.cyclesLeft = newEvent.cyclesLeft || 0;
-      eventData.start = (newEvent.start || new Date()).toISOString();
-      eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
-    } else {
-      eventData.start = (newEvent.start || new Date()).toISOString();
-      eventData.end = (newEvent.end || new Date(Date.now() + 3600000)).toISOString();
-      eventData.recurrenceRule = rruleString;
+    // Add type-specific properties
+    switch(newEvent.type) {
+      case "activity":
+        eventData.activityDate = (newEvent.activityDate || new Date()).toISOString();
+        eventData.recurrenceRule = rruleString; // Add recurrence rule to activities
+        break;
+      case "pomodoro":
+        //serverside, pomodoro is just the title as ref to the schema
+        eventData.pomodoro = newEvent.pomodoro.title || "";
+        eventData.start = (newEvent.start || new Date()).toISOString();
+        eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
+        break;
+      case "event":
+      default:
+        eventData.start = (newEvent.start || new Date()).toISOString();
+        eventData.end = (newEvent.end || new Date(Date.now() + 3600000)).toISOString();
+        eventData.recurrenceRule = rruleString;
+        break;
     }
     
     if (isEditing) eventData._id = newEvent.id;
@@ -350,7 +373,13 @@ export default function CalendarApp() {
       id: "",
       title: "",
       type: "event",
-      cyclesLeft: null,
+      pomodoro: {
+        _id: "",
+        title: "",
+        studyTime: null,
+        breakTime: null,
+        cycles: null,
+      },
       activityDate: null,
       start: new Date(),
       end: new Date(),

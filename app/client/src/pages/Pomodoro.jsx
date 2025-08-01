@@ -1,22 +1,25 @@
 import {useState, useEffect, Fragment, useRef} from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
 import {Input} from "../utils/InputV2.jsx";
 import {FormProvider, useForm} from "react-hook-form";
 import React from 'react';
 import { Animation } from "../components/pomodoroComponents/Animation/Animation.jsx";
+import Animation2 from "../components/pomodoroComponents/Animation/newAnimation.jsx"
 import style from "./Pomodoro.module.css"
 import {UseToken} from '../components/login_signup/UserHooks.jsx';
 import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.jsx';
+import { useCallback } from 'react';
 
 function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
     const {token, setToken} = UseToken();
-    //* THESE 3 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
+    const location = useLocation();
+    //* THESE 5 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
     const [pomodoroId, setPomodoroId] = useState(0);
-    const [pomodoroTitle, setPomodoroTitle] = useState(0);
+    const [pomodoroTitle, setPomodoroTitle] = useState("");
     const [StudyTime, updateStudyTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [BreakTime, updateBreakTime] = useState(0);           //TODO choose format (seconds, milliseconds)
     const [Cycles, updateCycles] = useState(0);                 //indicates the number of full Cycles
@@ -24,6 +27,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
     //*THIS STATE CONTAINS THE CURRENT FORM SELECTED
     const [formType, updateFormType] = useState('Cycles');
+    const [isModing, updateModing] = useState(0);
 
     //* THESE STATES CONTAIN THE CURRENT TIME AND CYCLES LEFT TO RUN
     //* THEY ARE NOT THE SETTINGS FOR THE POMODORO, THEY ARE EFFECTIVELY THE RUNNING CLOCK + OTHER TOOLS
@@ -71,27 +75,68 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         setMinutes(Math.trunc(sData/60%60));
         setSeconds(Math.trunc(sData%60));
         setCyclesLeft(cData);
-
-        setDisableRun(0);
+        if(pomodoroTitle)
+            setDisableSave(0)
     }
 
-    function loadPomodoro(id, title, studyT, breakT, cycles){
+    function loadPomodoro (id, title, studyT, breakT, cycles){
       passTimeData(studyT, breakT, cycles);
       setPomodoroId(id);
       setPomodoroTitle(title);
-      console.log("loading pomodoro from Pomodoro: ", title);
+      console.log("data recieved: ", id, title, studyT, breakT, cycles);
     }
 
+    function serverSideUpdateCycles(x){
+        fetch('/api/Pomodoro/cyclesUpdate', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body : JSON.stringify({
+                id: pomodoroId+"",
+                cycles: x,
+                title: pomodoroTitle+""
+            })
+        })
+    }
+
+
+    useEffect( ()=>{
+        console.log("location is: ", location);
+        if(location?.state){
+            // switch (location.state.source){
+            //     case  "":
+            //         break;
+            // }
+            const {_id, title, studyTime, breakTime, cycles} = location.state;
+            loadPomodoro(_id, title, studyTime, breakTime, cycles);
+        }
+    },[])
+
     useEffect(()=>{
-        if( pomodoroId || pomodoroTitle)     //if there is an ID present, i am updating a pomodoro
+        if( pomodoroId || pomodoroTitle && StudyTime && BreakTime && Cycles)     //if there is an ID present, i am updating a pomodoro
             setDisableSave(0);
         else
             setDisableSave(1);
     },[pomodoroId, pomodoroTitle]);
 
+    useEffect(()=>{
+        if(isModing){
+            setDisableRun(1);
+        }else{
+            if(StudyTime && BreakTime && Cycles){
+                setDisableRun(0);        //can run if there is a pomodoro loaded and is not being modified
+            }else{
+                setDisableRun(1);
+            }
+        }
+    },[StudyTime, BreakTime, Cycles, isModing])
+
     //*FORMCOMPONENTS IS AN OBJECT USED FOR STORING THE FORMCOMPONENTS USED FOR RECORDING STUDYTIME, BREAKTIME AND CYCLES
     //It is possible to access it's fields as if it was an array using the square brackets []
-    let formComponents = { TT : <TTform passTimeData={passTimeData} ></TTform>, Cycles : <CyclesForm passTimeData={passTimeData}></CyclesForm> }   
+    let formComponents = { TT : <TTform passTimeData={passTimeData} isNewPomodoro = {pomodoroId ? 0 : 1}></TTform>, Cycles : <CyclesForm passTimeData={passTimeData} isNewPomodoro = {pomodoroId ? 0 : 1}></CyclesForm> }   
 
     //*USE FOR STORING THE SETTIMEOUT RETURN VALUE
     let pomodoroInterval;
@@ -103,14 +148,17 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                     if(seconds == 0){
                         if(minutes == 0){
                             if(curTimer){//break timer ended, initializing study timer
-                                setCyclesLeft(cyclesLeft-1);
+                                let x = cyclesLeft -1;
+                                serverSideUpdateCycles(x);
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
+                                    newPomodoro();
                                 }else{
                                     setSeconds(Math.trunc(StudyTime%60));
                                     setMinutes(Math.trunc(StudyTime/60%60));
-                                    alert("ugh, back to studying huh?")
+                                    alert("ugh, back to studying huh?");
+                                    setCyclesLeft(x);
                                 }
                             } else{ //break timer initialization
                                 setSeconds(Math.trunc(BreakTime%60));
@@ -177,7 +225,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     const onSubmit = async (data)=>{
         console.log(pomodoroTitle + " titolo")
         if(pomodoroId){ //updating existing pomodoro
-            fetch('/api/Pomodoro/renameP', {
+            fetch('/api/Pomodoro/updateP', {
             method : 'POST',
             mode: 'cors',
             headers: {
@@ -222,42 +270,49 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         console.log("error in saving the pomodoro detected");
     }
 
+    //* primo div era Pomodoro
     return(
-      <div className={style.Pomodoro} id='mainDiv' >
-        <div className={style.mainDiv}>
-          <div className={style.headerDiv}>
-            <span className={style.timerDisplay}>{titleComponent2} </span><br></br>
-            <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} </span>
-            <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} </span>
-          </div>
-              
-          <div id = {style.timerCurrentVals}>
-              <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>
-          </div>
-          <div id={style.buttonsDiv} >
-              <h2> Testing buttons below </h2>
-              <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun}> run timer </button>
-              <button onClick={()=>{stopTimer()}} ref={stopButtonRef}> Stop timer </button>
-              <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
-              <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button>
-              <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next</button>
-          </div>
+    <div className={style.mainDiv}> 
+        <div className={style.headerDiv} style={{display: isModing ? "none" : "contents"}}>
+            <span className={style.timerDisplay}> {pomodoroTitle}</span>
+            <span className={style.timerDisplay}>{minutes < 10 ? '0' + minutes : minutes} minutes </span>
+            <span className={style.timerDisplay}>{seconds < 10 ? '0' + seconds : seconds} seconds </span>
 
-          <div id= "FormDiv" style={{textAlign : 'center'}}>
-              {formComponents[formType]}
-              <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
-          </div>
+            <div className={style.buttonsDiv} >            
+                {runTimer ? 
+                    <button onClick={()=>{stopTimer()}} ref={stopButtonRef} className={style.runButton}> Stop timer 
+                    <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2> </button> : 
+                    <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun} className={style.runButton}> run timer 
+                    <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2></button>}
+                <br></br>
+                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+                <br/>
+                <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next </button>
+            </div>
+            <div style={{padding: "5px"}}>
+                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
+            </div>
+            
+        </div>        
 
-          <br></br>
-          <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>                
-          <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
+        <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
+            <h2> Title of the Pomodoro </h2>
+            {titleComponent2}<br></br>
+            {formComponents[formType]}
+            <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>
+            <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
+        </div>        
+        {/* <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/> */}
 
-          <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/>
-        </div>
+        {/* {<Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>} */}
+        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+        {isModing ? "ready to run!": "create/modify Pomodoro"}            </button> }
+        <br></br>
         <div className={style.sideBar}>
-          <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
-        </div>   
-      </div>
+            <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
+        </div>  
+    </div> 
     )
 }
 

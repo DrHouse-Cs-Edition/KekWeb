@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import Style from './PomodoroSideBar.module.css';
+import style from './PomodoroSideBar.module.css';
+import { PieChart } from "@mui/x-charts";
+
+//TODO cambiare da una sidebar ad un menù verticale
 
 const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
     const pomodoroArray = [];
@@ -31,15 +34,9 @@ const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
     
 
     return (
-    <div class={Style.sideBarDiv}>
-        <input type="checkbox" className={Style.burger} onClick={()=>{setVisibility(visibility ^ 1)}}></input>
-            <span class={Style.burgerSpan}></span>
-            <span class={Style.burgerSpan}></span>  
-            <span class={Style.burgerSpan}></span>
-        <div style={{display : visibility ? "block" : "none"}}>
-            <ol>
+    <div class={style.sideBarDiv}>
+        <div className={style.pomodoroList}>  {/*Display is columns */}
                 {pomodoros}
-            </ol>
         </div>
     </div>
     )
@@ -62,8 +59,6 @@ export default PomodoroSideBar;
 const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, deleteCallback)=>{
     //vars that keeps the degress for the chart
     let sum = studyT + breakT;
-    let studyP = (studyT / sum) *360;
-    let breakP = (breakT / sum) *360;
 
     const deletePomodoro = ()=>
     {
@@ -88,23 +83,28 @@ const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, dele
         );
     }
 
-    return ( 
-        <li key={id}> 
-        <div className={Style.barItem}>
-            <div className={Style.piechart} style={{backgroundImage: `conic-gradient(green 0deg ${breakP}deg, red ${breakP}deg ${studyP}deg)`}}></div>
-            <div className={Style.data}>
-                <ul>
-                <li><h2 style={{maxWidth : "8em", wordWrap: "break-word"}}>{title}</h2></li>
-                <li>study time: {studyT} </li>
-                <li>break time: {breakT} </li>
-                <li>cycles: {cycles}</li>
-                </ul>
+    return (
+        <div className={style.barItem}>
+            <div className={style.pomodoroChart}>
+                <h3 style={{wordWrap: "break-word", maxWidth : "15ch"}}>
+                    {title}
+                </h3>
+                <PieChart
+                    className={style.pomodoroPie}
+                    series={[{
+                        data : [
+                            {id : 0, value : studyT, label : "Study Time"},
+                            {id : 1, value : breakT, label : "Break Time"}
+                        ],
+                    },
+                ]}
+                ></PieChart>
             </div>
-            <div className={Style.buttons}>
-                <button className={Style.openB} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button>
-                <button className={Style.deleteB} onClick={()=>deletePomodoro()}>Delete</button>
+            <div className={style.buttons}>
+                <button className={style.openB} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button>
+                <button className={style.deleteB} onClick={()=>deletePomodoro()}>Delete</button>
             </div>
             <br></br>
-        </div></li>
+        </div>
     )
 }

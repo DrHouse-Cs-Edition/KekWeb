@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import LoginPage from './LoginPage.jsx';
 import Registration from "./Registration.jsx";
+import style from "./Signup.module.css"
 
 function Signup({setting = 0, updateToken}){
     const [type, setType] = useState(setting);
@@ -8,13 +9,13 @@ function Signup({setting = 0, updateToken}){
     const loginForm= 
     <div className="">
         <LoginPage updateToken={updateToken}></LoginPage>
-        <button onClick={() => setType(1)}>Register a new user</button>
+        <button onClick={() => setType(1)} className={style.Button}>Register a new user</button>
     </div>
 
     const registrationForm =
     <div className="">
         <Registration updateToken={updateToken}></Registration>
-        <button onClick={() => setType(0)}>Try to log in</button>
+        <button onClick={() => setType(0)} className={style.Button}>Try to log in</button>
     </div>
         
 
@@ -24,7 +25,7 @@ function Signup({setting = 0, updateToken}){
     }
 
     return(
-        <div className=""> 
+        <div className={style.Signup}> 
             {formType[type]}
         </div>
     );

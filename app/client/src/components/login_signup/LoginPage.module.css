@@ -1,0 +1,21 @@
+.loginButtons{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    margin-top: 1rem;
+    background: var(--dusk-accent); /* Use the accent color for buttons */
+    color: #232b4d; /* Dark text for contrast on accent background */
+    border: none;
+    border-radius: 0.2rem;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline from link */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    width: 100%;
+}
+
+.buttonsDiv{
+    display: flex;
+    flex-direction: row;
+}

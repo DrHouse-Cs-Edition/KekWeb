@@ -1,7 +1,9 @@
+import { preventDefault } from "@fullcalendar/core/internal";
 import styles from "./Calendario.module.css";  
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
+import { Navigate, useNavigate, Link } from "react-router-dom";
 
 // Modal per creare o modificare eventi
 const EventModal = function EventModal({
@@ -142,17 +144,39 @@ const ModalBody = ({
 
       {/* Campi diversi in base al tipo */}
       {newEvent.type === "pomodoro" ? (
-        // Per i pomodoro mostro solo i cicli
+        <>
+        <SelectPomodoros newEvent = {newEvent} setNewEvent = {setNewEvent}></SelectPomodoros>
         <FormField
-          id="cycles-left"
-          name="cyclesLeft"
-          label="Cicli Rimanenti"
+          id="studyTime"
+          name="studyTime"
+          label="studyTime"
           type="number"
-          value={newEvent.cyclesLeft || ""}
+          value={newEvent.pomodoro.studyTime || 0}
+          onChange={handleInputChange}
+          required
+        />
+        <FormField
+          id="breakTime"
+          name="breakTime"
+          label="breakTime"
+          type="number"
+          value={newEvent.pomodoro.breakTime || 0}
+          onChange={handleInputChange}
+          required
+        />
+        <FormField
+          id="cycles"
+          name="cycles"
+          label="cycles"
+          type="number"
+          value={newEvent.pomodoro.cycles || 0}
           onChange={handleInputChange}
           min="1"
           required
         />
+
+        <Link to={"/pomodoro"} state={newEvent?.pomodoro}>Pahim leso</Link>     
+        </> 
       ) : (
         // Per eventi normali e attività
         <>
@@ -420,3 +444,73 @@ const ModalFooter = ({
 );
 
 export default EventModal;
+
+
+const SelectPomodoros = ( {newEvent, setNewEvent} )=>{
+
+const [pomodoroOptions, setPomodoroOptions] = useState([]);
+const [currentPomodoro, setCurrentPomodoro] = useState(null);
+const selectRef = useRef();
+
+const FetchPomodoros = useCallback(()=>{
+console.log("lezzo gaming");
+fetch("api/Pomodoro/getP", {
+  method:"GET",
+  mode:"cors",
+  headers:{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+  }
+  })
+  .then(res => res.json()
+  ).then(
+    (data) =>{
+      setPomodoroOptions(data.body)
+      if(newEvent.pomodoro)
+      {
+        console.log("newEvent.pomodoro reached")
+        const initialPomodoro = data.body.find(p => p.title === newEvent.pomodoro);
+        if(initialPomodoro)
+          setNewEvent( prev => ({ ...prev, pomodoro: initialPomodoro }));
+      }}
+    )}, [pomodoroOptions, setNewEvent])
+
+  // Gestore per il cambio dell'opzione selezionata
+  const handleSelectChange = useCallback(e => {
+    const selectedTitle = e.target.value;
+    //ritorna se si è passati al valore base
+    if(selectedTitle == "")
+      return;
+    // Trova l'oggetto pomodoro corrispondente all'ID selezionato
+    const foundPomodoro = pomodoroOptions.find(p => p.title === selectedTitle);
+    setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
+    console.log("Selected Pomodoro Object:", foundPomodoro);
+    setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
+
+  }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
+
+useEffect(()=>{
+  FetchPomodoros();
+  console.log("recievend new event pomodoro: ", newEvent.pomodoro);
+},[]);
+
+  return(
+    <select
+    ref={selectRef}
+    onChange={handleSelectChange}
+    value={
+    typeof newEvent.pomodoro === 'string'
+      ? newEvent.pomodoro // If it's a string (initial state)
+      : newEvent.pomodoro?.title || "" // If it's an object or null/undefined
+    } >
+      <option value="">
+        select a pomodoro
+      </option>
+      {pomodoroOptions.map(el =>(
+        <option value={el.title} key={el.title} {...newEvent?.pomodoro?.title === el.title ? "selected" : ""}>
+          {el.title}
+        </option>
+      ))}
+    </select>
+  )
+}

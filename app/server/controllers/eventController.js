@@ -1,7 +1,10 @@
+const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
 const { subMinutes } = require('date-fns');
+const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
 
 const saveEvent = async (request, response) => {
+    console.log("recieved backend event: ", request.body);
     const eventInput = request.body;
     const eventDB = new Event({
       user: request.user, // Add user association
@@ -9,7 +12,7 @@ const saveEvent = async (request, response) => {
       description: eventInput.description,
       location: eventInput.location,
       type: eventInput.type,
-      cyclesLeft: eventInput.cyclesLeft,
+      pomodoro: eventInput.pomodoro,
       activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
       start: eventInput.start ? new Date(eventInput.start) : null,
       end: eventInput.end ? new Date(eventInput.end) : null,
@@ -37,6 +40,7 @@ const saveEvent = async (request, response) => {
 };
 
 const updateEvent = async (request, response) => {
+    console.log("recieved backend event for UPDATE: ", request.body);
     const id = request.params.id;
     const eventInput = request.body;
   
@@ -46,7 +50,7 @@ const updateEvent = async (request, response) => {
         description: eventInput.description,
         location: eventInput.location,
         type: eventInput.type,
-        cyclesLeft: eventInput.cyclesLeft,
+        pomodoro: eventInput.pomodoro,
         activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
         start: eventInput.start ? new Date(eventInput.start) : null,
         end: eventInput.end ? new Date(eventInput.end) : null,
@@ -160,7 +164,7 @@ const allEvent = async (request, response) => {
                     start: event.start,
                     end: event.end,
                     activityDate: event.activityDate,
-                    cyclesLeft: event.cyclesLeft,
+                    pomodoro: event.pomodoro,
                     location: event.location,
                     description: event.description,
                     recurrenceRule: event.recurrenceRule,
@@ -185,4 +189,80 @@ const allEvent = async (request, response) => {
     }
 };
 
-module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete };
+const isPomodoroScheduled = (req, res, next)=>{
+    const {title} = req.body;
+    console.log("pomodoro scheduling verification for: ", title);
+    Event.find({pomodoro : title}).lean()
+    .then(
+      (events) =>{
+        console.log("pomodoro events found: ", events.length);
+        if(events.length > 0){
+          console.log("found pomodoro")
+          next();
+        }else{
+          console.log("no pomodoro found")
+          return;
+        }})      
+}
+
+const movePomodoros = ()=>{
+  console.log("proceding to move pomodoros");
+  let date = new Date();
+  let datePlus = new Date();
+  datePlus.setDate(datePlus.getDate() + 1)
+  Event.find({type : "pomodoro"})
+  .then(p => {
+    p.forEach( (evento)=>{
+      if (evento.end < Date.now() && evento.completed == false){
+        
+        evento.start = date;
+        evento.end = datePlus;
+        evento.save();
+    }})
+  })
+}
+
+const latestP = async function (req, res){
+  try {
+    const foundEV = await Event.findOne({type: "pomodoro"}).sort("end").then(ev =>{
+      //TODO imposta all'evento i dati
+      return ev;
+      // console.log(ev);
+    })
+    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}).then(pom =>{
+      return pom
+    })
+
+    // console.log("pomodoro found: ", foundP, "\n event found ", foundEV);   //dovrebbero essere trovati
+    const latestPomodoro2 ={
+      title: foundP.title,
+      Pid:  foundP._id,
+      Eid: foundEV._id,
+      studyT: foundP.studyTime,
+      breakT: foundP.breakTime,
+      cycles: foundP.cycles,
+      date : foundEV.start
+    }
+    if(!latestPomodoro2.title || !latestPomodoro2.Eid){   //verifica probabilmente non necessaria in questo modo, basterebbe vedere che non esiste l'evento
+    res.status(404).json({
+      success: false,
+      message: "no pomodoro event found"
+    })
+    }else{
+      res.status(200).json({
+      success : true,
+      pomodoro: latestPomodoro2,
+      message: "pomodoro event has been found"
+      })
+    }
+    
+  }catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "error retrieving pomodoro",
+      error: e,
+    })
+  }  
+}
+module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled, movePomodoros, latestP };

@@ -13,10 +13,11 @@ const connectDB = require('./config/database.js');
 connectDB();
 
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
-let pomodoroRoutes = require("./pagesMethods/pomodoro.js");
+const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
-const pushRoutes = require('./routes/pushNotifications')
+const pushRoutes = require('./routes/pushNotifications');
+const eventControllerRoutes = require("./controllers/eventController.js")
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
@@ -26,7 +27,7 @@ app.get('/utente', (req, res) => {
 // altro login ma con cookies:
 const loginCookies =  require ("./controllers/cookiesLogin.js");
 
-app.use(express.text(), express.json()); // IMPORTANTE PER RICEVERE JSON
+app.use(express.text({limit: "50mb"}), express.json({limit: "50mb"})); // IMPORTANTE PER RICEVERE JSON
 app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
@@ -48,9 +49,9 @@ const check = () => {
         console.log("tack")
 
     notifications(now);
-
     // controllo di mezzanotte
     if (now.getHours() === 0 && now.getMinutes() === 0) {
+        eventControllerRoutes.movePomodoros();
         // MUOVI POMODORI
         // MUOVI ATTIVITA' SCADUTE
     }
@@ -73,7 +74,6 @@ app.delete("/api/user/logout", UserRoutes.logout);
 //*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
-
 // gestione api eventi
 app.use('/api/events', eventRoutes);
 // gestione api note
@@ -81,6 +81,7 @@ app.use('/api/notes', noteRoutes);
 // gestione notifiche
 app.use('/api/pushNotifications', pushRoutes)
 const not = require ("./controllers/pushNotificationController.js");
+const { debug } = require('console');
 // app.post('api/pushNotifications/subscribe',not.subscribe)
 
 //************* POMODORO METHODS **************************** */
@@ -89,13 +90,15 @@ app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 app.post("/api/Pomodoro/renameP", pomodoroRoutes.renameP);
 app.delete("/api/Pomodoro/deleteP/:id", pomodoroRoutes.deleteP);
+app.post("/api/Pomodoro/cyclesUpdate", eventControllerRoutes.isPomodoroScheduled, pomodoroRoutes.subCycles)//, pomodoroRoutes.subCycles
+app.post("/api/Pomodoro/updateP", pomodoroRoutes.updateP);
 
 //************* User METHODS ******************************* */
 app.post("/api/user/reqLogin", UserRoutes.login);
 app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
-app.put("/api/user/updateUData", UserRoutes.updateData);
+app.put("/api/user/updateUData", UserRoutes.updateDataV2);
 //*********************************************************** */
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server

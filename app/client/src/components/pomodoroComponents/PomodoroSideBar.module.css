@@ -1,55 +1,46 @@
 .sideBarDiv{
-    position: fixed;
-    left: 4%;
-    top: 75px;
-    border-style: solid;
-    border-color: darkmagenta;
-    border-width: 4px;
-    list-style-type: disc;
-    height: fit-content;
-    width: fit-content;
-}
-
-.piechart{
-    min-width: 50px;
-    width: 100px;
-    max-width: 150px;
-    min-height: 50px;
-    height: 100px;
-    max-height: 150px;
-    border-radius: 50%;
-}
-
-.burger{
-  display: block;
-  width: 40px;
-  height: 32px;
-  position: absolute;
-  top: -7px;
-  left: -5px;
-  
-  cursor: pointer;
-  
-  opacity: 0; /* hide this */
-  z-index: 2; /* and place it over the hamburger */
-}
-
-.burgerSpan{
-    display: block;
-    width: 33px;
-    height: 4px;
-    margin-bottom: 5px;
     position: relative;
-    
-    background: #cdcdcd;
-    border-radius: 3px;
-    border-color: black;
+    list-style-type: disc;
+    max-width: fit-content;
+
 }
 
+.pomodoroChart {
+    /* This would be where your chart component styling goes. */
+    /* For now, just a placeholder to show its area. */
+    height: 150px; /* Example height for a chart */
+    background-color: rgba(92, 60, 110, 0.3); /* A translucent background for the chart area */
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dusk-text);
+    font-style: italic;
+    font-size: 0.9rem;
+    border: 1px dashed var(--dusk-border);
+}
+
+.pomodoroList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.pomodoroChart > div > ul{
+    color: #ffe5d9;
+}
 .barItem{
+    border-radius: 10%;
+    padding: 10px;
+    border-color: rgb(104, 66, 110);
+    border-style: solid;
+    border-width: medium;
+    min-width: 300px;
     display: grid;
-    grid-template-areas: "piechart data" 
-                        "buttons buttons" ;
+    grid-template-areas:    "piechart" 
+                            "buttons" ;
 }
 
 .barItem > .piechart{
@@ -64,5 +55,5 @@
 
 .barItem > .buttons{
     grid-area: buttons;
-    background-color: lightblue;
+    background-color: transparent;
 }

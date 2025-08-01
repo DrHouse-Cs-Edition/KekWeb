@@ -1,15 +1,23 @@
 {
   "name": "client",
   "version": "0.1.0",
+  "babel": {
+    "plugins": ["@babel/plugin-proposal-optional-chaining"]
+  },
   "proxy": "http://localhost:5000",
   "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
+    "@emotion/styled": "^11.14.1",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.8",
     "@fullcalendar/interaction": "^6.1.8",
     "@fullcalendar/react": "^6.1.8",
     "@fullcalendar/rrule": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.8",
+    "@mui/x-charts": "^8.9.0",
+    "babel": "^6.23.0",
+    "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "disable-devtool": "^0.3.8",
     "dotenv": "^16.4.7",
@@ -21,7 +29,9 @@
     "motion": "^11.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-file-base64": "^1.0.3",
     "react-hook-form": "^7.53.2",
+    "react-router": "^7.6.3",
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "rrule": "^2.8.1",
