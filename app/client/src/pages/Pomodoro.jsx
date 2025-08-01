@@ -116,7 +116,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     },[])
 
     useEffect(()=>{
-        console.log("loading disable save");
         if( pomodoroId || pomodoroTitle && StudyTime && BreakTime && Cycles)     //if there is an ID present, i am updating a pomodoro
             setDisableSave(0);
         else
@@ -124,7 +123,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     },[pomodoroId, pomodoroTitle]);
 
     useEffect(()=>{
-        console.log("loading disable run");
         if(isModing){
             setDisableRun(1);
         }else{
@@ -288,11 +286,13 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                     <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2></button>}
                 <br></br>
                 <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
-                {/* <button onClick={()=>{skipCycles()}} ref={skipButtonRef}> Skip Cycles</button> */}
+                <br/>
                 <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next </button>
             </div>
-
-            <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
+            <div style={{padding: "5px"}}>
+                <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
+            </div>
+            
         </div>        
 
         <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>

@@ -139,11 +139,16 @@ function TTform( {passTimeData}, isNewPomodoro){
                 tmpStudy.current += 5;  
             }
         } while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 );
-
         setStudyTime( tmpStudy.current );
         setBreakTime( tmpBreak.current );
+        if ( !hasComputed.current ){
+            alert("Warning: insert a time value and compute the possible options first");
+            return;
+        }
+        passTimeData(tmpStudy.current, tmpBreak.current, calcCycles());
     }
 
+    
     const TThandleSubmit = (data)=>{
         if ( !hasComputed.current ){
             alert("Warning: insert a time value and compute the possible options first");
@@ -178,21 +183,23 @@ function TTform( {passTimeData}, isNewPomodoro){
                         >
                         </Input> <br/>
 
-                        <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
-                            (data) => { //onSubmit 
-                                initOptions(data);
-                            }
-                        , () => {   //onError                
-                        })}>See options</button>
+                        { !hasComputed.current ? 
+                            <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
+                                (data) => { //onSubmit 
+                                    initOptions(data);
+                                }
+                            , () => {   //onError                
+                            })}>See options</button> : 
+                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>}
                         
                         <div>
                             <span> Study Time = {studyTime} </span>
                             <span> Break Time = {breakTime} </span>
                             <span> cycles = {calcCycles()} </span>
-                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>
+                            
                         </div>
 
-                        <button type="button" id="registerOptions" onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Register Options</button>
+                        <button type="button" id="registerOptions" onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Save Option</button>
                     </div> 
                 </form>
                 </FormProvider>

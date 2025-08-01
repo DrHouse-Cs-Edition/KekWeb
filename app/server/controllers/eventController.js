@@ -229,7 +229,7 @@ const latestP = async function (req, res){
       return ev;
       // console.log(ev);
     })
-    const foundP = await Pomodoro.findOne({title : "NewPomodororo"}).then(pom =>{
+    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}).then(pom =>{
       return pom
     })
 

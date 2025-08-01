@@ -35,10 +35,6 @@ const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
 
     return (
     <div class={style.sideBarDiv}>
-        {/* <input type="checkbox" className={style.burger} onClick={()=>{setVisibility(visibility ^ 1)}}></input>
-            <span class={style.burgerSpan}></span>
-            <span class={style.burgerSpan}></span>  
-            <span class={style.burgerSpan}></span> */}
         <div className={style.pomodoroList}>  {/*Display is columns */}
                 {pomodoros}
         </div>
@@ -90,7 +86,7 @@ const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, dele
     return (
         <div className={style.barItem}>
             <div className={style.pomodoroChart}>
-                <h3>
+                <h3 style={{wordWrap: "break-word", maxWidth : "15ch"}}>
                     {title}
                 </h3>
                 <PieChart

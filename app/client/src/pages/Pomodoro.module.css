@@ -1,6 +1,6 @@
 .mainDiv {
     width: 100%;
-    max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */
+    max-width: 80%; /* Adjust as needed, based on the image it looks wider than the todo list */
     margin: 0 auto; /* Center it */
     padding: 1rem;
     background: var(--dusk-bg); /* Use the defined background variable */
@@ -24,6 +24,21 @@
   visibility: hidden;
   z-index: -1;
 }
+
+button{
+    flex: 1;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    border: 1px solid transparent;
+    background: var(--dusk-input-focus-border);
+}
+
 .buttonsDiv{
   justify-content: center;
   display: grid;

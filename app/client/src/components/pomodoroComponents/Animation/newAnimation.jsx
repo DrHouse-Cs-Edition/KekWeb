@@ -3,7 +3,6 @@ import { useRef, useEffect} from "react";
 import CatAnimation from "./CatAnimation.jsx";
 
 export const Animation2 = ({currentTimer, studyTime, breakTime, run, resetFlag})=>{
-    console.log("animation 2 run is: ", run);
     //testing
     // const [runn, setRun] = useState(1);
     // const [current, setCurrent] = useState(0);
