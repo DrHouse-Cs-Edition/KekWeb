@@ -162,7 +162,21 @@ const allNote = async (request,response)=>{
             message: "Errore durante il caricamento dal DB: "+e,
         });
     }
-
 }
 
-module.exports = { saveNote, updateNote, removeNote, loadNote, allNote };
+const lastNote = async (request,response)=>{
+    try{
+        const nota = await Note.findById(id).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
+        listaNote = await Note.findOne({ user: request.user }).sort({ lastModified: -1 }).lean(); // da piu recente
+        listaNote.success = true;
+        response.json( listaNote );
+    }
+    catch(e){
+        response.json({
+            success: false,
+            message: "Errore durante il caricamento dal DB: "+e,
+        });
+    }
+}
+
+module.exports = { saveNote, updateNote, removeNote, loadNote, allNote, lastNote };

@@ -79,15 +79,18 @@ function updateAlarm(event, now){
   if(event.repeated < event.alarm.repeat_times){ // se non ho finito di ripetere l'avviso all'utente
     console.log("unfinished busy penguin!")
     event.nextAlarm = addMinutes(last_alarm, event.alarm.repeat_every);
-  }/*
+  }
   else{
-    const rule = new RRule(event.rrule);
-    const next = rule.after(now);
-    if (next) // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
-      console.log("Da next")
-      event.nextAlarm = subMinutes(next, event.alarm.earlyness);
-      event.repeated = 0;
-  }*/
+    regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
+    if (regola.freq && regola.dtStart){
+      const rule = new RRule( regola );
+      const next = rule.after(now);
+      if (next) // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
+        console.log("Da next")
+        event.nextAlarm = subMinutes(next, event.alarm.earlyness);
+        event.repeated = 0;
+    }
+  }
   console.log(event.nextAlarm, "\n")
   return(event);
 }
