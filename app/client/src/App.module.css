@@ -23,6 +23,14 @@
   --event-text-primary: #ffffff;
   --event-text-secondary: #f0f0f0;
   --event-bg-opacity: 0.85;
+  
+  /* Add these navbar variables */
+  --navbar-bg: linear-gradient(90deg, #2d3356 0%, #5c3c6e 60%, #ff8c6b 100%);
+  --navbar-solid: #2d3356;
+  --navbar-accent: #ff8c6b;
+  --navbar-link: #ffe5d9;
+  --navbar-link-hover: #ffb997;
+  --navbar-shadow: 0 4px 16px 0 rgba(44, 37, 80, 0.25);
 }
 
 .appRoot {
