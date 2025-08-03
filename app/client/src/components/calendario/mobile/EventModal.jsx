@@ -166,73 +166,90 @@ const EventModal = ({
             </select>
           </div>
 
-          {/* Titolo */}
-          <div>
-            <label className={styles.label}>
-              Titolo
-            </label>
-            <input
-              type="text"
-              value={selectedEvent?.title || ''}
-              onChange={handleTitleChange}
-              className={styles.textInput}
-              placeholder="Inserisci il titolo dell'evento"
-            />
-          </div>
+          {/* Campi condizionali - nascosti per pomodoro */}
+          {selectedEvent?.type !== "pomodoro" && (
+            <>
+              {/* Titolo */}
+              <div>
+                <label className={styles.label}>
+                  Titolo
+                </label>
+                <input
+                  type="text"
+                  value={selectedEvent?.title || ''}
+                  onChange={handleTitleChange}
+                  className={styles.textInput}
+                  placeholder="Inserisci il titolo dell'evento"
+                />
+              </div>
 
-          {/* Date di inizio e fine */}
-          <div className={styles.dateTimeGrid}>
-            <div>
-              <label className={styles.label}>
-                Inizio
-              </label>
-              <input
-                type="datetime-local"
-                value={formatDateForInput(selectedEvent?.start)}
-                onChange={handleStartChange}
-                className={styles.textInput}
-              />
+              {/* Date di inizio e fine */}
+              <div className={styles.dateTimeGrid}>
+                <div>
+                  <label className={styles.label}>
+                    Inizio
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formatDateForInput(selectedEvent?.start)}
+                    onChange={handleStartChange}
+                    className={styles.textInput}
+                  />
+                </div>
+                <div>
+                  <label className={styles.label}>
+                    Fine
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formatDateForInput(selectedEvent?.end)}
+                    onChange={handleEndChange}
+                    className={styles.textInput}
+                  />
+                </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className={styles.label}>
+                  Luogo
+                </label>
+                <input
+                  type="text"
+                  value={selectedEvent?.location || ''}
+                  onChange={handleLocationChange}
+                  className={styles.textInput}
+                  placeholder="Dove si svolge l'evento?"
+                />
+              </div>
+
+              {/* Descrizione */}
+              <div>
+                <label className={styles.label}>
+                  Descrizione
+                </label>
+                <textarea
+                  value={selectedEvent?.desc || ''}
+                  onChange={handleDescriptionChange}
+                  className={styles.textareaInput}
+                  rows="3"
+                  placeholder="Aggiungi una descrizione..."
+                />
+              </div>
+            </>
+          )}
+
+          {/* Campi specifici per pomodoro */}
+          {selectedEvent?.type === "pomodoro" && (
+            <div className={styles.pomodoroSection}>
+              <div className={styles.pomodoroMessage}>
+                <p>Seleziona un template pomodoro per creare la sessione di studio.</p>
+              </div>
+              
+              {/* Qui puoi aggiungere i campi specifici per pomodoro se necessario */}
+              {/* Come la selezione del template pomodoro dalla lista esistente */}
             </div>
-            <div>
-              <label className={styles.label}>
-                Fine
-              </label>
-              <input
-                type="datetime-local"
-                value={formatDateForInput(selectedEvent?.end)}
-                onChange={handleEndChange}
-                className={styles.textInput}
-              />
-            </div>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className={styles.label}>
-              Luogo
-            </label>
-            <input
-              type="text"
-              value={selectedEvent?.location || ''}
-              onChange={handleLocationChange}
-              className={styles.textInput}
-              placeholder="Dove si svolge l'evento?"
-            />
-          </div>
-
-          {/* Descrizione */}
-          <div>
-            <label className={styles.label}>
-              Descrizione
-            </label>
-            <textarea
-              value={selectedEvent?.desc || ''}
-              onChange={handleDescriptionChange}
-              className={styles.textareaInput}
-              rows="3"
-              placeholder="Aggiungi una descrizione..."
-            />
-          </div>
+          )}
 
           {/* Impostazioni allarme (solo se non è un pomodoro) */}
           {selectedEvent?.type !== "pomodoro" && (
