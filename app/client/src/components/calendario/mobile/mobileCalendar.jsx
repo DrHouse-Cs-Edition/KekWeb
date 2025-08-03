@@ -16,7 +16,13 @@ const MobileCalendarApp = () => {
     id: "",
     title: "",
     type: "event",
-    cyclesLeft: null,
+    pomodoro: {     //serverside is just the Title, here is the whole object
+      _id: "",
+      title: "",
+      studyTime: null,
+      breakTime: null,
+      cycles: null,
+    },   
     activityDate: null,
     start: new Date(),
     end: new Date(),
@@ -56,7 +62,7 @@ const MobileCalendarApp = () => {
               title: event.title,
               extendedProps: {
                 type: event.type,
-                cyclesLeft: event.cyclesLeft,
+                pomodoro: event.pomodoro,
                 location: event.location,
                 recurrenceRule: event.recurrenceRule,
                 description: event.description,
@@ -239,7 +245,13 @@ const MobileCalendarApp = () => {
       id: uuidv4(), // Genero un ID casuale
       title: "", 
       type: "event", 
-      cyclesLeft: null,
+      pomodoro: {
+        _id: "",
+        title: "",
+        studyTime: null,
+        breakTime: null,
+        cycles: null,
+      }, 
       activityDate: new Date(selectedDate), // Uso la data selezionata
       start: new Date(selectedDate), 
       end: new Date(new Date(selectedDate).getTime() + 60 * 60 * 1000), // +1 ora
@@ -294,9 +306,14 @@ const MobileCalendarApp = () => {
         : start;
       console.log("Modifico attività per il", eventForModal.activityDate.toDateString());
     } else if (eventForModal.type === "pomodoro") {
-      eventForModal.cyclesLeft = eventData.extendedProps.cyclesLeft || 0;
-      eventForModal.start = start;
-      eventForModal.end = end;
+      eventForModal.pomodoro = eventData.extendedProps.pomodoro || {
+          title: "",
+          studyTime: null,
+          breakTime: null,
+          cycles: null,
+        };
+      eventForModal.start = (newEvent.start || new Date()).toISOString();
+      eventForModal.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
       console.log("Modifico pomodoro:", eventForModal.cyclesLeft, "cicli rimasti");
     } else {
       eventForModal.start = start;
@@ -377,7 +394,7 @@ const MobileCalendarApp = () => {
       eventData.recurrenceRule = rruleString;
       console.log("Dati attività:", eventData.activityDate, eventData.recurrenceRule);
     } else if (newEvent.type === "pomodoro") {
-      eventData.cyclesLeft = newEvent.cyclesLeft || 0;
+      eventData.pomodoro = newEvent.cyclesLeft.title || "";
       eventData.start = (newEvent.start || new Date()).toISOString();
       eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
       console.log("Dati pomodoro:", eventData.cyclesLeft, "cicli");
@@ -455,7 +472,13 @@ const MobileCalendarApp = () => {
       id: "",
       title: "",
       type: "event",
-      cyclesLeft: null,
+      pomodoro: {
+        _id: "",
+        title: "",
+        studyTime: null,
+        breakTime: null,
+        cycles: null,
+      },
       activityDate: null,
       start: new Date(),
       end: new Date(),

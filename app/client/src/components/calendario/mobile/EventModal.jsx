@@ -1,12 +1,14 @@
 import React from 'react';
 import { X, MapPin, Clock } from 'lucide-react';
 import styles from './EventModal.module.css';
+import { SelectPomodoros } from '../desktop/EventModal';
+import { Link } from "react-router-dom";
 
 const EventModal = ({
   showEventModal,
   setShowEventModal,
-  selectedEvent,
-  setSelectedEvent,
+  selectedEvent,  //newEvent del desktop
+  setSelectedEvent, //setNewEvent del desktop
   isEditing,
   handleSave,
   handleDelete,
@@ -15,6 +17,13 @@ const EventModal = ({
   if (!showEventModal) {
     return null;
   }
+
+  const handleInputChange = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+    console.log("Campo cambiato:", name, "=", value);
+    setSelectedEvent(prev => ({ ...prev, [name]: value }));
+  };
 
   // Funzione per gestire la chiusura del modal
   const closeModal = () => {
@@ -126,6 +135,17 @@ const EventModal = ({
     return correctedDate.toISOString().slice(0, 16);
   };
 
+  const FormField = ({ id, name, label, type, value, onChange, ...rest }) => (
+    <div className={styles.formGroup}>
+      <label htmlFor={id}>{label}</label>
+      {type === "textarea" ? (
+        <textarea id={id} name={name} value={value} onChange={onChange} {...rest} />
+      ) : (
+        <input type={type} id={id} name={name} value={value} onChange={onChange} {...rest} />
+      )}
+    </div>
+  );
+
   // Controllo se l'allarme è attivo
   let isAlarmEnabled = (selectedEvent?.alarm?.earlyness > 0) || (selectedEvent?.alarm?.repeat_times > 0);
   let shouldShowRepeatEvery = selectedEvent?.alarm?.repeat_times > 1;
@@ -235,7 +255,7 @@ const EventModal = ({
           </div>
 
           {/* Impostazioni allarme (solo se non è un pomodoro) */}
-          {selectedEvent?.type !== "pomodoro" && (
+          {selectedEvent?.type !== "pomodoro" ? (
             <div className={styles.alarmGroup}>
               <div className={styles.alarmCheckbox}>
                 <input
@@ -307,6 +327,40 @@ const EventModal = ({
                   )}
                 </div>
               )}
+            </div>
+          ) : (
+            <div>
+              <SelectPomodoros newEvent = {selectedEvent} setNewEvent = {setSelectedEvent}></SelectPomodoros>
+                <FormField
+                  id="studyTime"
+                  name="studyTime"
+                  label="studyTime"
+                  type="number"
+                  value={selectedEvent.pomodoro.studyTime || 0}
+                  onChange={handleInputChange}
+                  required
+                />
+                <FormField
+                  id="breakTime"
+                  name="breakTime"
+                  label="breakTime"
+                  type="number"
+                  value={selectedEvent.pomodoro.breakTime || 0}
+                  onChange={handleInputChange}
+                  required
+                />
+                <FormField
+                  id="cycles"
+                  name="cycles"
+                  label="cycles"
+                  type="number"
+                  value={selectedEvent.pomodoro.cycles || 0}
+                  onChange={handleInputChange}
+                  min="1"
+                  required
+                />
+        
+                <Link to={"/pomodoro"} state={selectedEvent?.pomodoro}>Visit Pomodoro</Link>
             </div>
           )}
         </div>
