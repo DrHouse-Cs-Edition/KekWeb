@@ -2,7 +2,9 @@
   "name": "client",
   "version": "0.1.0",
   "babel": {
-    "plugins": ["@babel/plugin-proposal-optional-chaining"]
+    "plugins": [
+      "@babel/plugin-proposal-optional-chaining"
+    ]
   },
   "proxy": "http://localhost:5000",
   "private": true,
