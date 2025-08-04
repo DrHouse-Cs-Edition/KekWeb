@@ -1,6 +1,7 @@
 const mongoose = require ('mongoose');
 const PomodoroSchema = require("./PomodoroSchema.js");
 const { buffer } = require('stream/consumers');
+const { type } = require('os');
 const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
@@ -11,9 +12,7 @@ const userSchema = new mongoose.Schema({
     birthday: Date,
     name : String,
     surname : String,
-    picture : {
-        name : String,
-        image : String}
+    picture :  String,
     // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
 });
 

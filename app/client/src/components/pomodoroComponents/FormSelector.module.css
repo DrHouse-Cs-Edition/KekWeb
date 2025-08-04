@@ -3,3 +3,17 @@
     font-size: large;
     display:inline-flex;
 }
+
+.formButton{
+    flex: 1;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    border: 1px solid transparent;
+    background: var(--dusk-input-focus-border);
+}

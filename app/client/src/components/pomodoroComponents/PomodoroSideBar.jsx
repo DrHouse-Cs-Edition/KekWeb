@@ -101,8 +101,8 @@ const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, dele
                 ></PieChart>
             </div>
             <div className={style.buttons}>
-                <button className={style.openB} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button>
-                <button className={style.deleteB} onClick={()=>deletePomodoro()}>Delete</button>
+                <button className={`${style.openB} ${style.button}`} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button>
+                <button className={`${style.deleteB} ${style.button}`} onClick={()=>deletePomodoro()}>Delete</button>
             </div>
             <br></br>
         </div>

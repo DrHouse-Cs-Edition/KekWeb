@@ -14,9 +14,12 @@ const User = ()=>{
 
     //*********** Rendered Data ***********/
     const [email, setEmail] = useState(); const [bio, setBio] = useState(); const [birthday, setBirthday] = useState(); const [name, setName] = useState();
-    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState(); const [PFP, setPFP] = useState()
+    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState();
     const [image, setImage] = useState();
-    const [imageObj, setImageObj] = useState();
+    function setImageCallback(item){  //incoming image can either be a base64 or a string
+        if(item)
+            typeof item === "string" ? setImage(item) : setImage(item.base64);
+    }
 
     const [showForm, setShowForm] = useState(0);
     const [showCPW, setShowCPW] = useState(0);
@@ -46,10 +49,9 @@ const User = ()=>{
         }  
     }
 
-    useEffect(()=>{
-        console.log("image is ", image);
-        console.log("PFP is: ", PFP);
-    }, [image, PFP])
+    // useEffect(()=>{
+    //     console.log("image is ", image);
+    // }, [image])
 
 
     //apporta modifiche in base ai dati presenti nei form; è presente una password di conferma prima di effettuare queste modifiche 
@@ -78,8 +80,7 @@ const User = ()=>{
                     birthday : data.Birthday,
                     name : data.Name,
                     surname : data.Surname,
-                    picture : image?.base64, //image base 64 encoded
-                    pictureTile : image?.name
+                    picture : image, //image base 64 encoded
                     })
                 }).then(res => res.json())
                 .then((res) => {
@@ -91,8 +92,8 @@ const User = ()=>{
             } catch(e){
                 console.log("error in user page, submit phase: ", e);
             }
-            setLock(1);
-        }
+                setLock(1);
+            }
         })
     }
 
@@ -101,18 +102,19 @@ const User = ()=>{
 
     //*FUNCTION GETS PERSONAL DATA FROM SERVER 
     const updatePersonalData = async ()=>{
-        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1]]);
+        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1], ["picture", 1]]);
         getPersonalData(params)
         .then(data => data.json())
         .then((data) =>{
-            let {email : e, bio : b, birthday : bd, name : rn, surname : rs} = data;
+            let {email : e, bio : b, birthday : bd, name : rn, surname : rs, picture : p} = data;
             setEmail(e);
             setBio(b);
             const dateArr = bd?.split("T");
             setBirthday(dateArr ? dateArr[0] : null);
             setName(rn);
             setSurname(rs);
-        }).then(setShowForm(1))
+            setImageCallback(p);
+        })
     }
 
     //update personal data on component render
@@ -130,11 +132,11 @@ const User = ()=>{
         )
     }
     const FullForm = ()=>{
-        return (<FormProvider {...formMethods} >
-
-                <img src={image?.base64} alt="preview image" className={style.image}/>
+        return (
+            <FormProvider {...formMethods} >
+                <img src={image} alt="preview image" className={style.image}/>
                 <FileBase64 multiple={false}
-                onDone={setImage}/>
+                onDone={setImageCallback}/>
                 
                 <Input
                 label = {"Email"}
@@ -198,7 +200,8 @@ const User = ()=>{
                 isRequired={1}
                 ></Input>   
                 { lock ? modifyButton : saveButtonComponent(formMethods)} 
-            </FormProvider>)
+            </FormProvider>
+        )
     }
     
 
@@ -206,7 +209,7 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image?.base64} alt="preview image" className={style.image}/>
+                <img src={image} alt="preview image" className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
                         Name:

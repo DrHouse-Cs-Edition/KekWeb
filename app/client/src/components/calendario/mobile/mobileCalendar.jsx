@@ -394,7 +394,7 @@ const MobileCalendarApp = () => {
       eventData.recurrenceRule = rruleString;
       console.log("Dati attività:", eventData.activityDate, eventData.recurrenceRule);
     } else if (newEvent.type === "pomodoro") {
-      eventData.pomodoro = newEvent.cyclesLeft.title || "";
+      eventData.pomodoro = newEvent.pomodoro.title || "";
       eventData.start = (newEvent.start || new Date()).toISOString();
       eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
       console.log("Dati pomodoro:", eventData.cyclesLeft, "cicli");

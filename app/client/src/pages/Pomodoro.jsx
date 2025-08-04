@@ -280,14 +280,14 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
             <div className={style.buttonsDiv} >            
                 {runTimer ? 
-                    <button onClick={()=>{stopTimer()}} ref={stopButtonRef} className={style.runButton}> Stop timer 
+                    <button onClick={()=>{stopTimer()}} ref={stopButtonRef} className={`${style.runButton} ${style.pomodoroButton}`}> Stop timer 
                     <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2> </button> : 
-                    <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun} className={style.runButton}> run timer 
+                    <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun} className={`${style.runButton} ${style.pomodoroButton}`}> run timer 
                     <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2></button>}
                 <br></br>
-                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef}> Reset Cycles </button>
+                <button onClick={()=>{CyclesReset()}} ref={resetButtonRef} className={style.pomodoroButton}> Reset Cycles </button>
                 <br/>
-                <button onClick={()=>{gotoNext()}} ref={skipButtonRef}> next </button>
+                <button onClick={()=>{gotoNext()}} ref={skipButtonRef} className={style.pomodoroButton}> next </button>
             </div>
             <div style={{padding: "5px"}}>
                 <GenOptionDisplayer optionA={StudyTime} optionB={BreakTime} optionC={cyclesLeft}></GenOptionDisplayer>    
@@ -299,14 +299,15 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
             <h2> Title of the Pomodoro </h2>
             {titleComponent2}<br></br>
             {formComponents[formType]}
-            <button onClick = {()=>{newPomodoro()}}>new pomodoro</button>
-            <button onClick={changeForm} ref={formatButtonRef}>Change Format</button>
-            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} > { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
+            <button onClick = {()=>{newPomodoro()}} className={style.pomodoroButton}>new pomodoro</button>
+            <button onClick={changeForm} ref={formatButtonRef} className={style.pomodoroButton}>Change Format</button>
+            <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} className={style.pomodoroButton}> { pomodoroId ? "Update pomodoro" : "Save Pomodoro settings"} </button>
         </div>        
         {/* <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/> */}
 
         {/* {<Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>} */}
-        { <button onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+        { <button className={style.pomodoroButton}
+        onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
         {isModing ? "ready to run!": "create/modify Pomodoro"}            </button> }
         <br></br>
         <div className={style.sideBar}>
