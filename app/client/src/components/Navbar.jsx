@@ -31,7 +31,7 @@ function Navbar() {
         </button>
 
         <nav className={`${Style.navbar} ${isMenuOpen ? Style.navbarOpen : ""}`}>
-          <Link to="/home" className={Style.navLink} onClick={closeMenu}>
+          <Link to="/" className={Style.navLink} onClick={closeMenu}>
             Home
           </Link>
           <Link to="/calendario" className={Style.navLink} onClick={closeMenu}>

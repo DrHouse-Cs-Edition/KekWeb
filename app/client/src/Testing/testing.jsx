@@ -1,4 +1,4 @@
-import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar';
+import CatAnimation from '../components/pomodoroComponents/Animation/catAnimation';
 
 const testing = ()=>{
     console.log("Testing");
@@ -6,7 +6,7 @@ const testing = ()=>{
     return (
         <dev>
             <h1>Testing page</h1>
-            <PomodoroSideBar></PomodoroSideBar>
+            <CatAnimation></CatAnimation>
         </dev>
     )
 }

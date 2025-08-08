@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ref } = require('process');
 const { Schema } = mongoose; // Estrai Schema da mongoose
 
 const eventSchema = new Schema({
@@ -26,7 +27,12 @@ const eventSchema = new Schema({
       default: 0  
     }, // 0-10
     // For pomodoro
-    cyclesLeft: Number,
+    pomodoro: { //pomodoroTitle
+      type : Schema.Types.String,
+      ref: "Pomodoro",
+      default: null
+    },
+
     // For recurring events
     recurrenceRule: String,
     /*rrule: Object, // RRULE PIU LEGGIBILE DAL SERVER -> CONTROLLARE SE DAREBBE CONFLITTI !!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -10,6 +10,7 @@
   grid-template-columns: 1fr 400px;
   gap: 2rem;
   align-items: start;
+  grid-template-columns: auto;  /* dispone gli oggetti verticalmente per una visualizzazione migliore da telefono*/
 }
 
 .eventsSection {
@@ -52,4 +53,8 @@
     gap: 1rem;
     padding: 0;
   }
+}
+
+.lastPomodoro{
+  min-height: 0;
 }

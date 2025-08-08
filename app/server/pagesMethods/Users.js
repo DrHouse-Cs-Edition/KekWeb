@@ -133,8 +133,8 @@ exports.userData = function (req, res){
 
 exports.updateData = function (req, res){
     //TODO funzione da implementare
-    const body = req.body; 
-    const u = findUser(body.username);
+    const body = req.body;
+    console.log("user has updated data to ", body)
     if(u){
         Users.updateOne({username : body.username}, { $set : body} ).then(result => {
             res.status(200).json({
@@ -146,6 +146,41 @@ exports.updateData = function (req, res){
         res.status(403).json({
             success : false,
             message : "user not found for update"
+        })
+    }
+}
+
+exports.updateDataV2 = function (req, res){
+    const body = req.body;
+    const {username, email, bio, birthday, name, surname,  picture, pictureTile} = body;
+    try {
+        Users.find({username : username}).then((u)=>{
+        if(u){
+            u.username = username;
+            u.email = email;
+            u.bio = bio;
+            u.birthday = birthday;
+            u.name = name;
+            u.surname = surname;
+            u.picture = picture;
+            u.pictureTile = pictureTile;
+            console.log("user body \n", u);
+            u.save().then(result => {
+                res.status(200).json({
+                    success : true,
+                    message : "User data updated"
+                    })
+            })
+        }else{
+            res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+    })} catch (error) {
+        res.status(400).json({
+            success: false,
+            message: "general error in user data update"
         })
     }
 }

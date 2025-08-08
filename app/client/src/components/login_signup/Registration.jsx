@@ -3,6 +3,7 @@ import { Input } from "../../utils/Input";
 import {FormProvider, useForm} from "react-hook-form";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useUsername } from "./UserHooks";
+import style from "./Registration.module.css"
 
 // const userSchema = new Schema({
 //     name: String,
@@ -52,7 +53,7 @@ function Registration({updateToken}){
     // const [username, setUsername] = useState("");
     // const [password, setPassword] = useState("");
 
-    const onSubmit = (async data=>{
+    const onSubmit = async (data)=>{
         try{
             let response = await registerUser(data);
             updateToken(response);
@@ -60,18 +61,19 @@ function Registration({updateToken}){
         }catch(e){
             console.log("error in login form: ", e);
         }
-    })
+    }
 
 
     const formMethods = useForm();
     return(
         <div>
             <h1>Pagina di registrazione</h1>
+            <div>
             <FormProvider {...formMethods} >
-                <form>
+                <form className={style.RegistrationForm}>
                     <Input
                     label = {"username"}
-                    type = "string"
+                    type = "text"
                     id = "username"
                     placeholder={"insert username"}
                     validationMessage={"please enter your username"}
@@ -100,7 +102,7 @@ function Registration({updateToken}){
 
                     <Input 
                     label={"bio"}
-                    type={"string"}
+                    type={"text"}
                     id={"bio"}
                     placeholder={"enter bio"}
                     validationMessage={"please enter some personal information"}
@@ -120,25 +122,26 @@ function Registration({updateToken}){
 
                     <Input 
                     label={"name"}
-                    type={"string"}
+                    type={"text"}
                     id={"name"}
                     placeholder={"insert your real name"}
                     validationMessage={"please enter your real name"}
                     >
                     </Input>
 
-                    <Input 
+                    <Input
                     label={"surname"}
-                    type={"string"}
+                    type={"text"}
                     id={"surname"}
                     placeholder={"insert your real surname"}
                     validationMessage={"please enter your surname"}
                     >
                     </Input>
 
-                    <button id="loginSend" type="button" onClick={formMethods.handleSubmit(onSubmit)}>Register user</button>
+                    <button id="loginSend" type="submit" onClick={formMethods.handleSubmit(onSubmit)} className={style.Buttons}>Register user</button>
                 </form>
             </FormProvider>
+            </div>
         </div>
     );
 }

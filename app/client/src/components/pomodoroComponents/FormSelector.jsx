@@ -5,7 +5,8 @@ import {Input} from "../../utils/Input"  // elemento di input customizzabile che
 
 
 
-function CyclesForm ( {passTimeData}){
+function CyclesForm ( {passTimeData}, isNewPomodoro) {
+
 
     let formMethods = useForm();
 
@@ -33,8 +34,10 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"45"}
                     validationMessage={"insert a study time between 30 and 45 minutes"}
                     min = {30}
-                    max = {45}>
-                    </Input> <br/>
+                    max = {45}
+                    isRequired = {0}
+                    >
+                    </Input>
 
                     <Input 
                     label = {"breakTime"}
@@ -43,8 +46,10 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"15"}
                     validationMessage={"insert a break time between 5 and 15 minutes"}
                     max = {15}
-                    min = {5}>
-                    </Input> <br/>
+                    min = {5}
+                    isRequired = {0}
+                    >
+                    </Input>
 
                     <Input 
                     label = {"cycles"}
@@ -53,10 +58,12 @@ function CyclesForm ( {passTimeData}){
                     placeholder={"4"}
                     validationMessage={"insert the number of cycles"}
                     min={1}
-                    max = {24}>
-                    </Input> <br/>
+                    max = {24}
+                    isRequired = {0}
+                    >
+                    </Input>
 
-                    <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Register Data</button>
+                    <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Save settings</button>
                 </div>
             </form>
             </FormProvider>
@@ -65,7 +72,7 @@ function CyclesForm ( {passTimeData}){
 }
 export {CyclesForm};
 
-function TTform( {passTimeData}){
+function TTform( {passTimeData}, isNewPomodoro){
 
     const [studyTime, setStudyTime] = useState(30); //min = 30, max = 45
     const [breakTime, setBreakTime] = useState(5);  //min = 5, max = 15
@@ -132,11 +139,16 @@ function TTform( {passTimeData}){
                 tmpStudy.current += 5;  
             }
         } while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 );
-
         setStudyTime( tmpStudy.current );
         setBreakTime( tmpBreak.current );
+        if ( !hasComputed.current ){
+            alert("Warning: insert a time value and compute the possible options first");
+            return;
+        }
+        passTimeData(tmpStudy.current, tmpBreak.current, calcCycles());
     }
 
+    
     const TThandleSubmit = (data)=>{
         if ( !hasComputed.current ){
             alert("Warning: insert a time value and compute the possible options first");
@@ -166,24 +178,28 @@ function TTform( {passTimeData}){
                         placeholder={"120"}
                         validationMessage={"insert a total time thats more than 0"}
                         min = {0}
-                        max = {1440}>
+                        max = {1440}
+                        isRequired = {isNewPomodoro}
+                        >
                         </Input> <br/>
 
-                        <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
-                            (data) => { //onSubmit 
-                                initOptions(data);
-                            }
-                        , () => {   //onError                
-                        })}>See options</button>
+                        { !hasComputed.current ? 
+                            <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
+                                (data) => { //onSubmit 
+                                    initOptions(data);
+                                }
+                            , () => {   //onError                
+                            })}>See options</button> : 
+                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>}
                         
                         <div>
                             <span> Study Time = {studyTime} </span>
                             <span> Break Time = {breakTime} </span>
                             <span> cycles = {calcCycles()} </span>
-                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>
+                            
                         </div>
 
-                        <button type="button" id="registerOptions" onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Register Options</button>
+                        <button type="button" id="registerOptions" onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Save Option</button>
                     </div> 
                 </form>
                 </FormProvider>

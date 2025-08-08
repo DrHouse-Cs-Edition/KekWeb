@@ -1,6 +1,8 @@
 const { request } = require("http");
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
+const Event = require ("../mongoSchemas/Event.js");
 const { title } = require("process");
+const { accessSync } = require("fs");
 
 
 //*SAVE POMODORO SETTINGS
@@ -73,4 +75,62 @@ exports.deleteP = async function (req,res) {
         success: true,
         message: "Pomodoro eliminato"
     });
+}
+
+
+exports.subCycles = async function (req, res){
+    const {id, cycles} = req.body;
+    Pomodoro.findById(id)
+    .then(async p => {
+        if(p.cycles == 1)
+        {
+            let foundEvent =  await Event.deleteMany({"pomodoro" : p.title});
+            console.log("found ", foundEvent);
+            Pomodoro.findByIdAndDelete(id)
+            .then(res.json({ success: true, message: "Pomodoro eliminato"}))
+        }else if (p.cycles > 1){
+            p.cycles --;
+            return p.save() // Save the updated document
+            .then((updatedP) => {
+            res.status(200).json(updatedP);
+          })
+        }else{
+            console.log("error in subCycles");
+        }
+    })
+}
+//*ALLOWS FOR UPDATES OF SINGLE FIELDS
+//fields without a value will be kept to the previous values
+exports.updateP = function (req, res ){
+    const body = req.body;
+    console.log(
+        body.studyTime ? "caterpillar" : "magno"
+    );
+    //function updates the fields of the body based on wheter they have been provided or not
+    //id is mandatory
+    const {id, title, studyTime, breakTime, cycles} = body;
+    Pomodoro.findById(id)
+    .then(p =>
+        {
+            if(p){
+                title ? p.title=title : "";
+                studyTime ? p.studyTime=studyTime : "";
+                breakTime ? p.breakTime=breakTime : "";
+                cycles ? p.cycles=cycles : "";
+                console.log(p);
+                p.save() // Save the updated document
+                .then(
+                    res.status(200).json({
+                        success: true,
+                        message: "Pomodoro updated",
+                    })
+                )
+            }else{
+                res.status(400).json({
+                    success: false,
+                    message: "Pomodoro non trovato",
+                })
+            }
+        }
+    )
 }

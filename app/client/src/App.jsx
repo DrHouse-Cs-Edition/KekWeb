@@ -17,28 +17,33 @@ import Testing from "./Testing/testing.jsx";
 function App() {
   const {token, setToken} = UseToken();
   
-  if(!token){
-    return (<Signup updateToken = {setToken}/>)
-  }
+  // if(!token){
+  //   return (<Signup updateToken = {setToken}/>)
+  // }
   return (
     <div>
       {/* Desktop background */}
       <img className={`${style.background_image} ${style.desktop_bg}`} src={bgDesktop} alt="Desktop background" />
       {/* Mobile background */}
       <img className={`${style.background_image} ${style.mobile_bg}`} src={bgMobile} alt="Mobile background" />
-      <Navbar />
-      <div className="content">
-        <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/calendario" element={<Calendar />} />
-          <Route path="/noteEditor/:id" element={<Note />} />
-          <Route path="/note" element={<NoteNavigation />} />
-          <Route path="/pomodoro" element={<Pomodoro />} />
-          <Route path="/utente" element={<User />} />
-          <Route path="/macchinaDelTempo" element={<TimeMachine />} />
-          <Route path="/testing" element={<Testing/>} />
-        </Routes>
-      </div>
+      {!token ?
+          (<Signup updateToken = {setToken}/>) : 
+        <>  
+        <Navbar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/calendario" element={<Calendar />} />
+            <Route path="/noteEditor/:id" element={<Note />} />
+            <Route path="/note" element={<NoteNavigation />} />
+            <Route path="/pomodoro" element={<Pomodoro />} />
+            <Route path="/utente" element={<User />} />
+            <Route path="/macchinaDelTempo" element={<TimeMachine />} />
+            <Route path="/testing" element={<Testing/>} />
+          </Routes>
+        </div>
+        </>
+        }
     </div>
   );
 }
