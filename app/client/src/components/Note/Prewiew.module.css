@@ -4,22 +4,25 @@
 }
 .div{
     margin-bottom: 5%;
-    padding: 1%;
-    background-color: aquamarine;
+    /*padding: 1%;
+    background-color: #4b3570;
     border-radius: 20px; /* Stonda tutti e 4 i bordi */
-}
-.title{
 
+        width: 100%;
+    max-width: 80%; /* Adjust as needed, based on the image it looks wider than the todo list */
+    /*margin: 0 auto; /* Center it */
+    padding: 1rem;
+    background: var(--dusk-bg); /* Use the defined background variable */
+    color: var(--dusk-text);
+    border: 1px solid var(--dusk-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--dusk-shadow);
 }
+
 .categories{
     font-weight: bold;
 }
-.text{
 
-}
 .date{
     font-style: italic;
-}
-.button{
-    
 }
