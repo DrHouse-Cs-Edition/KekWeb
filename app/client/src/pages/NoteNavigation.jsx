@@ -22,6 +22,7 @@ function NoteNavigation() {
       lastModified: note.lastModified
       }))
     ]);
+    console.log(typeof newNotesArray[1].lastModified);
   }
 
   const deleteNote = (index) => { // cancela solo visivamente
@@ -71,6 +72,7 @@ function NoteNavigation() {
     .then(response => response.json())
     .then(json => {
       if (json.success) {
+        console.log(typeof json.list[1].lastModified);
         loadNotes(json.list); // aggiorna tutte note html
       } else {
         alert(json.messge);
@@ -81,15 +83,15 @@ function NoteNavigation() {
 
   //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
   const handleAdd = () => {
-    const time =  new Date().toISOString();
+    const time =  new Date();//.toISOString();
     const note = {
       title: "insert title",
       categories: [],
       text: "",
-      createdAt: time, // Use current date in ISO format
+      createdAt: time,
       lastModified: time,
-      // user
     };
+    //typeof note.lastModified;
 
     fetch('http://localhost:5000/api/notes/save', {
       method: 'POST',
