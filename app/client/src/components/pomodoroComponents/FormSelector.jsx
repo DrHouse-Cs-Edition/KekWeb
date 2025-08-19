@@ -1,22 +1,27 @@
 import React, { useState, Fragment, useRef } from "react";
 import {FormProvider, useForm} from "react-hook-form";
 import {Input} from "../../utils/Input"  // elemento di input customizzabile che richiede label, type, id, placeholder, validationMessage, min, max, maxLenght, minLenght
-
+import style from "./FormSelector.module.css"
 
 
 
 function CyclesForm ( {passTimeData}, isNewPomodoro) {
-
-
     let formMethods = useForm();
 
     const onSubmit = ( data =>{
+        let st, bt, c;
+        st = data.studyTime;
+        bt =  data.breakTime;
+        c = data.cycles;
+        if( !(c || bt || st) ){
+            console.log("no data for registration somewhere")
+        }
         passTimeData(data.studyTime, data.breakTime, data.cycles );
         return false;
     })
 
-    const onError = () =>{
-        console.log("an error has been detected");
+    const onError = (e) =>{
+        console.log("an error has been detected=> ", e);
     }
 
         return (
@@ -63,7 +68,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     >
                     </Input>
 
-                    <button id="CycleSend" type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Save settings</button>
+                    <button className={[style.CycleSend, style.formButton].join("")} type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Save settings</button>
                 </div>
             </form>
             </FormProvider>
@@ -184,13 +189,13 @@ function TTform( {passTimeData}, isNewPomodoro){
                         </Input> <br/>
 
                         { !hasComputed.current ? 
-                            <button type="button" id="TToptions" onClick={TTformMethods.handleSubmit(
+                            <button type="button" className={[style.TToptions, style.formButton].join("")} onClick={TTformMethods.handleSubmit(
                                 (data) => { //onSubmit 
                                     initOptions(data);
                                 }
                             , () => {   //onError                
                             })}>See options</button> : 
-                            <button type="button" id="nextOption" onClick={nextOption}>Next Option </button>}
+                            <button type="button" className={[style.nextOption, style.formButton].join("")} onClick={nextOption}>Next Option </button>}
                         
                         <div>
                             <span> Study Time = {studyTime} </span>
@@ -199,7 +204,7 @@ function TTform( {passTimeData}, isNewPomodoro){
                             
                         </div>
 
-                        <button type="button" id="registerOptions" onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Save Option</button>
+                        <button type="button" className={[style.registrationOptions, style.formButton].join("")} onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Save Option</button>
                     </div> 
                 </form>
                 </FormProvider>
