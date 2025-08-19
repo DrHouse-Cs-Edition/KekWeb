@@ -14,7 +14,7 @@ const User = ()=>{
 
     //*********** Rendered Data ***********/
     const [email, setEmail] = useState(); const [bio, setBio] = useState(); const [birthday, setBirthday] = useState(); const [name, setName] = useState();
-    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState();
+    const [surname, setSurname] = useState(); const [CPW, setCPW] = useState();
     const [image, setImage] = useState();
     function setImageCallback(item){  //incoming image can either be a base64 or a string
         if(item)
@@ -76,7 +76,8 @@ const User = ()=>{
                 body : JSON.stringify({
                     username : username,
                     email : data.Email,
-                    bio : data.Bio,
+                    // bio : data.Bio,
+                    bio : bio,
                     birthday : data.Birthday,
                     name : data.Name,
                     surname : data.Surname,
@@ -86,13 +87,11 @@ const User = ()=>{
                 .then((res) => {
                     console.log(res);
                     setShowCPW(0); 
-                    setLock(1); 
                     updatePersonalData()
                     })
             } catch(e){
                 console.log("error in user page, submit phase: ", e);
             }
-                setLock(1);
             }
         })
     }
@@ -122,12 +121,11 @@ const User = ()=>{
         updatePersonalData();
     }, [])
 
-    const modifyButton = <button onClick={()=>{setLock(0); setShowCPW(1)}} className={style.Button}>Modify</button>
     const saveButtonComponent = (formMethods)=>{
         return(
             <>
             <button onClick={formMethods.handleSubmit(onSubmit, onError)} className={style.Button}>Save</button>
-            <button onClick={()=>{updatePersonalData(); setLock(1)}} className={style.Button}>Abort</button>
+            <button onClick={()=>{updatePersonalData();}} className={style.Button}>Restore</button>
             </>   
         )
     }
@@ -146,18 +144,18 @@ const User = ()=>{
                 value={email}
                 onInput={(event)=>{setEmail(event.target.value)}}
                 isRequired = {0}
-                readonly={lock}
                 ></Input>
 
-                <Input
-                label = {"Bio"}
-                type = "string"
-                id = "Bio"
-                value={bio}
-                isRequired = {0}
-                readonly={lock}
-                onInput={(event)=>{setBio(event.target.value)}}
-                ></Input>
+                <div className={style.areaDiv}>
+                    <label htmlFor={"bioTextArea"}> Bio</label> <br></br>
+                    <textarea
+                    id="bioTextArea"
+                    className={style.BioField}
+                    cols={40} rows={4}
+                    value={bio} 
+                    onInput={(event)=>{setBio(event.target.value)}} 
+                    ></textarea>
+                </div>
 
                 <Input
                 label = {"Birthday"}
@@ -165,7 +163,6 @@ const User = ()=>{
                 id = "birthday"
                 value={birthday}
                 isRequired = {0}
-                readonly={lock}
                 onInput={(event)=>{setBirthday(event.target.value)}}
                 ></Input>
 
@@ -175,7 +172,6 @@ const User = ()=>{
                 id = "name"
                 value={name}
                 validationMessage={"please enter your name"}
-                readonly={lock}
                 isRequired = {0}
                 onInput={(event)=>{setName(event.target.value)}}
                 ></Input>
@@ -186,12 +182,11 @@ const User = ()=>{
                 id = "surname"
                 value={surname}
                 validationMessage={"please enter your surname"}
-                readonly={lock}
                 onInput={(event)=>{setSurname(event.target.value)}}
                 ></Input>
 
                 <Input
-                label = {"CPW"}
+                label = {"Confirm Password"}
                 type = "password"
                 id = "CPW"
                 placeholder={"enter password to proceed"}
@@ -199,7 +194,7 @@ const User = ()=>{
                 onInput={(event)=>{setCPW(event.target.value)}}
                 isRequired={1}
                 ></Input>   
-                { lock ? modifyButton : saveButtonComponent(formMethods)} 
+                {saveButtonComponent(formMethods)}
             </FormProvider>
         )
     }
