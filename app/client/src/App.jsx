@@ -29,6 +29,7 @@ function App() {
       {!token ?
           (<Signup updateToken = {setToken}/>) : 
         <>  
+        <time-machine />
         <Navbar />
         <div className="content">
           <Routes>

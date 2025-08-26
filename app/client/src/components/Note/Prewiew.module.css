@@ -8,10 +8,8 @@
     background-color: #4b3570;
     border-radius: 20px; /* Stonda tutti e 4 i bordi */
 
-        width: 100%;
-    max-width: 80%; /* Adjust as needed, based on the image it looks wider than the todo list */
     /*margin: 0 auto; /* Center it */
-    padding: 1rem;
+    /*padding: 1rem;*/
     background: var(--dusk-bg); /* Use the defined background variable */
     color: var(--dusk-text);
     border: 1px solid var(--dusk-border);
@@ -21,6 +19,7 @@
 
 .categories{
     font-weight: bold;
+    color: white;
 }
 
 .date{

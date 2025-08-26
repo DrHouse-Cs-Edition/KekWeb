@@ -31,7 +31,7 @@ footer{
     font-size: 2rem;
     font-style: italic;
     font-weight: bold;
-}
+}/*
 .text{
     width: 100%;
     height: 70vh;
@@ -43,8 +43,20 @@ footer{
     border: 0px;
     margin: 0px;
     padding: 0px;
-    white-space: pre-wrap; /* Preserva le interruzioni di riga */
+    white-space: pre-wrap; /* Preserva le interruzioni di riga *//*
     overflow-wrap: break-word;
+}*/
+
+.textareaMarkdown, .output {
+  flex: 1;
+  min-height: 400px;
+}
+.output {
+  padding: 1rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow-y: auto;
 }
 
 /* orientamento */

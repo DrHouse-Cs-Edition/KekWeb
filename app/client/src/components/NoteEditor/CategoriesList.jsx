@@ -36,7 +36,7 @@ function CategoriesList({categories, setCategories}) { // {} servono per destruc
             </div>
 
             {/* Lista categorie */}
-            <div>
+            <div className="list">
                 {categories && categories.length && categories.map((category, index) => ( // controllo prima se esiste
                     <div key={index}>
                         {category + " "}

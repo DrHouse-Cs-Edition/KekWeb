@@ -133,7 +133,7 @@ function NoteNavigation() {
 
         <header className={Style.title}>Note</header>
 
-        <select className={Style.selecto} value={sortOption} onChange={handleSortChange}>
+        <select className={Style.selector} value={sortOption} onChange={handleSortChange}>
           <option value="">Seleziona...</option>
           <option value="asc">Alfabetico A-Z</option>
           <option value="desc">Alfabetico Z-A</option>
