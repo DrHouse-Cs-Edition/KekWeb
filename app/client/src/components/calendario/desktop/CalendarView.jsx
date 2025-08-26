@@ -1,16 +1,29 @@
+import { useEffect, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import rrulePlugin from "@fullcalendar/rrule";
-import styles from "./Calendario.module.css"; // Import the CSS Module
+import styles from "./Calendario.module.css";
 
 export default function CalendarView({
   events,
   handleDateSelect,
   handleEventClick,
   locale,
+  serverDate,
 }) {
+  const calendarRef = useRef();
+
+  // Update calendar when server date changes
+  useEffect(() => {
+    if (calendarRef.current && serverDate) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.setOption("now", serverDate); // Update the "now" date
+      calendarApi.render(); // Force re-render to update highlighting
+    }
+  }, [serverDate]);
+
   const renderEventContent = (eventInfo) => {
     const eventType = eventInfo.event.extendedProps.type || "event";
 
@@ -23,8 +36,6 @@ export default function CalendarView({
 
     return (
       <div className={`${"custom-event"} ${"custom-event-" + eventType}`}>
-        {" "}
-        {/* Class names are not from CSS Module */}
         <div className={styles.eventTitle}>
           {typeIcons[eventType] || "📅"} {eventInfo.event.title}
         </div>
@@ -45,6 +56,7 @@ export default function CalendarView({
 
   return (
     <FullCalendar
+      ref={calendarRef}
       plugins={[
         dayGridPlugin,
         timeGridPlugin,
@@ -52,6 +64,8 @@ export default function CalendarView({
         rrulePlugin,
       ]}
       initialView="dayGridMonth"
+      initialDate={serverDate} // Use server date for initial view
+      now={serverDate} // Use server date for "today" highlighting
       headerToolbar={{
         left: "prevYear,prev today",
         center: "title",
