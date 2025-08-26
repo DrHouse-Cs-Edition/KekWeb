@@ -37,9 +37,13 @@
     border-color: rgb(104, 66, 110);
     border-style: solid;
     border-width: medium;
-    min-width: 300px;
+    width: 40%;
+    @media (width < 600px) {
+        width: 100%;   
+    }
     display: grid;
-    grid-template-areas:    "piechart" 
+    grid-template-areas:    "itemTitle"
+                            "piechart" 
                             "buttons" ;
 }
 
@@ -76,4 +80,8 @@
 
 .deleteB{
     background-color: rgb(204, 70, 70);
+}
+
+.itemTitle{
+    text-align: center;
 }
