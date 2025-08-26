@@ -175,7 +175,7 @@ const ModalBody = ({
           required
         />
 
-        <Link to={"/pomodoro"} state={newEvent?.pomodoro}>Pahim leso</Link>     
+        <Link to={"/pomodoro"} state={newEvent?.pomodoro}>Visit Pomodoro</Link>     
         </> 
       ) : (
         // Per eventi normali e attività
@@ -445,7 +445,14 @@ const ModalFooter = ({
 
 export default EventModal;
 
-
+/**
+ * 
+ * @param {newEvent, setNewEvent}  
+ * @returns componente per la scelta del pomodoro
+ * 
+ * Il componente ritorna un select per la selezione di un pomodoro
+ * imposta il campo "pomodoro" del newEvent come l'oggetto pomodoro selezionato
+ */
 const SelectPomodoros = ( {newEvent, setNewEvent} )=>{
 
 const [pomodoroOptions, setPomodoroOptions] = useState([]);
@@ -453,7 +460,7 @@ const [currentPomodoro, setCurrentPomodoro] = useState(null);
 const selectRef = useRef();
 
 const FetchPomodoros = useCallback(()=>{
-console.log("lezzo gaming");
+console.log("desktop calendar pomodoro fetch");
 fetch("api/Pomodoro/getP", {
   method:"GET",
   mode:"cors",
@@ -483,7 +490,7 @@ fetch("api/Pomodoro/getP", {
       return;
     // Trova l'oggetto pomodoro corrispondente all'ID selezionato
     const foundPomodoro = pomodoroOptions.find(p => p.title === selectedTitle);
-    setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
+    // setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
     console.log("Selected Pomodoro Object:", foundPomodoro);
     setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
 
@@ -514,3 +521,5 @@ useEffect(()=>{
     </select>
   )
 }
+
+export {SelectPomodoros};

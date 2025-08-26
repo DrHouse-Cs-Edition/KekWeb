@@ -7,44 +7,67 @@ const ListaEventiGiornalieri = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
+  const [serverDate, setServerDate] = useState(new Date()); // Add server date state
 
   useEffect(() => {
-    fetchTodaysEvents();
+    fetchServerDateAndEvents();
   }, []);
 
-  const fetchTodaysEvents = () => {
-    setLoading(true);
-    fetch("http://localhost:5000/api/events/all", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.success) {
-          // Filter for today's events and only event type
-          const today = new Date();
-          const todaysEvents = json.list.filter(event => {
-            if (event.type !== 'event') return false;
-            
-            const eventDate = new Date(event.start);
-            return eventDate.toDateString() === today.toDateString();
-          });
-          
-          setEvents(todaysEvents);
-          setError(null);
-        } else {
-          setError('No events found');
-        }
-      })
-      .catch((err) => {
-        console.error('Error fetching events:', err);
-        setError('Failed to load events');
-      })
-      .finally(() => {
-        setLoading(false);
+  // Function to get server date from time machine API
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/timeMachine/date", {
+        method: "GET",
+        credentials: "include",
       });
+      const json = await response.json();
+      if (json.success) {
+        setServerDate(new Date(json.date));
+        return new Date(json.date);
+      }
+    } catch (error) {
+      console.error('Error fetching server date:', error);
+    }
+    return new Date(); // Fallback to local date
+  };
+
+  const fetchServerDateAndEvents = async () => {
+    setLoading(true);
+    try {
+      // First get the server date
+      const currentServerDate = await fetchServerDate();
+      
+      // Then fetch events
+      const response = await fetch("http://localhost:5000/api/events/all", {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json();
+      
+      if (json.success) {
+        // Filter for today's events using server date and only event type
+        const todaysEvents = json.list.filter(event => {
+          if (event.type !== 'event') return false;
+          
+          const eventDate = new Date(event.start);
+          return eventDate.toDateString() === currentServerDate.toDateString();
+        });
+        
+        setEvents(todaysEvents);
+        setError(null);
+      } else {
+        setError('No events found');
+      }
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError('Failed to load events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTodaysEvents = () => {
+    fetchServerDateAndEvents();
   };
 
   const formatTime = (date) => {
@@ -64,16 +87,6 @@ const ListaEventiGiornalieri = () => {
       month: 'long',
       day: 'numeric'
     });
-  };
-
-  const getTimeDisplay = (event) => {
-    if (event.start && event.end) {
-      return `${formatTime(event.start)} - ${formatTime(event.end)}`;
-    }
-    if (event.start) {
-      return formatTime(event.start);
-    }
-    return 'All day';
   };
 
   if (loading) {
@@ -112,7 +125,7 @@ const ListaEventiGiornalieri = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Today's Events</h1>
-        <p className={styles.date}>{formatDate(new Date())}</p>
+        <p className={styles.date}>{formatDate(serverDate)}</p>
       </div>
 
       {events.length === 0 ? (
@@ -227,6 +240,16 @@ const ListaEventiGiornalieri = () => {
       )}
     </div>
   );
+
+  function getTimeDisplay(event) {
+    if (event.start && event.end) {
+      return `${formatTime(event.start)} - ${formatTime(event.end)}`;
+    }
+    if (event.start) {
+      return formatTime(event.start);
+    }
+    return 'All day';
+  }
 };
 
 export default ListaEventiGiornalieri;

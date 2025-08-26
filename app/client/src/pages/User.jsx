@@ -14,9 +14,12 @@ const User = ()=>{
 
     //*********** Rendered Data ***********/
     const [email, setEmail] = useState(); const [bio, setBio] = useState(); const [birthday, setBirthday] = useState(); const [name, setName] = useState();
-    const [surname, setSurname] = useState(); const [lock, setLock] = useState(1); const [CPW, setCPW] = useState(); const [PFP, setPFP] = useState()
+    const [surname, setSurname] = useState(); const [CPW, setCPW] = useState();
     const [image, setImage] = useState();
-    const [imageObj, setImageObj] = useState();
+    function setImageCallback(item){  //incoming image can either be a base64 or a string
+        if(item)
+            typeof item === "string" ? setImage(item) : setImage(item.base64);
+    }
 
     const [showForm, setShowForm] = useState(0);
     const [showCPW, setShowCPW] = useState(0);
@@ -46,10 +49,9 @@ const User = ()=>{
         }  
     }
 
-    useEffect(()=>{
-        console.log("image is ", image);
-        console.log("PFP is: ", PFP);
-    }, [image, PFP])
+    // useEffect(()=>{
+    //     console.log("image is ", image);
+    // }, [image])
 
 
     //apporta modifiche in base ai dati presenti nei form; è presente una password di conferma prima di effettuare queste modifiche 
@@ -74,25 +76,23 @@ const User = ()=>{
                 body : JSON.stringify({
                     username : username,
                     email : data.Email,
-                    bio : data.Bio,
+                    // bio : data.Bio,
+                    bio : bio,
                     birthday : data.Birthday,
                     name : data.Name,
                     surname : data.Surname,
-                    picture : image?.base64, //image base 64 encoded
-                    pictureTile : image?.name
+                    picture : image, //image base 64 encoded
                     })
                 }).then(res => res.json())
                 .then((res) => {
                     console.log(res);
                     setShowCPW(0); 
-                    setLock(1); 
                     updatePersonalData()
                     })
             } catch(e){
                 console.log("error in user page, submit phase: ", e);
             }
-            setLock(1);
-        }
+            }
         })
     }
 
@@ -101,18 +101,19 @@ const User = ()=>{
 
     //*FUNCTION GETS PERSONAL DATA FROM SERVER 
     const updatePersonalData = async ()=>{
-        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1]]);
+        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1], ["picture", 1]]);
         getPersonalData(params)
         .then(data => data.json())
         .then((data) =>{
-            let {email : e, bio : b, birthday : bd, name : rn, surname : rs} = data;
+            let {email : e, bio : b, birthday : bd, name : rn, surname : rs, picture : p} = data;
             setEmail(e);
             setBio(b);
             const dateArr = bd?.split("T");
             setBirthday(dateArr ? dateArr[0] : null);
             setName(rn);
             setSurname(rs);
-        }).then(setShowForm(1))
+            setImageCallback(p);
+        })
     }
 
     //update personal data on component render
@@ -120,21 +121,20 @@ const User = ()=>{
         updatePersonalData();
     }, [])
 
-    const modifyButton = <button onClick={()=>{setLock(0); setShowCPW(1)}} className={style.Button}>Modify</button>
     const saveButtonComponent = (formMethods)=>{
         return(
             <>
             <button onClick={formMethods.handleSubmit(onSubmit, onError)} className={style.Button}>Save</button>
-            <button onClick={()=>{updatePersonalData(); setLock(1)}} className={style.Button}>Abort</button>
+            <button onClick={()=>{updatePersonalData();}} className={style.Button}>Restore</button>
             </>   
         )
     }
     const FullForm = ()=>{
-        return (<FormProvider {...formMethods} >
-
-                <img src={image?.base64} alt="preview image" className={style.image}/>
+        return (
+            <FormProvider {...formMethods} >
+                <img src={image} alt="preview image" className={style.image}/>
                 <FileBase64 multiple={false}
-                onDone={setImage}/>
+                onDone={setImageCallback}/>
                 
                 <Input
                 label = {"Email"}
@@ -144,18 +144,18 @@ const User = ()=>{
                 value={email}
                 onInput={(event)=>{setEmail(event.target.value)}}
                 isRequired = {0}
-                readonly={lock}
                 ></Input>
 
-                <Input
-                label = {"Bio"}
-                type = "string"
-                id = "Bio"
-                value={bio}
-                isRequired = {0}
-                readonly={lock}
-                onInput={(event)=>{setBio(event.target.value)}}
-                ></Input>
+                <div className={style.areaDiv}>
+                    <label htmlFor={"bioTextArea"}> Bio</label> <br></br>
+                    <textarea
+                    id="bioTextArea"
+                    className={style.BioField}
+                    cols={40} rows={4}
+                    value={bio} 
+                    onInput={(event)=>{setBio(event.target.value)}} 
+                    ></textarea>
+                </div>
 
                 <Input
                 label = {"Birthday"}
@@ -163,7 +163,6 @@ const User = ()=>{
                 id = "birthday"
                 value={birthday}
                 isRequired = {0}
-                readonly={lock}
                 onInput={(event)=>{setBirthday(event.target.value)}}
                 ></Input>
 
@@ -173,7 +172,6 @@ const User = ()=>{
                 id = "name"
                 value={name}
                 validationMessage={"please enter your name"}
-                readonly={lock}
                 isRequired = {0}
                 onInput={(event)=>{setName(event.target.value)}}
                 ></Input>
@@ -184,12 +182,11 @@ const User = ()=>{
                 id = "surname"
                 value={surname}
                 validationMessage={"please enter your surname"}
-                readonly={lock}
                 onInput={(event)=>{setSurname(event.target.value)}}
                 ></Input>
 
                 <Input
-                label = {"CPW"}
+                label = {"Confirm Password"}
                 type = "password"
                 id = "CPW"
                 placeholder={"enter password to proceed"}
@@ -197,8 +194,9 @@ const User = ()=>{
                 onInput={(event)=>{setCPW(event.target.value)}}
                 isRequired={1}
                 ></Input>   
-                { lock ? modifyButton : saveButtonComponent(formMethods)} 
-            </FormProvider>)
+                {saveButtonComponent(formMethods)}
+            </FormProvider>
+        )
     }
     
 
@@ -206,7 +204,7 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image?.base64} alt="preview image" className={style.image}/>
+                <img src={image} alt="preview image" className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
                         Name:

@@ -1,6 +1,7 @@
 import { useForm, useFormContext } from "react-hook-form"
 import { findInputError, isFormInvalid } from "./utils.jsx";
 import { useEffect, useRef, useState } from "react";
+import style from "./InputV2.module.css";
 export const Input = ({ label, type, id, placeholder = "input data here", value, onInput, onChange, validationMessage, min, max, maxLenght, minLenght, isRequired = true, readonly = false }) => {
     const {
         register,
@@ -14,13 +15,14 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
         setValue(label, value);
       }, [value])
     return (
-        <div>
+        <div className={"inputDiv_Class_"+id}>
             <label htmlFor={id} className="font-semibold capitalize" id={"labelID_"+id}>
                 {label}
             </label>
 
             {isInvalid && (<ErrorDisplayer
                 message={inputError.error.message}
+
             />)}
             <input id={id}
             type={type}
@@ -68,7 +70,7 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
 export const ErrorDisplayer = ( {message} ) =>{
 
     return (
-        <div className="text-red-500 text-sm">
+        <div className={style.error}>
             {message}
         </div>
     )

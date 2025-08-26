@@ -120,6 +120,7 @@ exports.userData = function (req, res){
         const birthday = query.birthday ? result.birthday : null;
         const name = query.name ? result.name : null;
         const surname = query.surname ? result.surname : null;
+        const picture = query.picture ? result.picture : null;
         res.status(200).json({
             success: true,
             email : email,
@@ -127,6 +128,7 @@ exports.userData = function (req, res){
             birthday : birthday, 
             name : name, 
             surname : surname,
+            picture : picture,
         })
     })
 }
@@ -154,7 +156,7 @@ exports.updateDataV2 = function (req, res){
     const body = req.body;
     const {username, email, bio, birthday, name, surname,  picture, pictureTile} = body;
     try {
-        Users.find({username : username}).then((u)=>{
+        Users.findOne({username : username}).then((u)=>{
         if(u){
             u.username = username;
             u.email = email;
@@ -164,7 +166,7 @@ exports.updateDataV2 = function (req, res){
             u.surname = surname;
             u.picture = picture;
             u.pictureTile = pictureTile;
-            console.log("user body \n", u);
+            // console.log("user body \n", u);
             u.save().then(result => {
                 res.status(200).json({
                     success : true,
