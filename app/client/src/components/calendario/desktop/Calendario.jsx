@@ -11,6 +11,7 @@ export default function CalendarApp() {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [serverDate, setServerDate] = useState(new Date());
   const [newEvent, setNewEvent] = useState({ //*holds all data regarding a possible event
     id: "",
     title: "",
@@ -35,9 +36,42 @@ export default function CalendarApp() {
     }
   });
 
-  // Carico tutti gli eventi quando il componente si monta
+  // Function to get server date from time machine API
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/timeMachine/date", {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json();
+      if (json.success) {
+        const currentServerDate = new Date(json.date);
+        setServerDate(currentServerDate);
+        console.log("Server date updated:", currentServerDate);
+        return currentServerDate;
+      }
+    } catch (error) {
+      console.error('Error fetching server date:', error);
+    }
+    return new Date();
+  };
+
+  // Load server date and events when component mounts
   useEffect(() => {
-    loadAllEvents();
+    const initializeCalendar = async () => {
+      await fetchServerDate();
+      loadAllEvents();
+    };
+    initializeCalendar();
+  }, []);
+
+  // Add periodic update of server date
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchServerDate();
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
 
   // Funzione per caricare tutti gli eventi dal server
@@ -381,8 +415,8 @@ export default function CalendarApp() {
         cycles: null,
       },
       activityDate: null,
-      start: new Date(),
-      end: new Date(),
+      start: serverDate, // Use server date instead of new Date()
+      end: serverDate,   // Use server date instead of new Date()
       location: "",
       recurrenceRule: "",
       description: "",
@@ -398,10 +432,12 @@ export default function CalendarApp() {
   return (
     <div className={styles.calendarContainer}>
       <CalendarView
+        key={serverDate.toISOString()} // Forza re-render quando serverDate cambia
         events={events}
         handleDateSelect={handleDateSelect}
         handleEventClick={handleEventClick}
         locale={itLocale}
+        serverDate={serverDate}
       />
 
       {showModal && (
