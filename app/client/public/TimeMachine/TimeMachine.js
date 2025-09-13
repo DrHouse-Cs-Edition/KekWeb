@@ -6,7 +6,7 @@ class TimeMachine extends HTMLElement {
       <style>
         .tm-bar {
           position: fixed;
-          top: 0;
+          bottom: 0;
           left: 0;
           right: 0;
           background: #222;
@@ -17,6 +17,7 @@ class TimeMachine extends HTMLElement {
           padding: 10px;
           z-index: 1000;
           font-family: sans-serif;
+          z-index: 10002; /* maggiore della navbar */
         }
         .tm-bar input {
           width: 60px;
@@ -33,35 +34,14 @@ class TimeMachine extends HTMLElement {
         .tm-bar button.reset {
           background: #dc2626;
         }
-        @media (max-width: 768px) {
-          .tm-bar { display: none; }
-          .tm-fab {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            z-index: 1001;
+        @media (max-width: 600px) {
+          .tm-bar {
+            flex-wrap: wrap; /* manda a capo gli elementi */
           }
-          .tm-panel {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            right: 0;
-            background: #222;
-            color: white;
-            padding: 20px;
-            transition: bottom 0.3s ease;
-            z-index: 1002;
+          .tm-bar button {
+            flex: 1;              /* i bottoni si allargano */
+            min-width: 80px;
           }
-          .tm-panel.open { bottom: 0; }
-          .tm-panel input { width: 70px; margin: 5px; }
-          .tm-panel button { margin: 5px; }
         }
       </style>
       <div class="tm-bar">
@@ -72,27 +52,13 @@ class TimeMachine extends HTMLElement {
         <button id="submit">Invia</button>
         <button id="reset" class="reset">Reset</button>
       </div>
-      <button class="tm-fab">⚙️</button>
     `;
   }
 
   connectedCallback() {
-    // PC
     this.shadowRoot.getElementById("submit")
       .addEventListener("click", () => this.submit("days", "hours", "minutes"));
     this.shadowRoot.getElementById("reset")
-      .addEventListener("click", () => this.reset());
-
-    // Mobile
-    const fab = this.shadowRoot.querySelector(".tm-fab");
-    const panel = this.shadowRoot.querySelector(".tm-panel");
-    fab.addEventListener("click", () => {
-      panel.classList.toggle("open");
-    });
-
-    this.shadowRoot.getElementById("submit-m")
-      .addEventListener("click", () => this.submit("days-m", "hours-m", "minutes-m"));
-    this.shadowRoot.getElementById("reset-m")
       .addEventListener("click", () => this.reset());
   }
 

@@ -1,4 +1,4 @@
-// import Style from "./categories.module.css";
+import Style from "./categoriesList.module.css";
 import { useState } from "react";
 
 function CategoriesList({categories, setCategories}) { // {} servono per destructuring delle prop
@@ -19,26 +19,26 @@ function CategoriesList({categories, setCategories}) { // {} servono per destruc
 
 
     return (
-        <div>
-            <h2>Categorie</h2>
+        <div className={Style.all}>
+            <h2 className={Style.title}>Categorie</h2>
 
             {/* Input e bottone */}
-            <div className="flex gap-2">
+            <div className={Style.textContainer}>
                 <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Aggiungi una categoria..."
                 />
-                <button onClick={addCategory} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Aggiungi
+                <button onClick={addCategory}>
+                    +
                 </button>
             </div>
 
             {/* Lista categorie */}
-            <div className="list">
-                {categories && categories.length && categories.map((category, index) => ( // controllo prima se esiste
-                    <div key={index}>
+            <div className={Style.list}>
+                {categories && categories.length>0 && categories.map((category, index) => ( // controllo prima se esiste
+                    <div>
                         {category + " "}
                         <button onClick={() => removeCategory(category)}>
                             ✕

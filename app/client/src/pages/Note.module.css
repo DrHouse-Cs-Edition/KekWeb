@@ -1,88 +1,68 @@
-/*
-body{
-    margin: 0px;
+.contenent {
+    gap: 1rem; /* spazio tra textarea e output */
+    margin: 2%;
 }
-html {
-    font-size: 16px; /* Set the root font size to 16px *//*
-}
-main {
-    padding: 2vw;
-}
-div{
-    padding-bottom: 4vh;
-}
-header {
-    font-size: 2rem;
-    background-color: rgb(102, 167, 228);
-    color: #fff;
-    padding: 1rem; /* padding del testo su tutti i lati*//*
-}
-footer{
-    font-size: 1rem;
-    background-color: rgb(102, 167, 228);
-    color: #fff;
-    padding: 0.5rem;
-}*/
-.container{
-    display: flex;
+.header{
+    font-size: 2em;
+    font-weight: bold;
+    color: #ff8c6b;
+    
 }
 .title{
     color: #ff8c6b;
     font-size: 2rem;
     font-style: italic;
     font-weight: bold;
-}/*
-.text{
-    width: 100%;
-    height: 70vh;
-    box-sizing: border-box;
-    overflow-wrap: break-word;
+    margin-top: 0;
 }
-.output{
-    width: 100%;
-    border: 0px;
-    margin: 0px;
-    padding: 0px;
-    white-space: pre-wrap; /* Preserva le interruzioni di riga *//*
-    overflow-wrap: break-word;
-}*/
 
 .textareaMarkdown, .output {
-  flex: 1;
-  min-height: 400px;
+    background-color: white;
+    flex: 1;
+    border-radius: 8px;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: medium;
+    padding: 1rem;
+    word-wrap: break-word;
+    /*min-height: 400px;*/
 }
-.output {
-  padding: 1rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow-y: auto;
+.output p{
+    margin: 0;
+    margin-bottom: 1em;
+}
+.button{
+    background: var(--dusk-input-focus-border);
+    color: white;
+    border: 1px solid #0000;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 10px;
+    margin-left: 0;
 }
 
 /* orientamento */
 
 /* Stili per l'orientamento verticale (portrait) */
 @media screen and (orientation: portrait) {
-    .container {
-        flex-direction: column;
-    }
-    .text{
+    .textareaMarkdown, .output{
         width: 100%;
-    }
-    .output{
-        width: 100%;
+        box-sizing: border-box; /* include padding e border nella larghezza, per evitare sbordamento*/
     }
 }
 
 /* Stili per l'orientamento orizzontale (landscape) */
 @media screen and (orientation: landscape) {
     .container {
+        display: flex;
         flex-direction: row;
     }
-    .text{
+    .textareaMarkdown, .output{
         width: 50%;
-    }
-    .output{
-        width: 50%;
+        flex: 1;
+        box-sizing: border-box;
     }
 }

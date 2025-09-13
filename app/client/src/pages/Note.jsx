@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
@@ -23,16 +23,7 @@ function Note() {
 
   
   useEffect(() => { // possibile alternativa: usare OnChange()?
-
-    marked.use({ // anche questo converte `\n` in `<br>` IN TEORIA
-      gfm: true,
-      breaks: true,
-    });
-    
-    let txt = marked.parse(noteText);
-    txt = txt.replace("<p>",""); // elimino primo paragrafo
-    txt = txt.replaceAll("</p>","");
-    txt = txt.replaceAll("<p>","<br>"); // converto tutti altri in linea vuota
+    let txt = marked.parse(noteText, { gfm: true, breaks: true } );
     document.getElementById('outputText').innerHTML = txt; // usare variabile useState(tipo "setOutputText") non va bene perché txt è in html
   }, [noteText]);  // funzione viene applicata ogni volta che cambia noteText
   
@@ -48,7 +39,7 @@ function Note() {
     .then(json => {
       if (json.success) {
         alert(json.message);
-        navigate(`/noteNavigation`); // torno alle note
+        navigate(`/note`); // torno alle note
       } else {
         alert(json.message);
       }
@@ -83,7 +74,9 @@ function Note() {
       })
       .then(response => response.json())
       .then(json => {
-        if (!json.success)
+        if (json.success)
+          alert("Nota salvata");
+        else
           alert(json.message);
       })
       .catch(err => console.error('Failed to save note:', err));
@@ -122,34 +115,51 @@ function Note() {
       return false;
   };
 
+
+  const resizeTextarea = () => {
+    const textarea = document.getElementById("noteText");
+    textarea.style.height = "auto"; // reset altezza
+    textarea.style.height = (textarea.scrollHeight+3) + "px"; // altezza contenuto (+3px per eliminare scrollbar)
+  }
+
   // useEffect esegue handleLoad una volta quando il componente viene montato
   useEffect(() => {
     handleLoad();  // Chiamare la funzione al caricamento del componente
   }, []);
 
+  useEffect(() => {
+    resizeTextarea();
+  }, [noteText]); // anche al aricamento pagina (perche handleLoad cambia noteText)
+
   return (
     <>
-        <header>Note</header>
-        
-        <input
-          id="noteName"
-          classNameName={Style.title}
-          type="text"
-          value={noteName} // val iniziale è quello dentro noteName
-          onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
-        />
+      <div className={Style.contenent}>
+          <header className={Style.header}>Note</header>
+          
+          <input
+            id="noteName"
+            classNameName={Style.title}
+            type="text"
+            value={noteName} // val iniziale è quello dentro noteName
+            onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
+          />
 
-        <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
+          <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
 
-        <div className= {Style.container}>
-            <textarea id="noteText" className={Style.textareaMarkdown} value={noteText} onChange={(e) => setNoteText(e.target.value)}></textarea> 
-            <p id="outputText" className={Style.output}></p>
+          <div className= {Style.container}>
+              <textarea
+                id="noteText"
+                className={Style.textareaMarkdown}
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}>
+              </textarea> 
+              <p id="outputText" className={Style.output}></p>
+          </div>
+
+          <button className= {Style.button} onClick={handleDelete}>Delete</button>
+          <button className= {Style.button} onClick={handleCopy}>Copy</button>
+          <button className= {Style.button} onClick={handleSave}>Save</button>
         </div>
-
-        <button onClick={handleDelete}>Delete</button>
-        <button onClick={handleCopy}>Copy</button>
-        <button onClick={handleSave}>Save</button>
-        <footer>Footer: Note V2.0</footer>
     </>
   );
 }

@@ -1,0 +1,51 @@
+.container {
+    width: 100%;
+    max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */
+    margin: 0 auto; /* Center it */
+    padding: 1rem;
+    background: var(--dusk-bg); /* Use the defined background variable */
+    color: var(--dusk-text);
+    border: 1px solid var(--dusk-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--dusk-shadow);
+    height: fit-content;
+    box-sizing: border-box;
+    /* Positioning adjustment if needed, but let's assume flexbox/grid in parent for layout */
+}
+
+.header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    text-align: left; /* Aligned left as per image */
+    border-bottom: 1px solid var(--dusk-border); /* Consistent border */
+}
+
+.headerTitle {
+    font-size: 1.5rem; /* Larger font for main title */
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    color: var(--dusk-text); /* White/light text for titles */
+    text-shadow: 0px 0px 8px rgba(255, 229, 217, 0.3); /* Subtle glow for titles */
+}
+
+.title{
+    color: #ff8c6b;
+    padding-bottom : 2%;
+    padding-top: 1%;
+    margin: 0;
+}
+
+.categories{
+    font-weight: bold;
+    color: #d3776c; /*leggermente più scuro del titolo*/
+}
+
+.date{
+    font-style: italic;
+    font-size: 0.8em;
+}
+ 
+.link{
+    color: green;
+    font-style: italic;
+}

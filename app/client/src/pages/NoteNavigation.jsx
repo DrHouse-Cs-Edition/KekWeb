@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Prewiew from '../components/Note/Prewiew.jsx';
 import { useNavigate } from "react-router-dom";
 import Style from './NoteNavigation.module.css'
@@ -7,7 +7,7 @@ function NoteNavigation() {
 
   const navigate = useNavigate(); // useNavigate ritorna solo una funzione, che poi va usata per navigare
 
-  const [notes, setNotes] = useState([{id: "1", title: "TestNota", text: "provaprova123"}]);
+  const [notes, setNotes] = useState([]);
 
   const [sortOption, setSortOption] = useState("");
 
@@ -18,11 +18,10 @@ function NoteNavigation() {
       categories: note.categories,
       title: note.title,
       text: note.text,
-      createdAt: note.createdAt,
-      lastModified: note.lastModified
+      createdAt: new Date(note.createdAt),
+      lastModified: new Date(note.lastModified)
       }))
     ]);
-    console.log(typeof newNotesArray[1].lastModified);
   }
 
   const deleteNote = (index) => { // cancela solo visivamente
@@ -72,7 +71,6 @@ function NoteNavigation() {
     .then(response => response.json())
     .then(json => {
       if (json.success) {
-        console.log(typeof json.list[1].lastModified);
         loadNotes(json.list); // aggiorna tutte note html
       } else {
         alert(json.messge);
@@ -82,8 +80,16 @@ function NoteNavigation() {
   };
 
   //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
-  const handleAdd = () => {
-    const time =  new Date();//.toISOString();
+  const handleAdd = async () => {
+    // const time =  new Date();//.toISOString();
+    const timeJSON = await fetch('http://localhost:5000/api/timeMachine/date', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      }
+    });
+    const time = timeJSON.json().date;
     const note = {
       title: "insert title",
       categories: [],
@@ -123,15 +129,9 @@ function NoteNavigation() {
 
   return (
     <>
-      <img
-        src="sfondo.jpg" 
-        /*alt="sfondo (tramonto su città)" */c
-        className={Style.background}
-      />
-
       <div className={Style.contenent}>
 
-        <header className={Style.title}>Note</header>
+        <header className={Style.header}>Note</header>
 
         <select className={Style.selector} value={sortOption} onChange={handleSortChange}>
           <option value="">Seleziona...</option>
@@ -145,7 +145,7 @@ function NoteNavigation() {
           Aggiungi nota
         </button>
 
-        <div>
+        <div className={Style.notesList}>
           {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
         </div>
 

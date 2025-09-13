@@ -2,6 +2,7 @@ import style from './Home.module.css';
 import ListaEventiGiornalieri from '../components/listeEventi/ListaEventiGiornalieri';
 import TodoList from '../components/toDoList/TodoList';
 import PomodoroDisplayer from '../components/PomodoroDisplayer/PomodoroDisplayer'
+import NoteDisplayer from '../components/NoteDisplayer/NoteDisplayer.jsx'
 
 function Home(){
     return(
@@ -10,11 +11,14 @@ function Home(){
                 <div className={style.eventsSection}>
                     <ListaEventiGiornalieri />
                 </div>
+                <div className={style.todoSection}>
+                    <TodoList />
+                </div>
                 <div className={style.lastPomodoro}>
                     <PomodoroDisplayer/>
                 </div>
-                <div className={style.todoSection}>
-                    <TodoList />
+                <div className={style.lastNote}>
+                    <NoteDisplayer/>
                 </div>
             </div>
         </div>
