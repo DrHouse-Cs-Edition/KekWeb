@@ -166,10 +166,16 @@ const allNote = async (request,response)=>{
 
 const lastNote = async (request,response)=>{
     try{
-        const nota = await Note.findById(id).lean(); // lean() fa ritornare oggetti js anziché documenti mongoose (più veloce)
-        listaNote = await Note.findOne({ user: request.user }).sort({ lastModified: -1 }).lean(); // da piu recente
-        listaNote.success = true;
-        response.json( listaNote );
+        const nota = await Note.findOne({ user: request.user }).sort({ lastModified: -1 }).lean(); // dà piu recente
+        response.json({
+            success: true,
+            id: nota.id,
+            title: nota.title,
+            categories: nota.categories,
+            text: nota.text,
+            createdAt: nota.createdAt,
+            lastModified: nota.lastModified,
+        });
     }
     catch(e){
         response.json({
