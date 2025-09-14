@@ -1,28 +1,41 @@
-.bin{
-    display: inline-block;
-    max-height: 2em;
-}
 .div{
     margin-bottom: 5%;
-    /*padding: 1%;
-    background-color: #4b3570;
-    border-radius: 20px; /* Stonda tutti e 4 i bordi */
-
-        width: 100%;
-    max-width: 80%; /* Adjust as needed, based on the image it looks wider than the todo list */
-    /*margin: 0 auto; /* Center it */
-    padding: 1rem;
     background: var(--dusk-bg); /* Use the defined background variable */
     color: var(--dusk-text);
     border: 1px solid var(--dusk-border);
     border-radius: 0.75rem;
     box-shadow: var(--dusk-shadow);
+    padding: 1%;
+}
+.button{
+    cursor: pointer;
+    border-radius: 0.75rem;
+    background-color: white;
+    font-weight: bold;
+}
+.delete{
+    cursor: pointer;
+}
+
+.row {
+  display: flex;
+  align-items: center; /* centra testo, bottone e icona verticalmente */
+  gap: 8px; /* spazio fra elementi */
+}
+
+.title{
+    color: #ff8c6b;
+    padding-bottom : 2%;
+    padding-top: 1%;
+    margin: 0;
 }
 
 .categories{
     font-weight: bold;
+    color: #d3776c; /*leggermente più scuro del titolo*/
 }
 
 .date{
     font-style: italic;
+    font-size: 0.8em;
 }
