@@ -7,18 +7,25 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 1fr; /* Two equal columns in desktop */
+  grid-template-rows: auto auto; /* Two rows */
   gap: 2rem;
   align-items: start;
-  grid-template-columns: auto;  /* dispone gli oggetti verticalmente per una visualizzazione migliore da telefono*/
 }
 
 .eventsSection {
-  min-height: 0; /* Allows flex children to shrink */
+  min-height: 0;
+  grid-column: 1 / -1; /* Spans both columns */
+}
+
+.lastPomodoro {
+  min-height: 0;
+  grid-column: 1; /* First column, second row */
 }
 
 .todoSection {
-  position: sticky;
+  grid-column: 2; /* Second column, second row */
+  position: relative;
   top: 2rem;
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
@@ -32,12 +39,22 @@
   
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto; /* Three rows on mobile */
     gap: 1.5rem;
     max-width: none;
     padding: 0 0.5rem;
   }
   
+  .eventsSection {
+    grid-column: 1;
+  }
+  
+  .lastPomodoro {
+    grid-column: 1;
+  }
+  
   .todoSection {
+    grid-column: 1;
     position: static;
     max-height: none;
     overflow-y: visible;
@@ -53,8 +70,4 @@
     gap: 1rem;
     padding: 0;
   }
-}
-
-.lastPomodoro{
-  min-height: 0;
 }

@@ -265,7 +265,7 @@ const TodoList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Lista Todo</h1>
+        <h1 className={styles.title}>Lista Activity</h1>
         <p className={styles.subtitle}>
           {todos.filter(t => !t.completed).length} da fare • {todos.filter(t => t.completed).length} completati
         </p>
