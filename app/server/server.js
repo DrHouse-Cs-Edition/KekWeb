@@ -12,12 +12,15 @@ const app = express();
 const connectDB = require('./config/database.js');
 connectDB();
 
+// per timemachine
+let timeShift = 0;
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
 const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
 const pushRoutes = require('./routes/pushNotifications');
 const eventControllerRoutes = require("./controllers/eventController.js")
+const { notifications } = require ("./jobs/notifications.js");
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
@@ -31,16 +34,13 @@ app.use(express.text({limit: "50mb"}), express.json({limit: "50mb"})); // IMPORT
 app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
-let time_shift = 0; // minuti
-const { notifications } = require ("./jobs/notifications.js");
-
 const cron = require('node-cron');
 const { addDays, addMinutes } = require('date-fns');
 
 const check = () => {
     let  now = new Date();
-    if(time_shift != 0)
-        now = addMinutes(now, time_shift);
+    if(timeShift != 0)
+        now = addMinutes(now, timeShift);
 
     // debugging (controlla che si attivi ogni minuto)
     if(now.getMinutes%2 === 0)
@@ -51,8 +51,8 @@ const check = () => {
     notifications(now);
     // controllo di mezzanotte
     if (now.getHours() === 0 && now.getMinutes() === 0) {
-        eventControllerRoutes.movePomodoros();
         // MUOVI POMODORI
+        eventControllerRoutes.movePomodoros();
         // MUOVI ATTIVITA' SCADUTE
     }
 }
@@ -75,14 +75,15 @@ app.delete("/api/user/logout", UserRoutes.logout);
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
 // gestione api eventi
-app.use('/api/events', eventRoutes);
+app.use('/api/events', eventRoutes(timeShift)); // passo timeShift
 // gestione api note
 app.use('/api/notes', noteRoutes);
 // gestione notifiche
 app.use('/api/pushNotifications', pushRoutes)
 const not = require ("./controllers/pushNotificationController.js");
 const { debug } = require('console');
-// app.post('api/pushNotifications/subscribe',not.subscribe)
+// time machine
+//app.use("/api/timeMachine", timeMachineRoutes);
 
 //************* POMODORO METHODS **************************** */
 
@@ -102,24 +103,23 @@ app.put("/api/user/updateUData", UserRoutes.updateDataV2);
 //*********************************************************** */
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
-  time_shift = time_shift + Number(req.body.minutes);
-  console.log(time_shift);
+  timeShift = timeShift + Number(req.body.minutes);
+  console.log(timeShift);
   // const now = new Date;
-  // notifications(addMinutes(now, time_shift))
+  // notifications(addMinutes(now, timeShift))
   check();
   res.json({success: true})
 })
 
 app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
   now = new Date;
-  now = addMinutes(now, time_shift);
+  now = addMinutes(now, timeShift);
   res.json({date: now.toString(), success: true})
 })
 
 app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità
-  time_shift = 0;
-  console.log(time_shift);
-  res.json({success: true})
+  timeShift = 0;
+  res.json({success: true});
 })
 
 app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

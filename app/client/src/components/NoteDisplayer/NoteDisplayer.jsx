@@ -2,11 +2,13 @@ import Style from "./NoteDisplayer.module.css";
 import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function NoteDisplayer() { // {} servono per destructuring delle prop
 
-  const [note, setNote] = useState({title:"", categories: [], text: "", date: new Date()});
+  const [note, setNote] = useState({id: null, title:"", categories: [], text: "", date: new Date()});
   const [foundNote, setFoundNote] = useState(false);
+  const navigate = useNavigate();
 
   const handleLoad = (sorting) => {
     let requestUrl = 'http://localhost:5000/api/notes/last'
@@ -28,20 +30,24 @@ function NoteDisplayer() { // {} servono per destructuring delle prop
           textPreview = json.text;
         // set
         setNote({
+          id: json.id,
           title: json.title,
           categories: json.categories || [], // se non arriva niente fallback []
           text: textPreview,
           date: new Date(json.lastModified),
-        })
+        });
+        console.log(json.id)
         setFoundNote(true);
-      //console.log(json.categories + "\n" + note.categories);
-      // caso errore
       } else {
-        alert(json.messge);
+        // nessuna nota trovata (o errore)
         setFoundNote(false);
       }
     })
     .catch(err => console.error(err));
+  };
+
+  const handleClick = (id) =>{
+    navigate(`/noteEditor/${id}`);
   };
 
   // useEffect esegue handleLoad una volta quando il componente viene montato
@@ -51,7 +57,7 @@ function NoteDisplayer() { // {} servono per destructuring delle prop
 
   if (foundNote){
     return (
-        <div className={Style.container}>
+        <div className={Style.container} onClick={() => handleClick(note.id)}>
             <div className={Style.header}>
                 <h1 className={Style.headerTitle}>Ultima nota:</h1>
             </div>

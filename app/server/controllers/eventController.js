@@ -3,7 +3,40 @@ const Event = require('../mongoSchemas/Event.js');
 const { subMinutes } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
 
-const saveEvent = async (request, response) => {
+// utils
+
+function initAlarm(event, now){
+
+  event.nextAlarm = subMinutes(event.start, event.alarm.earlyness);
+
+  // controllo che il momento della notifica non sia già passato
+
+  while(event.nextAlarm < now){
+      if(event.repeated < event.alarm.repeat_times){ // se non ho finito di ripetere l'avviso all'utente
+          event.nextAlarm = addMinutes(last_alarm, event.alarm.repeat_every);
+          event.repeated = event.repeated +1;
+      }
+      else{
+        // controllo regola ripetizione evento nel tempo
+        regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
+        if (regola.freq && regola.dtStart){
+          const rule = new RRule( regola );
+          const next = rule.after(now);
+          if (next){ // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
+            event.nextAlarm = subMinutes(next, event.alarm.earlyness);
+            event.repeated = 0;
+          }
+        }
+      }
+  }
+
+  return event.nextAlarm;
+  
+}
+
+// chiamate
+
+const saveEvent = async (request, response, now) => {
     console.log("recieved backend event: ", request.body);
     const eventInput = request.body;
     const eventDB = new Event({
@@ -19,7 +52,10 @@ const saveEvent = async (request, response) => {
       recurrenceRule: eventInput.recurrenceRule,
       urgencyLevel: eventInput.urgencyLevel || 0,
       completed: eventInput.completed || false,
-      alarm: eventInput.alarm // Add alarm field
+      // alarm
+      alarm: eventInput.alarm,
+      nextAlarm: initAlarm(eventInput,now),
+      repeated: 0,
     });
 
   try{
@@ -57,7 +93,7 @@ const updateEvent = async (request, response) => {
         recurrenceRule: eventInput.recurrenceRule,
         urgencyLevel: eventInput.urgencyLevel,
         completed: eventInput.completed,
-        alarm: eventInput.alarm // Add alarm field
+        // alarm MANCANTE
       });
       
       response.json({
