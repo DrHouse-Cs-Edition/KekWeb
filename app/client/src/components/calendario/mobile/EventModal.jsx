@@ -377,7 +377,7 @@ const EventModal = ({
                   required
                 />
         
-                <Link to={"/pomodoro"} state={selectedEvent?.pomodoro}>Visit Pomodoro</Link>
+                <Link to={"/pomodoro"} state={selectedEvent?.pomodoro} className={styles.linkButton}>Visit Pomodoro</Link>
             </div>
           )}
         </div>

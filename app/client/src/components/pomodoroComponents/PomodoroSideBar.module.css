@@ -37,7 +37,7 @@
     border-color: rgb(104, 66, 110);
     border-style: solid;
     border-width: medium;
-    width: 40%;
+    width: 300px;
     @media (width < 600px) {
         width: 100%;   
     }
@@ -73,13 +73,22 @@
     }
 }
 
-.openB{
-    color: rgba(0, 0, 0, 0.884);
-    background-color: #f1c937
+.pomdooroPie{
+    max-height: 100px;
+}
+
+.pomodoroOpen{
+    border: transparent;
+    background: transparent;
+}
+.pomodoroOpen > div > ul{
+    font-size: large;
+    color: var(--dusk-text);
 }
 
 .deleteB{
     background-color: rgb(204, 70, 70);
+    margin-left: 10px;
 }
 
 .itemTitle{

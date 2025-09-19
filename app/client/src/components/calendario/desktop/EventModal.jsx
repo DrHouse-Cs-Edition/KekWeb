@@ -175,7 +175,7 @@ const ModalBody = ({
           required
         />
 
-        <Link to={"/pomodoro"} state={newEvent?.pomodoro}>Visit Pomodoro</Link>     
+        <Link to={"/pomodoro"} state={newEvent?.pomodoro} className={styles.linkButton}>Visit Pomodoro</Link>     
         </> 
       ) : (
         // Per eventi normali e attività
@@ -503,6 +503,7 @@ useEffect(()=>{
 
   return(
     <select
+    className={styles.selectTitle}
     ref={selectRef}
     onChange={handleSelectChange}
     value={

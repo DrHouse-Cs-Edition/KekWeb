@@ -1,4 +1,4 @@
-import CatAnimation from '../components/pomodoroComponents/Animation/catAnimation';
+import Help from "../components/pomodoroComponents/PomodoroHelp.jsx"
 
 const testing = ()=>{
     console.log("Testing");
@@ -6,7 +6,7 @@ const testing = ()=>{
     return (
         <dev>
             <h1>Testing page</h1>
-            <CatAnimation></CatAnimation>
+            <Help></Help>
         </dev>
     )
 }

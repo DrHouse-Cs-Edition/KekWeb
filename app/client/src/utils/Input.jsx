@@ -1,7 +1,7 @@
 import { useForm, useFormContext } from "react-hook-form"
 import { findInputError, isFormInvalid } from "./utils.jsx";
 import { useEffect, useRef, useState } from "react";
-export const Input = ({ label, type, id, placeholder = "input data here", value, validationMessage, min, max, maxLenght, minLenght, isRequired = true, readonly = false }) => {
+export const Input = ({ label, type, id, placeholder = "input data here", defaultValue, validationMessage, min, max, maxLenght, minLenght, isRequired = true, readonly = false }) => {
     const {
         register,
         formState: { errors },
@@ -24,6 +24,7 @@ export const Input = ({ label, type, id, placeholder = "input data here", value,
            //i had to adopt this solution because the input value was not being updated
 
             placeholder={placeholder}
+            defaultValue={defaultValue}
 
             readOnly={readonly}
 

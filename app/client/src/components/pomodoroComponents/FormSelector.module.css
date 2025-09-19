@@ -5,6 +5,7 @@
 }
 
 .formButton{
+    margin-top: 10px;
     flex: 1;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -17,3 +18,11 @@
     border: 1px solid transparent;
     background: var(--dusk-input-focus-border);
 }
+
+/* .CycleSend{
+    margin-top: 10px;
+} */
+/*
+.TToptions{
+    margin-top: 10px;
+} */

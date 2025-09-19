@@ -16,7 +16,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
         if( !(c || bt || st) ){
             console.log("no data for registration somewhere")
         }
-        passTimeData(data.studyTime, data.breakTime, data.cycles );
+        passTimeData(data.studyTime, data.breakTime, data.cycles );   //multiplication by 60 transforms seconds in minutes
         return false;
     })
 
@@ -33,11 +33,11 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
             >
                 <div className="inputDiv" id="cyclesDiv">
                     <Input 
-                    label = {"studyTime"}
+                    label = {"Durata Studio"}
                     type = "number"
                     id = "studyTimeField"
-                    placeholder={"45"}
-                    validationMessage={"insert a study time between 30 and 45 minutes"}
+                    defaultValue={"45"}
+                    validationMessage={"Inserisci una durata tra i 30 ed i 45 minuti"}
                     min = {30}
                     max = {45}
                     isRequired = {0}
@@ -45,11 +45,11 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     </Input>
 
                     <Input 
-                    label = {"breakTime"}
+                    label = {"Durata Pausa"}
                     type = "number"
                     id = "breakTimeField"
-                    placeholder={"15"}
-                    validationMessage={"insert a break time between 5 and 15 minutes"}
+                    defaultValue={"15"}
+                    validationMessage={"Inserisci una durata tra i 5 ed i 15 minuti"}
                     max = {15}
                     min = {5}
                     isRequired = {0}
@@ -57,18 +57,18 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     </Input>
 
                     <Input 
-                    label = {"cycles"}
+                    label = {"Cicli"}
                     type = "number"
                     id = "cyclesField"
-                    placeholder={"4"}
-                    validationMessage={"insert the number of cycles"}
+                    defaultValue={"4"}
+                    validationMessage={"Inserisci il numero di cicli"}
                     min={1}
                     max = {24}
                     isRequired = {0}
                     >
                     </Input>
 
-                    <button className={[style.CycleSend, style.formButton].join("")} type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Save settings</button>
+                    <button className={[style.CycleSend, style.formButton].join("")} type="button" onClick={formMethods.handleSubmit(onSubmit, onError)}>Scegli questa Impostazione</button>
                 </div>
             </form>
             </FormProvider>
@@ -129,8 +129,9 @@ function TTform( {passTimeData}, isNewPomodoro){
      */
     const nextOption = ()=>{
         if ( !hasComputed.current ){
-            alert("Warning: insert a time value and compute the possible options first");
-            return;}
+            alert("Attenzione: inserire prima una durata e cliccare su \" vedi opzioni \"");
+            return;
+        }
         
         do{   //until we can safely provide a valid option
             if( tmpStudy.current === 45 && tmpBreak.current === 15 ){    //if max vals have been reached, return default option
@@ -147,7 +148,7 @@ function TTform( {passTimeData}, isNewPomodoro){
         setStudyTime( tmpStudy.current );
         setBreakTime( tmpBreak.current );
         if ( !hasComputed.current ){
-            alert("Warning: insert a time value and compute the possible options first");
+            alert("Attenzione: inserire prima una durata e cliccare su \" vedi opzioni \" ");
             return;
         }
         passTimeData(tmpStudy.current, tmpBreak.current, calcCycles());
@@ -156,7 +157,7 @@ function TTform( {passTimeData}, isNewPomodoro){
     
     const TThandleSubmit = (data)=>{
         if ( !hasComputed.current ){
-            alert("Warning: insert a time value and compute the possible options first");
+            alert("Attenzione: inserire prima una durata e cliccare su \" vedi opzioni \" ");
             return;
         }
         
@@ -177,16 +178,16 @@ function TTform( {passTimeData}, isNewPomodoro){
                 >
                     <div className="inputDiv" id="TTdiv">
                         <Input 
-                        label = {"TotalTime"}
+                        label = {"Tempo a disposizione"}
                         type = "Number"
                         id = "studyTimeField"
-                        placeholder={"120"}
-                        validationMessage={"insert a total time thats more than 0"}
-                        min = {0}
+                        defaultValue={"120"}
+                        validationMessage={"Inserire un valore valido (60 to 1440)"}
+                        min = {60}
                         max = {1440}
                         isRequired = {isNewPomodoro}
                         >
-                        </Input> <br/>
+                        </Input>
 
                         { !hasComputed.current ? 
                             <button type="button" className={[style.TToptions, style.formButton].join("")} onClick={TTformMethods.handleSubmit(
@@ -194,17 +195,17 @@ function TTform( {passTimeData}, isNewPomodoro){
                                     initOptions(data);
                                 }
                             , () => {   //onError                
-                            })}>See options</button> : 
-                            <button type="button" className={[style.nextOption, style.formButton].join("")} onClick={nextOption}>Next Option </button>}
+                            })}>Vedi opzione</button> : 
+                            <button type="button" className={[style.nextOption, style.formButton].join("")} onClick={nextOption}>Prossima opzione </button>}
                         
-                        <div>
-                            <span> Study Time = {studyTime} </span>
-                            <span> Break Time = {breakTime} </span>
-                            <span> cycles = {calcCycles()} </span>
+                        <div style={{marginTop: "5px"}}>
+                            <span> Durata studio = {studyTime} </span>
+                            <span> Durata pausa = {breakTime} </span>
+                            <span> Cicli = {calcCycles()} </span>
                             
                         </div>
 
-                        <button type="button" className={[style.registrationOptions, style.formButton].join("")} onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Save Option</button>
+                        <button type="button" className={[style.registrationOptions, style.formButton].join("")} onClick={TTformMethods.handleSubmit(TThandleSubmit, TThandleError)}> Scegli questa Impostazione</button>
                     </div> 
                 </form>
                 </FormProvider>

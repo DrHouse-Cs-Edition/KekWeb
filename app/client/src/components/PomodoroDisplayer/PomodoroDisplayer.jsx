@@ -57,12 +57,6 @@ const PomodoroDisplayer = ()=>{
     day: 'numeric'
     })};
 
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes > 0 ? minutes + 'm ' : ''}${remainingSeconds}s`;
-    }
-
     if ( pomodoroEvent != null){
     return (
         <div className={style.container}>
@@ -85,8 +79,8 @@ const PomodoroDisplayer = ()=>{
                     ></PieChart>
                 </div>
                 <div className={style.pomodoroStats}>
-                    <span>Study: {formatTime(pomodoroEvent?.studyT)}</span>
-                    <span>Break: {formatTime(pomodoroEvent?.breakT)}</span>
+                    <span>Study: {pomodoroEvent?.studyT} minutes </span>
+                    <span>Break: {pomodoroEvent?.breakT} minutes</span>
                     <span>Cycles: {pomodoroEvent?.cycles}</span>
                 </div>
                 <Link  to={"/pomodoro"}

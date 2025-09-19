@@ -225,13 +225,31 @@ const movePomodoros = ()=>{
 const latestP = async function (req, res){
   try {
     const foundEV = await Event.findOne({type: "pomodoro"}).sort("end").then(ev =>{
-      //TODO imposta all'evento i dati
+      console.log("dio bestia" + ev);
       return ev;
-      // console.log(ev);
     })
+  if(!foundEV){
+    console.log("no EV")
+    res.status(404).json({
+    success: false,
+    message: "no pomodoro event found"
+    })
+    return;
+  }
+
     const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}).then(pom =>{
       return pom
     })
+
+    if(!foundP){
+      console.log("no foundP")
+      res.status(404).json({
+      success: false,
+      message: "no pomodoro connected to the event"
+      })
+      return;
+    }
+    
 
     // console.log("pomodoro found: ", foundP, "\n event found ", foundEV);   //dovrebbero essere trovati
     const latestPomodoro2 ={
@@ -243,18 +261,11 @@ const latestP = async function (req, res){
       cycles: foundP.cycles,
       date : foundEV.start
     }
-    if(!latestPomodoro2.title || !latestPomodoro2.Eid){   //verifica probabilmente non necessaria in questo modo, basterebbe vedere che non esiste l'evento
-    res.status(404).json({
-      success: false,
-      message: "no pomodoro event found"
+    res.status(200).json({
+    success : true,
+    pomodoro: latestPomodoro2,
+    message: "pomodoro event has been found"
     })
-    }else{
-      res.status(200).json({
-      success : true,
-      pomodoro: latestPomodoro2,
-      message: "pomodoro event has been found"
-      })
-    }
     
   }catch (e) {
     console.log(e);

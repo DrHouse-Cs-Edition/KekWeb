@@ -103,9 +103,6 @@ exports.subCycles = async function (req, res){
 //fields without a value will be kept to the previous values
 exports.updateP = function (req, res ){
     const body = req.body;
-    console.log(
-        body.studyTime ? "caterpillar" : "magno"
-    );
     //function updates the fields of the body based on wheter they have been provided or not
     //id is mandatory
     const {id, title, studyTime, breakTime, cycles} = body;
