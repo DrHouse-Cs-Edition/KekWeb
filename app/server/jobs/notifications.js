@@ -2,7 +2,7 @@ const Event = require('../mongoSchemas/Event.js');
 const Subscription = require('../mongoSchemas/Subscription.js');
 const User = require('../mongoSchemas/UserSchemas.js');
 const { RRule } = require('rrule');
-const { subDays, subMinutes, addMinutes } = require('date-fns');
+const { subDays, addDays, subMinutes, addMinutes } = require('date-fns');
 const nodemailer = require("nodemailer");
 
 const webpush = require('web-push');
@@ -17,18 +17,7 @@ webpush.setVapidDetails(
 
 // gestione notifiche (2.0) disattivate per testing
 
-/*function timeMachineDealer(event, now){
-
-  while(addMinutes(event.nextAlarm, event.alarm.repeat_every) < now // se prossima sveglia è nel passato
-        && event.repeated+1 < event.alarm.repeat_times){ // e non l'ho ripetuto al massimo (+1 perché devo )
-    event.nextAlarm = addMinutes(event.nextAlarm, event.alarm.repeat_every);
-    event.repeated = event.repeated + 1;
-  }
-
-  return (event);
-}*/
-
-async function sendEmail(titolo, descrizione, utente) {// MAIL V 2.0
+async function sendEmail(utente, evento, alertTime) {// MAIL V 2.0
   console.log("PROVO MAIL");
   const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -41,8 +30,8 @@ async function sendEmail(titolo, descrizione, utente) {// MAIL V 2.0
   const mailOptions = {
       from: 'selfieapp17@gmail.com',
       to: utente.email,
-      subject: `Promemoria Evento: ${titolo}`,
-      text: `Ricordati del tuo evento: ${descrizione}`
+      subject: `Promemoria Evento: ${evento.titolo}`,
+      text: `Ricordati del tuo evento: ${evento.descrizione}\norario di notifica:${alertTime}`
   };
   
   try{
@@ -55,9 +44,9 @@ async function sendEmail(titolo, descrizione, utente) {// MAIL V 2.0
 
 }
 
-async function notify(evento){
+async function sendPush(evento, alertTime){
 
-  const payload = JSON.stringify({ title: evento.title, body: evento.description, time: evento.nextAlarm });
+  const payload = JSON.stringify({ title: evento.title, body: evento.description, time: alertTime });
 
   const subscription = await Subscription.find( {user: evento.user} ).lean();
 
@@ -78,60 +67,168 @@ async function notify(evento){
   })  
 }
 
+async function notify(utente, evento, alertTime){
+  const localDate = new Date(evento.nextAlarm);
+  if(utente.notifichePush){ // != null && true
+      console.log("notifica push?");
+      sendPush(evento, alertTime);
+    }
+    else if (utente.email){
+      console.log("notifica mail?");
+      sendEmail(utente, evento, alertTime);
+    }
+}
 
 // aggiorna nextAlarm
 function updateAlarm(event, now){
   console.log("upd alarm")
-  const last_alarm = event.nextAlarm;
-  event.repeated = event.repeated + 1;
-  event.nextAlarm = null;
-  if(event.repeated < event.alarm.repeat_times){ // se non ho finito di ripetere l'avviso all'utente
-    console.log("unfinished busy penguin!")
-    event.nextAlarm = addMinutes(last_alarm, event.alarm.repeat_every);
-  }
-  else if (event.rrule){
-    // controllo regola ripetizione evento nel tempo
-    regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-    if (regola.freq && regola.dtStart){
-      const rule = new RRule( regola );
-      const next = rule.after(now);
-      if (next){ // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
-        console.log("Da next")
-        event.nextAlarm = subMinutes(next, event.alarm.earlyness);
-        event.repeated = 0;
+  const localDate = new Date(evento.last_alarm);
+  let orario = `\n${localDate}`;
+
+  // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei llop, e no solo 1)
+  do{
+    event.nextAlarm = addMinutes(event.nextAlarm, event.alarm.repeat_every);
+    event.repeated = event.repeated + 1;
+    localDate = new Date(evento.nextAlarm);
+    orario = orario + `\n${localDate}`;
+    console.log("unfinished busy penguin!");
+  }while( event.repeated < event.alarm.repeat_times // se devo ancora ripeterlo
+    && addMinutes(event.nextAlarm, event.alarm.repeat_every) < now) // e la prossima sveglia è nel passato)
+
+  // se ho finito con le ripetizioni
+  if(event.repeated == event.alarm.repeat_times){
+    event.nextAlarm = null;
+    // e se l'evento è ricorrente
+    if (event.rrule){
+      regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
+      if (regola.freq && regola.dtStart){
+        const rule = new RRule( regola );
+        const next = rule.after(now);
+        //if (...){ // possibile controllo se ricorenza è finita?
+          console.log("Da next")
+          event.nextAlarm = subMinutes(next, event.alarm.earlyness);
+          event.repeated = 0;
+        //}
       }
     }
   }
   console.log(event.nextAlarm, "\n")
-  return(event);
+  return(orario);
 }
 
+// exports:
+
 async function notifications(now){
+
+  const today= new Date(now.toDateString()); // cancella orario -> mezzanotte
   // Cerca eventi da notificare
   const eventi = await Event.find({ //})
-    nextAlarm: { $lte: now, $gte: subDays(now,1) }, //tutte notifiche di oggi di cui è giunto/superato momento
+    nextAlarm: { $lte: now, $gte: today }, //tutte notifiche di oggi di cui è giunto/superato momento
   });
 
   eventi.forEach(async (evento) => { // Invia notifiche
     
     const utente = await User.findById(evento.user).lean();
-    const localDate = new Date(evento.nextAlarm);
     console.log("notifica individuata, mail:" + utente);
 
-    // evento = timeMachineDealer(evento,now) // per evitare spam se uso time machine
-    if(utente.push){
-      console.log("notifica push?");
-      notify(evento);
-    }
-    else if (utente.email){
-      console.log("notifica mail?");
-      sendEmail(evento.title, evento.description+`\norario avviso: ${localDate}`, utente);
-    }
-
-    // Segna come notificato o cambia data prossima notifica
-    evento = updateAlarm(evento,now); // aggiorna con prossima data alarm (e num repetizioni)
+    // Segna come notificato o cambia data prossima notificas
+    const alertTime = updateAlarm(evento,now); // aggiorna con prossima data alarm (e num repetizioni) + se uso TM mi da messaggio su tutte le volte che avrebbe dovuto suonare a quest'ora
+    notify(utente, evento, alertTime); // mail o push
+    // aggiorno nuovo nextaAlarm su DB
     await Event.findByIdAndUpdate(evento.id, evento);
   });
 }
 
-module.exports = { notifications};
+async function timeTravelNotificationsUpdate(now){
+
+  const today = new Date(now.toDateString()); // cancella orario -> mezzanotte
+  const tomorrow = new Date( subDays(today,1) );
+  const operations = [];
+
+  // aggiorno orario di notifica per eventi con rrule
+  const eventiRrule = await Event.find({ alarm: { $ne: null }, rrule: { $ne: null } });
+  eventiRrule.forEach((event) => {
+    const regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
+    if (regola.freq && regola.dtStart){
+      const rule = new RRule( regola );
+      const next = rule.after(now);
+      // calcolo quando sarebbe prossima notifica con nuova data
+      const alarmDate = subMinutes(next, event.alarm.earlyness);
+      if( alarmDate>=today && alarmDate<tomorrow && alarmDate!=event.nextAlarm ) // limito per maggior efficienza nell'update
+        ops.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+        });
+    }
+  });
+
+  // setto Alarm suonati che dovrebbero suonare (se faccio viaggio nel passato)
+  const eventi = await Event.find({ alarm: { $ne: null }, rrule: null, start: { $gte: now } });
+  eventi.forEach( (event) => {
+    const alarmDate = subMinutes( event.start, event.alarm.earlyness);
+    if( alarmDate >= now && alarmDate!=event.nextAlarm )
+      ops.push({
+        updateOne: {
+          filter: { _id: event._id },
+          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+        }
+    });
+  })
+
+  // invio tutte le operazioni in una sola volta
+    if(operations.length > 0 )
+      await Event.bulkWrite(operations);
+}
+
+async function timeTravelNotificationsReset(now){
+  
+  const today = new Date(now.toDateString()); // giorno ma cancella orario -> ora =  mezzanotte
+  const operations = [];
+
+  // aggiorno orario di notifica per eventi con rrule
+  const eventiRrule = await Event.find({ rrule: { $ne: null } });
+  eventiRrule.forEach((event) => {
+    const regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
+    if (regola.freq && regola.dtStart){
+      const rule = new RRule( regola );
+      const next = rule.after(now);
+      // calcolo quando sarebbe prossima notifica con nuova data
+      const alarmDate = subMinutes(next, event.alarm.earlyness);
+      if( alarmDate!=event.nextAlarm ) // solo eventi che necessitano aggiornamento sul DB
+        ops.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+      });
+    }
+  });
+
+  // resetto Alarm suonati dopo viaggio nel tempo
+  const eventi = await Event.find({ alarm: { $ne: null }, rrule: null, start: { $gte: now } });
+  eventi.forEach( (event) => {
+    const alarmDate = subMinutes( event.start, event.alarm.earlyness);
+    if( alarmDate!=event.nextAlarm ) // solo eventi che necessitano aggiornamento sul DB
+      ops.push({
+        updateOne: {
+          filter: { _id: event._id },
+          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+        }
+    });
+  })
+
+  // elimino Alarm settati dopo viaggio nel tempo ma non più rilevanti
+  const eventiPassati = await Event.find({ nextAlarm:{ $lt: now } });
+  Event.updateMany({
+    filter: { nextAlarm:{ $lt: now } },
+    update: { $set: {nextAlarm: null} }
+  });
+
+  // invio tutte le operazioni in una sola volta
+  if(operations.length > 0 )
+    await Event.bulkWrite(operations);
+}
+
+module.exports = { notifications, timeTravelNotificationsUpdate, timeTravelNotificationsReset};

@@ -302,10 +302,10 @@ const receiveNotification = async () => {
         <button onClick={logout} className={style.Button_logout}>Logout</button>
 
         <div>
-                <h1>Notifiche Push</h1>
-                <button onClick={handleSubscribe}>Permetti Notifiche Push</button>
-                <button onClick={receiveNotification}>Ricevi Notifica di test</button>
-            </div>
+            <h1 className={style.TitleNotifications}>Notifiche Push</h1>
+            <button className={style.Button} onClick={handleSubscribe}>Permetti Notifiche Push</button>
+            <button className={style.Button} onClick={receiveNotification}>Ricevi Notifica di test</button>
+        </div>
     </div>
     )
 }

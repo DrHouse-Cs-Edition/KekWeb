@@ -52,7 +52,7 @@ const saveEvent = async (request, response, now) => {
       recurrenceRule: eventInput.recurrenceRule,
       urgencyLevel: eventInput.urgencyLevel || 0,
       completed: eventInput.completed || false,
-      // alarm
+      // alarm = {earlyness, repeat_times, repeat_every}
       alarm: eventInput.alarm,
       nextAlarm: initAlarm(eventInput,now),
       repeated: 0,

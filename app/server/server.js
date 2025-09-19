@@ -20,7 +20,7 @@ const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
 const pushRoutes = require('./routes/pushNotifications');
 const eventControllerRoutes = require("./controllers/eventController.js")
-const { notifications } = require ("./jobs/notifications.js");
+const { notifications, timeTravelNotificationsUpdate, timeTravelNotificationsReset } = require ("./jobs/notifications.js");
 
 const UserRoutes = require ("./pagesMethods/Users.js");
 require("dotenv").config();
@@ -100,26 +100,29 @@ app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
 app.put("/api/user/updateUData", UserRoutes.updateDataV2);
+app.put("/api/user/setPushNotifications", UserRoutes.setPushNotifications);
 //*********************************************************** */
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
-  timeShift = timeShift + Number(req.body.minutes);
-  console.log(timeShift);
-  // const now = new Date;
-  // notifications(addMinutes(now, timeShift))
-  check();
-  res.json({success: true})
+    timeShift = timeShift + Number(req.body.minutes);
+    let now = new Date;
+    now = addMinutes(now, timeShift);
+    timeTravelNotificationsUpdate(now);
+    check();
+    res.json({success: true})
 })
 
 app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
-  now = new Date;
-  now = addMinutes(now, timeShift);
-  res.json({date: now.toString(), success: true})
+    let now = new Date;
+    now = addMinutes(now, timeShift);
+    res.json({date: now.toString(), success: true})
 })
 
 app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità
-  timeShift = 0;
-  res.json({success: true});
+    timeShift = 0;
+    const now = new Date();
+    timeTravelNotificationsReset(now);
+    res.json({success: true});
 })
 
 app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

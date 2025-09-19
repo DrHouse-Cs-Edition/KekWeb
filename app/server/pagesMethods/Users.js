@@ -186,3 +186,19 @@ exports.updateDataV2 = function (req, res){
         })
     }
 }
+
+exports.setPushNotifications = async function (req, res){
+    const userId = req.user;
+    try {
+        await Users.findByIdAndUpdate(userId,{ pushNotifications: req.body.pushNotifications });
+        res.status(200).json({
+            success : true,
+            message : "Preferenza notifiche aggiornata"
+        })
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: "Errore impostando preferenza notifiche"
+        })
+    }
+}
