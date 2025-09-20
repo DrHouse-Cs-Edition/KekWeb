@@ -37,7 +37,7 @@
     border-color: rgb(104, 66, 110);
     border-style: solid;
     border-width: medium;
-    width: 75%;
+    width: 50%; /* width: 300px dà bug altezza infinita PieChart */
     @media (width < 600px) {
         width: 100%;   
     }
@@ -73,7 +73,7 @@
     }
 }
 
-.pomdooroPie{
+.pomdoroPie{
     max-height: 100px;
 }
 
