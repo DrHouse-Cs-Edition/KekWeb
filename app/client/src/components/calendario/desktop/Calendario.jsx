@@ -10,7 +10,8 @@ export default function CalendarApp() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [serverDate, setServerDate] = useState(new Date());
-  const [currentDate, setCurrentDate] = useState(new Date()); // Mese che sto visualizzando
+  const [currentDate, setCurrentDate] = useState(new Date()); // Data che sto visualizzando
+  const [viewMode, setViewMode] = useState('month'); // 'month', 'week', 'day'
   const [newEvent, setNewEvent] = useState({
     id: "",
     title: "",
@@ -300,34 +301,95 @@ export default function CalendarApp() {
     setShowModal(true);
   };
 
-  // Navigazione mesi
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  // Navigazione basata sulla modalità di visualizzazione
+  const goToPrevious = () => {
+    switch(viewMode) {
+      case 'month':
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+        break;
+      case 'week':
+        setCurrentDate(new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000));
+        break;
+      case 'day':
+        setCurrentDate(new Date(currentDate.getTime() - 24 * 60 * 60 * 1000));
+        break;
+    }
   };
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const goToNext = () => {
+    switch(viewMode) {
+      case 'month':
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+        break;
+      case 'week':
+        setCurrentDate(new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000));
+        break;
+      case 'day':
+        setCurrentDate(new Date(currentDate.getTime() + 24 * 60 * 60 * 1000));
+        break;
+    }
   };
 
   const goToToday = () => {
     setCurrentDate(new Date(serverDate));
   };
 
-  // Genera i giorni del mese
+  // Genera il titolo basato sulla modalità
+  const getViewTitle = () => {
+    const year = currentDate.getFullYear();
+    const month = monthNames[currentDate.getMonth()];
+    
+    switch(viewMode) {
+      case 'month':
+        return `${month} ${year}`;
+      case 'week':
+        const weekStart = getWeekStart(currentDate);
+        const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+        if (weekStart.getMonth() === weekEnd.getMonth()) {
+          return `${weekStart.getDate()}-${weekEnd.getDate()} ${monthNames[weekStart.getMonth()]} ${year}`;
+        } else {
+          return `${weekStart.getDate()} ${monthNames[weekStart.getMonth()]} - ${weekEnd.getDate()} ${monthNames[weekEnd.getMonth()]} ${year}`;
+        }
+      case 'day':
+        return `${currentDate.getDate()} ${month} ${year}`;
+      default:
+        return `${month} ${year}`;
+    }
+  };
+
+  // Helper per ottenere l'inizio della settimana (lunedì)
+  const getWeekStart = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Lunedì come primo giorno
+    return new Date(d.setDate(diff));
+  };
+
+  // Genera i giorni del calendario basato sulla modalità
   const generateCalendarDays = () => {
+    switch(viewMode) {
+      case 'month':
+        return generateMonthDays();
+      case 'week':
+        return generateWeekDays();
+      case 'day':
+        return generateDayView();
+      default:
+        return generateMonthDays();
+    }
+  };
+
+  // Vista mensile (esistente)
+  const generateMonthDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // Primo giorno del mese e ultimo giorno del mese
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    
-    // Quanti giorni del mese precedente mostrare
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1); // Lunedì come primo giorno
+    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1);
     
     const days = [];
-    const totalDays = 42; // 6 settimane x 7 giorni
+    const totalDays = 42;
     
     for (let i = 0; i < totalDays; i++) {
       const date = new Date(startDate);
@@ -350,6 +412,77 @@ export default function CalendarApp() {
     }
     
     return days;
+  };
+
+  // Vista settimanale
+  const generateWeekDays = () => {
+    const weekStart = getWeekStart(currentDate);
+    const days = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
+      
+      const isToday = 
+        date.getDate() === serverDate.getDate() &&
+        date.getMonth() === serverDate.getMonth() &&
+        date.getFullYear() === serverDate.getFullYear();
+      
+      const dayEvents = getEventsForDate(date);
+      
+      days.push({
+        date,
+        isCurrentMonth: true,
+        isToday,
+        events: dayEvents
+      });
+    }
+    
+    return days;
+  };
+
+  // Vista giornaliera
+  const generateDayView = () => {
+    const isToday = 
+      currentDate.getDate() === serverDate.getDate() &&
+      currentDate.getMonth() === serverDate.getMonth() &&
+      currentDate.getFullYear() === serverDate.getFullYear();
+    
+    const dayEvents = getEventsForDate(currentDate);
+    
+    return [{
+      date: new Date(currentDate),
+      isCurrentMonth: true,
+      isToday,
+      events: dayEvents
+    }];
+  };
+
+  // Genera le ore per la vista giornaliera
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 0; hour < 24; hour++) {
+      slots.push({
+        time: `${hour.toString().padStart(2, '0')}:00`,
+        hour: hour
+      });
+    }
+    return slots;
+  };
+
+  // Ottieni eventi per ora specifica
+  const getEventsForHour = (date, hour) => {
+    const dayEvents = getEventsForDate(date);
+    return dayEvents.filter(event => {
+      if (event.type === 'activity') return hour === 12; // Mostra attività a mezzogiorno
+      
+      const eventStart = new Date(event.start);
+      const eventHour = eventStart.getHours();
+      const eventEnd = new Date(event.end);
+      const eventEndHour = eventEnd.getHours();
+      
+      return hour >= eventHour && hour <= eventEndHour;
+    });
   };
 
   // Funzione per salvare l'evento (nuovo o modificato)
@@ -576,73 +709,153 @@ export default function CalendarApp() {
   ];
 
   const dayNames = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+  const dayNamesLong = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 
   return (
     <div className={styles.calendarContainer}>
       {/* Header del calendario */}
       <div className={styles.calendarHeader}>
         <div className={styles.navigationControls}>
-          <button onClick={goToPreviousMonth} className={styles.navButton}>
+          <button onClick={goToPrevious} className={styles.navButton}>
             ◀
           </button>
           <button onClick={goToToday} className={styles.todayButton}>
             Oggi
           </button>
-          <button onClick={goToNextMonth} className={styles.navButton}>
+          <button onClick={goToNext} className={styles.navButton}>
             ▶
           </button>
         </div>
         
         <h2 className={styles.monthTitle}>
-          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+          {getViewTitle()}
         </h2>
+
+        {/* Selettore modalità visualizzazione */}
+        <div className={styles.viewModeSelector}>
+          <button 
+            className={`${styles.viewModeButton} ${viewMode === 'month' ? styles.active : ''}`}
+            onClick={() => setViewMode('month')}
+          >
+            Mese
+          </button>
+          <button 
+            className={`${styles.viewModeButton} ${viewMode === 'week' ? styles.active : ''}`}
+            onClick={() => setViewMode('week')}
+          >
+            Settimana
+          </button>
+          <button 
+            className={`${styles.viewModeButton} ${viewMode === 'day' ? styles.active : ''}`}
+            onClick={() => setViewMode('day')}
+          >
+            Giorno
+          </button>
+        </div>
       </div>
 
-      {/* Griglia del calendario */}
-      <div className={styles.calendarGrid}>
-        {/* Header giorni della settimana */}
-        {dayNames.map(day => (
-          <div key={day} className={styles.dayHeader}>
-            {day}
+      {/* Contenuto del calendario basato sulla modalità */}
+      {viewMode === 'day' ? (
+        // Vista giornaliera
+        <div className={styles.dayView}>
+          <div className={styles.dayViewHeader}>
+            <h3 className={styles.dayViewTitle}>
+              {dayNamesLong[currentDate.getDay() === 0 ? 6 : currentDate.getDay() - 1]}, {currentDate.getDate()} {monthNames[currentDate.getMonth()]}
+            </h3>
           </div>
-        ))}
-        
-        {/* Giorni del mese */}
-        {generateCalendarDays().map((day, index) => (
-          <div
-            key={index}
-            className={`${styles.dayCell} ${
-              !day.isCurrentMonth ? styles.otherMonth : ''
-            } ${day.isToday ? styles.today : ''}`}
-            onClick={() => handleDateClick(day.date)}
-          >
-            <div className={styles.dayNumber}>
-              {day.date.getDate()}
-            </div>
-            
-            {/* Eventi del giorno */}
-            <div className={styles.dayEvents}>
-              {day.events.slice(0, 3).map((event, eventIndex) => (
-                <div
-                  key={eventIndex}
-                  className={`${styles.eventItem} ${styles[`event-${event.type}`]}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEventClick(event, day.date);
-                  }}
-                >
-                  {event.title || "Evento"}
+          
+          <div className={styles.dayViewContent}>
+            <div className={styles.timeColumn}>
+              {generateTimeSlots().map(slot => (
+                <div key={slot.hour} className={styles.timeSlot}>
+                  {slot.time}
                 </div>
               ))}
-              {day.events.length > 3 && (
-                <div className={styles.moreEvents}>
-                  +{day.events.length - 3} altri
-                </div>
-              )}
+            </div>
+            
+            <div className={styles.eventsColumn}>
+              {generateTimeSlots().map(slot => {
+                const hourEvents = getEventsForHour(currentDate, slot.hour);
+                return (
+                  <div 
+                    key={slot.hour} 
+                    className={styles.hourSlot}
+                    onClick={() => {
+                      const clickDate = new Date(currentDate);
+                      clickDate.setHours(slot.hour, 0, 0, 0);
+                      handleDateClick(clickDate);
+                    }}
+                  >
+                    {hourEvents.map((event, eventIndex) => (
+                      <div
+                        key={eventIndex}
+                        className={`${styles.eventItem} ${styles[`event-${event.type}`]}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEventClick(event, currentDate);
+                        }}
+                      >
+                        {event.title || "Evento"}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        // Vista mensile/settimanale
+        <div className={`${styles.calendarGrid} ${styles[`${viewMode}Grid`]}`}>
+          {/* Header giorni della settimana */}
+          {(viewMode === 'month' || viewMode === 'week') && dayNames.map(day => (
+            <div key={day} className={styles.dayHeader}>
+              {day}
+            </div>
+          ))}
+          
+          {/* Giorni del calendario */}
+          {generateCalendarDays().map((day, index) => (
+            <div
+              key={index}
+              className={`${styles.dayCell} ${
+                !day.isCurrentMonth ? styles.otherMonth : ''
+              } ${day.isToday ? styles.today : ''} ${styles[`${viewMode}Cell`]}`}
+              onClick={() => handleDateClick(day.date)}
+            >
+              <div className={styles.dayNumber}>
+                {viewMode === 'week' && (
+                  <span className={styles.dayName}>
+                    {dayNames[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]}
+                  </span>
+                )}
+                {day.date.getDate()}
+              </div>
+              
+              {/* Eventi del giorno */}
+              <div className={styles.dayEvents}>
+                {day.events.slice(0, viewMode === 'week' ? 4 : 3).map((event, eventIndex) => (
+                  <div
+                    key={eventIndex}
+                    className={`${styles.eventItem} ${styles[`event-${event.type}`]}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEventClick(event, day.date);
+                    }}
+                  >
+                    {event.title || "Evento"}
+                  </div>
+                ))}
+                {day.events.length > (viewMode === 'week' ? 4 : 3) && (
+                  <div className={styles.moreEvents}>
+                    +{day.events.length - (viewMode === 'week' ? 4 : 3)} altri
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {showModal && (
         <EventModal

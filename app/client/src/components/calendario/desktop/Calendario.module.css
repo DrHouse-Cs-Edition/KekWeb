@@ -310,6 +310,234 @@
   color: var(--dusk-text);
 }
 
+/* View Mode Selector */
+.viewModeSelector {
+  display: flex;
+  gap: 4px;
+  background: rgba(75, 53, 112, 0.3);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.viewModeButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dusk-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.viewModeButton:hover {
+  background: rgba(109, 69, 201, 0.3);
+}
+
+.viewModeButton.active {
+  background: var(--dusk-accent);
+  color: white;
+}
+
+/* Week Grid */
+.weekGrid {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekCell {
+  min-height: 200px;
+}
+
+.weekCell .dayNumber {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dayName {
+  font-size: 0.75rem;
+  color: var(--dusk-text-secondary);
+  margin-bottom: 2px;
+}
+
+/* Day View */
+.dayView {
+  background: var(--dusk-card);
+  border-radius: 12px;
+  box-shadow: var(--dusk-shadow);
+  border: 1px solid var(--dusk-border);
+  overflow: hidden;
+}
+
+.dayViewHeader {
+  padding: 20px;
+  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%);
+  border-bottom: 1px solid var(--dusk-border);
+}
+
+.dayViewTitle {
+  margin: 0;
+  color: var(--dusk-text-header);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.dayViewContent {
+  display: flex;
+  height: 600px;
+  overflow-y: auto;
+}
+
+.timeColumn {
+  width: 80px;
+  background: var(--dusk-card-hover);
+  border-right: 1px solid var(--dusk-border);
+  flex-shrink: 0;
+}
+
+.timeSlot {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: var(--dusk-text-secondary);
+  border-bottom: 1px solid var(--dusk-border);
+  font-weight: 500;
+}
+
+.eventsColumn {
+  flex: 1;
+  background: var(--dusk-card-solid);
+}
+
+.hourSlot {
+  height: 60px;
+  border-bottom: 1px solid var(--dusk-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hourSlot:hover {
+  background: var(--dusk-card-hover);
+}
+
+.hourSlot .eventItem {
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+  min-height: auto;
+  flex: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendarContainer {
+    padding: 10px;
+  }
+  
+  .calendarGrid {
+    border-radius: 8px;
+  }
+  
+  .dayCell {
+    min-height: 80px;
+    padding: 4px;
+  }
+  
+  .dayHeader {
+    padding: 8px 4px;
+  }
+  
+  .monthTitle {
+    font-size: 1.2rem;
+  }
+  
+  .calendarHeader {
+    padding: 12px 16px;
+  }
+  
+  .eventItem {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+  }
+  
+  .calendarHeader {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .viewModeSelector {
+    order: -1;
+    justify-content: center;
+  }
+  
+  .monthTitle {
+    order: 0;
+  }
+  
+  .navigationControls {
+    order: 1;
+    justify-content: center;
+  }
+  
+  .weekCell {
+    min-height: 150px;
+  }
+  
+  .dayViewContent {
+    height: 400px;
+  }
+  
+  .timeColumn {
+    width: 60px;
+  }
+  
+  .timeSlot {
+    height: 50px;
+    font-size: 0.75rem;
+  }
+  
+  .hourSlot {
+    height: 50px;
+  }
+  
+  .viewModeButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarContainer {
+    padding: 10px;
+  }
+  
+  .dayViewContent {
+    height: 300px;
+  }
+  
+  .timeColumn {
+    width: 50px;
+  }
+  
+  .timeSlot {
+    font-size: 0.7rem;
+  }
+  
+  .viewModeButton {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+
 /* High DPI / Retina Display Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .navButton, .todayButton {
@@ -379,37 +607,5 @@
   .eventItem {
     color: #333;
     text-shadow: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .calendarContainer {
-    padding: 10px;
-  }
-  
-  .calendarGrid {
-    border-radius: 8px;
-  }
-  
-  .dayCell {
-    min-height: 80px;
-    padding: 4px;
-  }
-  
-  .dayHeader {
-    padding: 8px 4px;
-  }
-  
-  .monthTitle {
-    font-size: 1.2rem;
-  }
-  
-  .calendarHeader {
-    padding: 12px 16px;
-  }
-  
-  .eventItem {
-    padding: 4px 6px;
-    font-size: 0.7rem;
   }
 }
