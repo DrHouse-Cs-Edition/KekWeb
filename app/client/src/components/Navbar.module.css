@@ -47,7 +47,7 @@
   border: none;
   cursor: pointer;
   gap: 0.25rem;
-  z-index: 10001; /* Higher than modal overlay */
+  z-index: 10003; /* Higher than navbar */
   position: relative;
 }
 
@@ -185,10 +185,48 @@
 /* Mobile Navigation Enhancement (640px and below) */
 @media (max-width: 640px) {
   .navbar {
-    left: 50vw;
-    right: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
-    transform: translateX(-50vw);
-    border-radius: 0 0 0.5rem 0.5rem;
+    height: 100vh;
+    background: var(--navbar-bg);
+    border-radius: 0;
+    z-index: 10002;
+    padding: 0;
+    transform: none;
+  }
+  
+  /* Logo section at top */
+  .navbar::before {
+    content: "Logo";
+    display: block;
+    background: rgba(0, 0, 0, 0.2);
+    color: #ffe5d9;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+  }
+  
+  .navLink {
+    padding: 1.25rem 1.25rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0;
+    background: transparent;
+  }
+  
+  .navLink:hover,
+  .navLink:focus {
+    background: rgba(109, 69, 201, 0.2);
+    transform: none;
+  }
+  
+  .navLink:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 }

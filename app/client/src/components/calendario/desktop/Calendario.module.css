@@ -6,409 +6,205 @@
   padding: 20px;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  /* background: var(--dusk-bg); /* Optional: if the page itself should have this gradient */
+  color: var(--dusk-text);
 }
 
-/* FullCalendar Overrides */
-.calendarContainer :global(.fc) {
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--dusk-card);
+  border-radius: 12px;
+  border: 1px solid var(--dusk-border);
+  margin-bottom: 20px;
+  box-shadow: var(--dusk-shadow);
+}
+
+.navigationControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.navButton, .todayButton {
+  background: var(--dusk-button-bg);
+  border: 1px solid var(--dusk-accent-light);
+  color: var(--dusk-text);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.navButton:hover, .todayButton:hover {
+  background: var(--dusk-button-hover-bg);
+  border-color: var(--dusk-accent);
+  transform: translateY(-1px);
+}
+
+.navButton:disabled, .todayButton:disabled {
+  background: var(--dusk-button-disabled-bg);
+  opacity: 0.6;
+  border-color: var(--dusk-muted);
+}
+
+.monthTitle {
+  color: var(--dusk-text-header);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.calendarGrid {
   background: var(--dusk-card);
   border-radius: 12px;
   box-shadow: var(--dusk-shadow);
   overflow: hidden;
-  /* CSS Custom Properties to override FullCalendar defaults */
-  --fc-event-bg-color: transparent;
-  --fc-event-border-color: transparent;
-  --fc-event-text-color: var(--event-text-primary); /* Updated for better visibility */
-  border: 1px solid var(--dusk-border); /* This already matches mobile's main container border */
+  border: 1px solid var(--dusk-border);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
 }
 
-/* Day header labels (Mon, Tue, etc.) */
-.calendarContainer :global(.fc-col-header-cell) { /* Target the actual header cell for its bottom border */
-  border-bottom: 1px solid var(--dusk-border);
-}
-
-.calendarContainer :global(.fc-col-header-cell-cushion) {
-  color: var(--dusk-text-header); /* Use theme header text color */
-  font-weight: 600; /* Consistent font weight */
-  text-decoration: none; /* Ensure no underline if not desired */
-  /* You can adjust padding here if needed, e.g., padding: 8px 4px; */
-}
-
-/* Day cell borders */
-.calendarContainer :global(.fc-daygrid-day) {
-  border: 1px solid var(--dusk-border); /* Add border to each day cell */
-  /* Note: FullCalendar cells typically touch. If you had a gap in mobile and want it here,
-     that would require more complex adjustments to FC's table structure or negative margins.
-     This change applies a border assuming cells touch or have default FC spacing. */
-}
-
-/* Force override FullCalendar's inline styles for events */
-.calendarContainer :global(.fc-event) {
-  background-color: transparent !important;
-  border-color: transparent !important;
-  border: none !important;
-  color: var(--event-text-primary) !important; /* Pure white text */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important; /* Added text shadow for better readability */
-}
-
-.calendarContainer :global(.fc-daygrid-event) {
-  background-color: transparent !important;
-  border: none !important;
-  /* Text wrapping for daygrid events */
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-}
-
-.calendarContainer :global(.fc-timegrid-event) {
-  background-color: transparent !important;
-  border: none !important;
-}
-
-/* Event container overrides for text wrapping and appearance */
-.calendarContainer :global(.fc-event-main),
-.calendarContainer :global(.fc-event-main-frame) {
-  background: inherit !important;
-  border: none !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-}
-
-/* Event title specific text handling */
-.calendarContainer :global(.fc-event-title) {
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-break: break-word;
-  hyphens: auto;
-  line-height: 1.2;
-  color: var(--event-text-primary) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important; /* Stronger shadow for titles */
-  font-weight: 600 !important; /* Bold text for better visibility */
-}
-
-/* Ensure long titles don't break layout in event harnesses */
-.calendarContainer :global(.fc-daygrid-event-harness) {
-  overflow: visible !important;
-  position: relative;
-  white-space: normal !important;
-  text-overflow: unset !important;
-}
-
-/* Add some breathing room between events */
-.calendarContainer :global(.fc-daygrid-event:not(:last-child)) {
-  margin-bottom: 2px;
-}
-
-.calendarContainer :global(.fc-header-toolbar) {
-  padding: 15px 20px;
-  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%); /* Darker gradient for header */
-  margin-bottom: 0 !important;
-  border-bottom: 1px solid var(--dusk-border);
-}
-
-.calendarContainer :global(.fc-toolbar-title) {
-  color: var(--dusk-text-header) !important;
+.dayHeader {
+  background: var(--dusk-card-solid);
+  padding: 12px 8px;
+  text-align: center;
   font-weight: 600;
-  font-size: 1.5rem;
+  color: var(--dusk-text-header);
+  border-bottom: 1px solid var(--dusk-border);
+  text-decoration: none;
 }
 
-.calendarContainer :global(.fc-button-primary) {
-  background: var(--dusk-button-bg) !important;
-  border: 1px solid var(--dusk-accent-light) !important;
-  color: var(--dusk-text) !important;
-  border-radius: 8px !important;
-  font-weight: 500;
+.dayCell {
+  background: var(--dusk-card-hover);
+  min-height: 120px;
+  padding: 8px;
+  cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  border: 1px solid var(--dusk-border);
 }
 
-.calendarContainer :global(.fc-button-primary:hover) {
-  background: var(--dusk-button-hover-bg) !important;
+.dayCell:hover {
+  background: var(--dusk-card-solid);
+  border-color: var(--dusk-accent) !important; /* Aggiungi !important per forzare */
+  box-shadow: 0 0 0 1px var(--dusk-accent); /* Backup con box-shadow */
+}
+
+.dayCell.otherMonth {
+  opacity: 0.5;
+  background: #2d3355;
+}
+
+.dayCell.otherMonth:hover {
+  background: rgba(45, 51, 85, 0.8);
   border-color: var(--dusk-accent) !important;
-  transform: translateY(-1px);
 }
 
-.calendarContainer :global(.fc-button-primary:disabled) {
-  background: var(--dusk-button-disabled-bg) !important;
-  opacity: 0.6;
-  border-color: var(--dusk-muted) !important;
+.dayCell.today {
+  background: var(--dusk-today-bg);
+  border-color: var(--dusk-accent);
 }
 
-.calendarContainer :global(.fc-daygrid-day-number) {
+.dayCell.today:hover {
+  background: var(--dusk-today-bg);
+  border-color: var(--dusk-accent-light) !important;
+  box-shadow: 0 0 0 1px var(--dusk-accent-light);
+}
+
+.dayNumber {
   color: var(--dusk-muted);
   font-weight: 500;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
 }
 
-.calendarContainer :global(.fc-day-today) {
-  background: var(--dusk-today-bg) !important;
+.dayEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.calendarContainer :global(.fc-daygrid-day-top) {
+.eventItem {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--event-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 3px;
+  background-color: inherit;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.3;
+  min-height: 1.8em;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-/* Custom Event Styling (local classes) */
+.eventItem:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.event-event {
+  background: rgba(255, 140, 107, 0.8);
+  backdrop-filter: blur(2px);
+}
+
+.event-activity {
+  background: rgba(139, 195, 74, 0.8);
+  backdrop-filter: blur(2px);
+}
+
+.event-pomodoro {
+  background: rgba(244, 67, 54, 0.8);
+  backdrop-filter: blur(2px);
+}
+
+.moreEvents {
+  font-size: 0.7rem;
+  color: var(--dusk-text-secondary);
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Event Title and Details */
 .eventTitle {
-  font-weight: 700; /* Increased weight for better visibility */
+  font-weight: 700;
   font-size: 0.875rem;
   line-height: 1.2;
   margin-bottom: 2px;
-  color: var(--event-text-primary) !important; /* Pure white */
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); /* Strong shadow */
+  color: var(--event-text-primary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .eventLocation {
   font-size: 0.75rem;
-  opacity: 0.95; /* Increased opacity */
+  opacity: 0.95;
   margin-bottom: 1px;
-  color: var(--event-text-secondary) !important; /* Light text */
+  color: var(--event-text-secondary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-  font-weight: 500; /* Added weight */
+  font-weight: 500;
 }
 
 .eventCycles {
   font-size: 0.75rem;
-  font-weight: 600; /* Increased weight */
-  opacity: 0.95; /* Increased opacity */
-  color: var(--event-text-secondary) !important; /* Light text */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-/* Global custom event classes for different types */
-.calendarContainer :global(.custom-event) {
-  padding: 6px 8px; /* Increased padding for better readability */
-  border-radius: 8px; /* Slightly larger radius */
-  border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Subtle border for definition */
-  color: var(--event-text-primary) !important;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 3px; /* Increased margin */
-  background-color: inherit !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.3;
-  min-height: 1.8em; /* Increased min-height */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important; /* Strong text shadow */
-}
-
-.calendarContainer :global(.custom-event:hover) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-/* Enhanced event type colors with better opacity and contrast */
-.calendarContainer :global(.custom-event-event) {
-  background: rgba(255, 140, 107, var(--event-bg-opacity)) !important; /* Higher opacity */
-  backdrop-filter: blur(2px); /* Subtle blur for depth */
-}
-
-.calendarContainer :global(.custom-event-activity) {
-  background: rgba(139, 195, 74, var(--event-bg-opacity)) !important; /* Green with higher opacity */
-  backdrop-filter: blur(2px);
-}
-
-.calendarContainer :global(.custom-event-pomodoro) {
-  background: rgba(244, 67, 54, var(--event-bg-opacity)) !important; /* Red with higher opacity */
-  backdrop-filter: blur(2px);
-}
-
-/* Modal Styles */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--dusk-modal-overlay);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.modal {
-  background: var(--dusk-card-solid);
-  border-radius: 16px;
-  box-shadow: var(--dusk-shadow);
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  animation: modalSlideIn 0.3s ease-out;
-  border: 1px solid var(--dusk-border);
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid var(--dusk-border);
-  background: rgba(59, 45, 90, 0.7); /* Slightly different shade for header */
-}
-
-.modalHeader h3 {
-  margin: 0;
-  font-size: 1.25rem;
   font-weight: 600;
-  color: var(--dusk-text-header);
-}
-
-.modalHeader button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--dusk-muted);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.modalHeader button:hover {
-  background: var(--dusk-button-bg);
-  color: var(--dusk-accent);
-}
-
-.modalBody {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.formGroup {
-  margin-bottom: 20px;
-}
-
-.formGroup label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: var(--dusk-muted);
-  font-size: 0.875rem;
-}
-
-.formGroup input,
-.formGroup select,
-.formGroup textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--dusk-input-border);
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  font-family: inherit;
-  background-color: var(--dusk-input-bg);
-  color: var(--dusk-text);
-}
-
-.formGroup input:focus,
-.formGroup select:focus,
-.formGroup textarea:focus {
-  outline: none;
-  border-color: var(--dusk-input-focus-border);
-  box-shadow: var(--dusk-input-focus-shadow);
-}
-
-.formGroup textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.formGroup select {
-  cursor: pointer;
-  /* SVG color needs to be updated for dark theme */
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1c7e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e"); /* Updated stroke color */
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  padding-right: 40px;
-  appearance: none;
-}
-
-.modalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px 24px;
-  border-top: 1px solid var(--dusk-border);
-  background: rgba(59, 45, 90, 0.7); /* Consistent with modal header */
-}
-
-.modalFooter button {
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  min-width: 80px;
-}
-
-.modalFooter button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.saveBtn {
-  background: var(--dusk-accent);
-  color: var(--dusk-card-solid); /* Dark text on accent bg for contrast */
-}
-
-.saveBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 140, 107, 0.4); /* Shadow from accent color */
-  background: var(--dusk-accent-light);
-}
-
-.cancelBtn {
-  background: var(--dusk-input-bg);
-  color: var(--dusk-muted);
-  border: 1px solid var(--dusk-border);
-}
-
-.cancelBtn:hover:not(:disabled) {
-  background: var(--dusk-border);
-  color: var(--dusk-text);
-}
-
-.deleteBtn {
-  background: #c70039; /* A suitable dark red for delete */
-  color: var(--dusk-text);
-  margin-right: auto;
-}
-
-.deleteBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(199, 0, 57, 0.4);
-  background: #900c3f; /* Darker red on hover */
+  opacity: 0.95;
+  color: var(--event-text-secondary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* Custom Navigation Styles */
@@ -421,7 +217,7 @@
   justify-content: flex-end;
   padding: 10px 0;
   margin-bottom: 10px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--dusk-border);
 }
 
 .navigationGroup {
@@ -431,19 +227,20 @@
 }
 
 .todayBtn {
-  background-color: #1976d2;
+  background: var(--dusk-accent);
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .todayBtn:hover {
-  background-color: #1565c0;
+  background: var(--dusk-accent-light);
+  transform: translateY(-1px);
 }
 
 .dateSearchWrapper {
@@ -451,28 +248,29 @@
 }
 
 .searchBtn {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  background: var(--dusk-input-bg);
+  border: 1px solid var(--dusk-border);
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s;
+  font-size: 14px;
+  color: var(--dusk-text);
+  transition: all 0.2s ease;
 }
 
 .searchBtn:hover {
-  background-color: #e0e0e0;
+  background: var(--dusk-card-hover);
 }
 
 .datePickerDropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: var(--dusk-card-solid);
+  border: 1px solid var(--dusk-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: var(--dusk-shadow);
   z-index: 1000;
   display: flex;
   gap: 8px;
@@ -481,17 +279,19 @@
 }
 
 .dateInput {
-  border: 1px solid #ddd;
-  padding: 6px 8px;
-  border-radius: 4px;
+  border: 1px solid var(--dusk-border);
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 14px;
   flex: 1;
+  background: var(--dusk-input-bg);
+  color: var(--dusk-text);
 }
 
 .dateInput:focus {
   outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  border-color: var(--dusk-accent);
+  box-shadow: 0 0 0 2px rgba(109, 69, 201, 0.2);
 }
 
 .closePicker {
@@ -499,94 +299,243 @@
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: #666;
+  color: var(--dusk-muted);
   padding: 4px;
-  border-radius: 2px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .closePicker:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background: var(--dusk-card-hover);
+  color: var(--dusk-text);
 }
 
-/* Notification Settings Styles */
-.notificationGroup {
-  margin-top: 20px;
-  padding: 16px;
-  background: rgba(75, 53, 112, 0.3);
-  border-radius: 10px;
-  border: 1px solid var(--dusk-border);
-}
-
-.notificationCheckbox {
+/* View Mode Selector */
+.viewModeSelector {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0;
+  gap: 4px;
+  background: rgba(75, 53, 112, 0.3);
+  border-radius: 8px;
+  padding: 4px;
 }
 
-.notificationCheckbox input[type="checkbox"] {
-  width: auto !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  transform: scale(1.1);
-  accent-color: var(--dusk-accent);
-}
-
-.notificationCheckbox label {
-  margin: 0 !important;
-  font-weight: 500;
+.viewModeButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
   color: var(--dusk-text);
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.notificationSubSettings {
-  margin-top: 16px;
-  padding-left: 24px;
-  border-left: 2px solid var(--dusk-accent);
-  background: rgba(75, 53, 112, 0.2);
-  border-radius: 0 8px 8px 0;
-  padding-top: 12px;
-  padding-bottom: 12px;
+.viewModeButton:hover {
+  background: rgba(109, 69, 201, 0.3);
 }
 
-.notificationTypeGroup {
-  margin-top: 12px;
+.viewModeButton.active {
+  background: var(--dusk-accent);
+  color: white;
 }
 
-.notificationTypeLabel {
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  color: var(--dusk-muted) !important;
-  margin-bottom: 8px !important;
+/* Week Grid */
+.weekGrid {
+  grid-template-columns: repeat(7, 1fr);
 }
 
-.notificationTypeOptions {
+.weekCell {
+  min-height: 200px;
+}
+
+.weekCell .dayNumber {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
 }
 
-.notificationTypeOption {
+.dayName {
+  font-size: 0.75rem;
+  color: var(--dusk-text-secondary);
+  margin-bottom: 2px;
+}
+
+/* Day View */
+.dayView {
+  background: var(--dusk-card);
+  border-radius: 12px;
+  box-shadow: var(--dusk-shadow);
+  border: 1px solid var(--dusk-border);
+  overflow: hidden;
+}
+
+.dayViewHeader {
+  padding: 20px;
+  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%);
+  border-bottom: 1px solid var(--dusk-border);
+}
+
+.dayViewTitle {
+  margin: 0;
+  color: var(--dusk-text-header);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.dayViewContent {
+  display: flex;
+  height: 600px;
+  overflow-y: auto;
+}
+
+.timeColumn {
+  width: 80px;
+  background: var(--dusk-card-hover);
+  border-right: 1px solid var(--dusk-border);
+  flex-shrink: 0;
+}
+
+.timeSlot {
+  height: 60px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: var(--dusk-text-secondary);
+  border-bottom: 1px solid var(--dusk-border);
+  font-weight: 500;
 }
 
-.notificationTypeOption input[type="checkbox"] {
-  width: auto !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  transform: scale(1.05);
-  accent-color: var(--dusk-accent);
+.eventsColumn {
+  flex: 1;
+  background: var(--dusk-card-solid);
 }
 
-.notificationTypeOption label {
-  font-size: 0.875rem !important;
-  font-weight: normal !important;
-  color: var(--dusk-text) !important;
-  margin: 0 !important;
+.hourSlot {
+  height: 60px;
+  border-bottom: 1px solid var(--dusk-border);
   cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hourSlot:hover {
+  background: var(--dusk-card-hover);
+}
+
+.hourSlot .eventItem {
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+  min-height: auto;
+  flex: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendarContainer {
+    padding: 10px;
+  }
+  
+  .calendarGrid {
+    border-radius: 8px;
+  }
+  
+  .dayCell {
+    min-height: 80px;
+    padding: 4px;
+  }
+  
+  .dayHeader {
+    padding: 8px 4px;
+  }
+  
+  .monthTitle {
+    font-size: 1.2rem;
+  }
+  
+  .calendarHeader {
+    padding: 12px 16px;
+  }
+  
+  .eventItem {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+  }
+  
+  .calendarHeader {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .viewModeSelector {
+    order: -1;
+    justify-content: center;
+  }
+  
+  .monthTitle {
+    order: 0;
+  }
+  
+  .navigationControls {
+    order: 1;
+    justify-content: center;
+  }
+  
+  .weekCell {
+    min-height: 150px;
+  }
+  
+  .dayViewContent {
+    height: 400px;
+  }
+  
+  .timeColumn {
+    width: 60px;
+  }
+  
+  .timeSlot {
+    height: 50px;
+    font-size: 0.75rem;
+  }
+  
+  .hourSlot {
+    height: 50px;
+  }
+  
+  .viewModeButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarContainer {
+    padding: 10px;
+  }
+  
+  .dayViewContent {
+    height: 300px;
+  }
+  
+  .timeColumn {
+    width: 50px;
+  }
+  
+  .timeSlot {
+    font-size: 0.7rem;
+  }
+  
+  .viewModeButton {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
 }
 
 .linkButton {
@@ -631,76 +580,72 @@
 
 /* High DPI / Retina Display Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .calendarContainer :global(.fc-button-primary) {
-    border-width: 0.5px !important;
+  .navButton, .todayButton {
+    border-width: 0.5px;
   }
-}
-
-/* Dark mode support (if needed in the future) */
-@media (prefers-color-scheme: dark) {
-  /* Add dark mode styles here if needed */
 }
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .modal,
-  .calendarContainer :global(.fc-button-primary),
-  .calendarContainer :global(.custom-event),
-  .modalFooter button {
+  .navButton,
+  .todayButton,
+  .eventItem,
+  .dayCell {
     transition: none;
     animation: none;
   }
 }
 
 /* Focus styles for keyboard navigation */
-.calendarContainer :global(.fc-button-primary:focus),
-.formGroup input:focus,
-.formGroup select:focus,
-.formGroup textarea:focus,
-.modalFooter button:focus {
+.navButton:focus,
+.todayButton:focus,
+.searchBtn:focus,
+.dateInput:focus {
   outline: 2px solid var(--dusk-accent);
   outline-offset: 2px;
 }
 
 /* Print styles */
 @media print {
-  .modalOverlay {
-    display: none;
-  }
-  
   .calendarContainer {
     box-shadow: none;
     background: #fff;
   }
   
-  .calendarContainer :global(.fc) {
+  .calendarGrid {
     background: #fff;
     border: 1px solid #ccc;
   }
 
-  .calendarContainer :global(.fc-header-toolbar) {
-    background: #f3f4f6 !important;
+  .calendarHeader {
+    background: #f3f4f6;
   }
-  .calendarContainer :global(.fc-header-toolbar .fc-toolbar-title) {
-    color: #111827 !important;
+  
+  .monthTitle {
+    color: #111827;
   }
-  .calendarContainer :global(.fc-button-primary) {
-    background: #e9ecef !important;
-    border: 1px solid #ced4da !important;
-    color: #495057 !important;
+  
+  .navButton, .todayButton {
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    color: #495057;
   }
-  .calendarContainer :global(.fc-daygrid-day-number) {
+  
+  .dayNumber {
     color: #374151;
   }
-  .calendarContainer :global(.fc-day-today) {
-    background: #e6f7ff !important;
+  
+  .dayCell.today {
+    background: #e6f7ff;
   }
+  
   .eventTitle, .eventLocation, .eventCycles {
-    color: #333; /* Dark text for events on print */
+    color: #333;
     text-shadow: none;
   }
-  .calendarContainer :global(.custom-event) {
-    color: #333 !important; /* Dark text for custom events */
-    text-shadow: none !important;
+  
+  .eventItem {
+    color: #333;
+    text-shadow: none;
   }
 }

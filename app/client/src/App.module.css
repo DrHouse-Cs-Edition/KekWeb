@@ -68,6 +68,10 @@
   display: none; /* Hide by default */
 }
 
+.content{
+  padding-bottom: 50px;
+}
+
 /* Media query for mobile devices (e.g., screens up to 767px wide) */
 @media (max-width: 767px) {
   .desktop_bg {

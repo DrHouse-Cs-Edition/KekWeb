@@ -150,6 +150,44 @@ const EventModal = ({
   let isAlarmEnabled = (selectedEvent?.alarm?.earlyness > 0) || (selectedEvent?.alarm?.repeat_times > 0);
   let shouldShowRepeatEvery = selectedEvent?.alarm?.repeat_times > 1;
 
+  // Add this function before the handleRecurringEvent function
+  const calculateEndDate = (eventData, clickedDate) => {
+    if (!eventData.start || !eventData.end) {
+      // If no original dates, default to 1 hour duration
+      return new Date(new Date(clickedDate).getTime() + 60 * 60 * 1000);
+    }
+    
+    // Calculate the original duration
+    const originalStart = new Date(eventData.start);
+    const originalEnd = new Date(eventData.end);
+    const duration = originalEnd.getTime() - originalStart.getTime();
+    
+    // Apply the same duration to the clicked date
+    return new Date(new Date(clickedDate).getTime() + duration);
+  };
+
+  // Funzione per gestire eventi ricorrenti
+  const handleRecurringEvent = (eventData, clickedDate) => {
+    if (eventData.recurrenceRule && clickedDate) {
+      // Se questo è un evento ricorrente e abbiamo cliccato su un'occorrenza specifica
+      return {
+        ...eventData,
+        start: clickedDate, // Usa la data dell'occorrenza cliccata
+        end: calculateEndDate(eventData, clickedDate),
+        isRecurringInstance: true,
+        originalEventId: eventData._id
+      };
+    }
+    return eventData;
+  };
+
+  // Aggiungi questa funzione per gestire il cambio di ricorrenza
+  const handleRecurrenceChange = (e) => {
+    let value = e.target.value;
+    console.log("Nuova ricorrenza selezionata:", value);
+    setSelectedEvent(prev => ({ ...prev, recurrenceRule: value }));
+  };
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
@@ -256,6 +294,26 @@ const EventModal = ({
                   placeholder="Aggiungi una descrizione..."
                 />
               </div>
+
+              {/* RICORRENZA - NUOVO CAMPO */}
+              {(selectedEvent?.type === "event" || selectedEvent?.type === "activity") && (
+                <div>
+                  <label className={styles.label}>
+                    Ricorrenza
+                  </label>
+                  <select
+                    value={selectedEvent?.recurrenceRule || ""}
+                    onChange={handleRecurrenceChange}
+                    className={styles.selectInput}
+                  >
+                    <option value="">Nessuna ricorrenza</option>
+                    <option value="daily">Ogni giorno</option>
+                    <option value="weekly">Ogni settimana</option>
+                    <option value="monthly">Ogni mese</option>
+                    <option value="yearly">Ogni anno</option>
+                  </select>
+                </div>
+              )}
             </>
           )}
 

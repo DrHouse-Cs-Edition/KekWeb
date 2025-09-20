@@ -162,6 +162,7 @@
 
 .mainContent {
   padding: 1rem;
+  transition: all 0.3s ease;
 }
 
 .todaysEventsSummaryContainer {
@@ -314,28 +315,512 @@
   margin-top: 0.25rem;
 }
 
-/* Day View and Agenda View styles removed as they are no longer used */
-
-
-/* Floating Action Button Styles */
-.fabContainer {
-  position: fixed;
-  bottom: 1.5rem; /* Adjust as needed */
-  right: 1.5rem; /* Adjust as needed */
-  z-index: 20; /* Ensure it's above other content */
+/* View Mode Selector */
+.viewModeSelector {
+  display: flex;
+  background: rgba(75, 53, 112, 0.2);
+  border-radius: 8px;
+  padding: 3px;
+  margin-top: 12px;
 }
 
-.fabButton {
-  /* primaryButton styles are already applied for background and color */
-  padding: 1rem; /* Make it a bit larger */
-  border-radius: 9999px; /* Circular */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15); /* Add some shadow */
+.viewModeButton {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dusk-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  font-weight: 500;
 }
 
-.fabButton .iconSize { /* Ensure icon inside FAB is sized if needed, primaryButton might already handle this */
-  width: 1.5rem;
-  height: 1.5rem;
+.viewModeButton:hover {
+  background: rgba(109, 69, 201, 0.2);
+  color: var(--dusk-text);
+}
+
+.viewModeButtonActive {
+  background: var(--dusk-accent) !important;
+  color: white !important;
+}
+
+/* Week View - Design migliorato con selezione più evidente */
+.weekViewContainer {
+  background: var(--dusk-card-solid);
+  border-radius: 12px;
+  margin: 12px;
+  overflow: hidden;
+  box-shadow: var(--dusk-shadow);
+  border: 1px solid var(--dusk-border);
+}
+
+.weekViewGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  background: var(--dusk-card-solid);
+}
+
+.weekDayCell {
+  background: var(--dusk-card-solid);
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid var(--dusk-border);
+  border-bottom: 1px solid var(--dusk-border);
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.weekDayCell:nth-child(7n) {
+  border-right: none;
+}
+
+.weekDayCell:hover {
+  background: var(--dusk-card-hover);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 2px rgba(109, 69, 201, 0.2);
+}
+
+/* Migliorata evidenziazione per "oggi" */
+.weekDayCellToday {
+  background: linear-gradient(135deg, rgba(109, 69, 201, 0.15) 0%, rgba(109, 69, 201, 0.05) 100%);
+  border-color: var(--dusk-accent) !important;
+  position: relative;
+}
+
+.weekDayCellToday::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--dusk-accent), var(--dusk-accent-light));
+  z-index: 2;
+}
+
+.weekDayCellToday::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--dusk-accent);
+  border-radius: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Migliorata evidenziazione per giorno selezionato */
+.weekDayCellSelected {
+  background: var(--dusk-card-solid) !important;
+  border-color: var(--dusk-accent) !important;
+  position: relative;
+  transform: scale(1.02);
+  z-index: 3;
+}
+
+.weekDayCellSelected::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, var(--dusk-accent), var(--dusk-accent-light));
+  border-radius: 8px;
+  z-index: -1;
+}
+
+.weekDayCellSelected::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: inherit;
+  border-radius: 6px;
+  z-index: -1;
+}
+
+/* Combina today + selected */
+.weekDayCellToday.weekDayCellSelected {
+  background: linear-gradient(135deg, rgba(109, 69, 201, 0.4) 0%, rgba(109, 69, 201, 0.2) 100%) !important;
+  box-shadow: 
+    inset 0 0 0 3px var(--dusk-accent),
+    0 4px 12px rgba(109, 69, 201, 0.3);
+}
+
+.weekDayHeader {
+  text-align: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(109, 69, 201, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.weekDayLabel {
+  font-size: 11px;
+  color: var(--dusk-text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.weekDayNumber {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dusk-text);
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.weekDayCellToday .weekDayNumber {
+  color: var(--dusk-accent);
+}
+
+.weekDayCellSelected .weekDayNumber {
+  color: var(--dusk-accent);
+  text-shadow: 0 0 8px rgba(109, 69, 201, 0.3);
+  transform: scale(1.1);
+}
+
+.weekDayCellSelected .weekDayLabel {
+  color: var(--dusk-accent);
+  font-weight: 700;
+}
+
+.weekDayEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: calc(140px - 60px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: relative;
+  z-index: 2;
+}
+
+.weekDayEvents::-webkit-scrollbar {
+  display: none;
+}
+
+.weekEventItem {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border-left: 3px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  position: relative;
+  overflow: hidden;
+}
+
+.weekEventItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  opacity: 0.8;
+  z-index: -1;
+}
+
+.weekEventItem:hover {
+  transform: translateX(2px) scale(1.02);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  border-left-width: 4px;
+}
+
+.weekEventTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dusk-text);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.weekEventTime {
+  font-size: 9px;
+  color: var(--dusk-text-secondary);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.weekMoreEvents {
+  font-size: 9px;
+  color: var(--dusk-accent);
+  text-align: center;
+  padding: 4px 6px;
+  font-style: italic;
+  font-weight: 500;
+  background: rgba(109, 69, 201, 0.1);
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+/* Header della settimana */
+.weekViewHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--dusk-border);
+}
+
+.weekViewHeaderDay {
+  text-align: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+/* Day View */
+.dayViewContainer {
+  background: var(--dusk-card-solid);
+  border-radius: 12px;
+  margin: 12px;
+  overflow: hidden;
+  box-shadow: var(--dusk-shadow);
+}
+
+.dayViewHeader {
+  padding: 16px;
+  background: linear-gradient(135deg, #4b3570 0%, #232b4d 100%);
+  color: white;
+}
+
+.dayViewTitle {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dayViewSummary {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.dayViewContent {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.dayTimeSlot {
+  display: flex;
+  border-bottom: 1px solid var(--dusk-border);
+  min-height: 50px;
+}
+
+.dayTimeLabel {
+  width: 60px;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--dusk-text-secondary);
+  background: var(--dusk-card-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-right: 1px solid var(--dusk-border);
+}
+
+.dayTimeContent {
+  flex: 1;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dayTimeContent:hover {
+  background: var(--dusk-card-hover);
+}
+
+.dayEventItem {
+  padding: 8px;
+  border-radius: 6px;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dayEventItem:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dayEventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.dayEventTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dusk-text);
+  flex: 1;
+}
+
+.dayEventTime {
+  font-size: 10px;
+  color: var(--dusk-text-secondary);
+  margin-left: 8px;
+}
+
+.dayEventLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--dusk-text-secondary);
+}
+
+/* Floating Action Button (FAB) */
+.fabContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.fabButton {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--dusk-accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(109, 69, 201, 0.4);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.fabButton:hover {
+  background-color: var(--dusk-accent-light);
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(109, 69, 201, 0.5);
+}
+
+.fabButton:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .viewModeButton span {
+    display: none;
+  }
+  
+  .viewModeButton {
+    padding: 8px 4px;
+  }
+  
+  .weekViewContainer {
+    margin: 8px;
+  }
+  
+  .weekViewGrid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  
+  .weekDayCell {
+    padding: 8px 4px;
+    min-height: 120px;
+  }
+  
+  .weekDayNumber {
+    font-size: 16px;
+  }
+  
+  .weekEventTitle {
+    font-size: 10px;
+  }
+  
+  .weekEventTime {
+    font-size: 8px;
+  }
+  
+  .weekDayLabel {
+    font-size: 10px;
+  }
+  
+  /* ...rest of mobile styles... */
+}
+
+@media (max-width: 360px) {
+  .weekViewContainer {
+    margin: 6px;
+  }
+  
+  .weekDayCell {
+    padding: 6px 3px;
+    min-height: 100px;
+  }
+  
+  .weekDayNumber {
+    font-size: 14px;
+  }
+  
+  .weekEventTitle {
+    font-size: 9px;
+  }
+  
+  .weekEventTime {
+    font-size: 7px;
+  }
+  
+  .weekDayLabel {
+    font-size: 9px;
+  }
+  
+  /* ...rest of smaller mobile styles... */
+}
+
+/* Smooth transitions for view changes */
+.mainContent {
+  transition: all 0.3s ease;
+}
+
+/* Hide elements based on view mode */
+.todaysEventsSummaryContainer {
+  display: block;
+}
+
+/* When in week or day view, hide the today's events summary */
+@media (min-width: 1px) {
+  .container[data-view-mode="week"] .todaysEventsSummaryContainer,
+  .container[data-view-mode="day"] .todaysEventsSummaryContainer {
+    display: none;
+  }
 }

@@ -227,6 +227,63 @@ const User = ()=>{
         )
 
     }
+
+    // PUSH NOTIFICATIONS
+    const publicVapidKey = 'BCYGol-mf-Dw5Ns46eA-yK5XgtF0sPGloXOjHLzaqA3RhsO9BONM-D1LNA7-iPHD-eY9KWb_7xD7mV12WfVwE2c';
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = atob(base64);
+        return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+    }
+
+    const handleSubscribe = async () => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) { // serviceWorker = registra lo script di background | PushManager = crea il "canale" per inviare notifiche 
+      try {
+        // 1. Richiesta permesso all'utente
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Permesso negato!');
+          return;
+        }
+
+        // 2. Registrazione Service Worker
+        const register = await navigator.serviceWorker.register('/sw.js', { // registra service worker (salvato in public)
+          scope: '/', // scope = tutto il sito
+        });
+
+        // 3. Iscrizione al Push Manager
+        const subscription = await register.pushManager.subscribe({
+          userVisibleOnly: true, // le mostra all'utente (obbligatorio)
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey), // public key per riconoscere server
+        });
+
+        // 4. Invio iscrizione al server
+        await fetch('http://localhost:5000/api/pushNotifications/subscribe', {
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify(subscription),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        alert('Notifiche attivate!');
+      } catch (err) {
+        console.error('Errore iscrizione:', err);
+      }
+    } else {
+      alert('Il browser non supporta le notifiche push.');
+    }
+};
+
+const receiveNotification = async () => {
+  await fetch('http://localhost:5000/api/pushNotifications/notify', {
+    method: 'PUT',
+    credentials: 'include',
+  });
+}
      
 
     return(
@@ -243,6 +300,12 @@ const User = ()=>{
         }
 
         <button onClick={logout} className={style.Button_logout}>Logout</button>
+
+        <div>
+                <h1>Notifiche Push</h1>
+                <button onClick={handleSubscribe}>Permetti Notifiche Push</button>
+                <button onClick={receiveNotification}>Ricevi Notifica di test</button>
+            </div>
     </div>
     )
 }

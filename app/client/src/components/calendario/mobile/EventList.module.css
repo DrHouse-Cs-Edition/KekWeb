@@ -1,0 +1,184 @@
+.eventListContainer {
+  margin: 12px;
+  background: var(--dusk-card-solid);
+  border-radius: 12px;
+  box-shadow: var(--dusk-shadow);
+  border: 1px solid var(--dusk-border);
+}
+
+.eventListTitle {
+  margin: 0;
+  padding: 16px 20px 8px 20px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dusk-text-header);
+  border-bottom: 1px solid var(--dusk-border);
+}
+
+.eventListCard {
+  padding: 16px 20px;
+}
+
+.noEventsText {
+  margin: 0;
+  color: var(--dusk-text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.eventsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eventItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--dusk-card-hover);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.eventItem:hover {
+  background: var(--dusk-card);
+  border-color: var(--dusk-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.eventColorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.eventTextContainer {
+  flex: 1;
+  min-width: 0;
+}
+
+.eventTitleText {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  color: var(--dusk-text);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventTimeText {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--dusk-text-secondary);
+  font-weight: 500;
+}
+
+.eventLocationIcon {
+  color: var(--dusk-text-secondary);
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.eventItem:hover .eventLocationIcon {
+  opacity: 1;
+}
+
+.moreEventsText {
+  margin: 8px 0 0 0;
+  font-size: 0.75rem;
+  color: var(--dusk-text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 8px;
+}
+
+/* Varianti per diversi contesti */
+.eventListContainer.compact {
+  margin: 8px;
+}
+
+.eventListContainer.compact .eventListTitle {
+  padding: 12px 16px 6px 16px;
+  font-size: 1rem;
+}
+
+.eventListContainer.compact .eventListCard {
+  padding: 12px 16px;
+}
+
+.eventListContainer.compact .eventItem {
+  padding: 8px;
+  gap: 8px;
+}
+
+.eventListContainer.compact .eventTitleText {
+  font-size: 0.8125rem;
+}
+
+.eventListContainer.compact .eventTimeText {
+  font-size: 0.6875rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .eventListContainer {
+    margin: 8px;
+  }
+  
+  .eventListTitle {
+    font-size: 1rem;
+    padding: 12px 16px 6px 16px;
+  }
+  
+  .eventListCard {
+    padding: 12px 16px;
+  }
+  
+  .eventItem {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .eventTitleText {
+    font-size: 0.8125rem;
+  }
+  
+  .eventTimeText {
+    font-size: 0.6875rem;
+  }
+  
+  .eventColorDot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .eventListContainer {
+    margin: 6px;
+  }
+  
+  .eventItem {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .eventTitleText {
+    font-size: 0.75rem;
+  }
+  
+  .eventTimeText {
+    font-size: 0.625rem;
+  }
+}
