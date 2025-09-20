@@ -7,28 +7,32 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns in desktop */
-  grid-template-rows: auto auto; /* Two rows */
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  grid-template-rows: auto auto auto; /* Three rows */
   gap: 2rem;
   align-items: start;
 }
 
 .eventsSection {
-  min-height: 0;
-  grid-column: 1 / -1; /* Spans both columns */
+  grid-column: 1 / -1; /* Spans both columns - top row */
+  grid-row: 1;
 }
 
 .lastPomodoro {
-  min-height: 0;
-  grid-column: 1; /* First column, second row */
+  grid-column: 1; /* Left column - second row */
+  grid-row: 2;
 }
 
 .todoSection {
-  grid-column: 2; /* Second column, second row */
-  position: relative;
-  top: 2rem;
+  grid-column: 2; /* Right column - second row */
+  grid-row: 2;
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
+}
+
+.lastNote {
+  grid-column: 1 / -1; /* Spans both columns - bottom row */
+  grid-row: 3;
 }
 
 /* Responsive design */
@@ -39,7 +43,7 @@
   
   .layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto; /* Three rows on mobile */
+    grid-template-rows: auto auto auto auto; /* Four rows on mobile */
     gap: 1.5rem;
     max-width: none;
     padding: 0 0.5rem;
@@ -47,17 +51,24 @@
   
   .eventsSection {
     grid-column: 1;
+    grid-row: 1;
   }
   
   .lastPomodoro {
     grid-column: 1;
+    grid-row: 2;
   }
   
   .todoSection {
     grid-column: 1;
-    position: static;
+    grid-row: 3;
     max-height: none;
     overflow-y: visible;
+  }
+  
+  .lastNote {
+    grid-column: 1;
+    grid-row: 4;
   }
 }
 

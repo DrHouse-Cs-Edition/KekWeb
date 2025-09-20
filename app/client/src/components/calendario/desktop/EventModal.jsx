@@ -1,9 +1,9 @@
-import { preventDefault } from "@fullcalendar/core/internal";
-import styles from "./Calendario.module.css";  
+import styles from "./EventModal.module.css";
+
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo, useRef } from "react";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Solo questo da react-router-dom
 
 // Modal per creare o modificare eventi
 const EventModal = function EventModal({
@@ -32,6 +32,22 @@ const EventModal = function EventModal({
     setNewEvent(prev => ({ ...prev, recurrenceRule: value })); // E anche l'evento
   };
 
+  // Add the missing calculateEndDate function
+  const calculateEndDate = (eventData, clickedDate) => {
+    if (!eventData.start || !eventData.end) {
+      // If no original dates, default to 1 hour duration
+      return new Date(new Date(clickedDate).getTime() + 60 * 60 * 1000);
+    }
+    
+    // Calculate the original duration
+    const originalStart = new Date(eventData.start);
+    const originalEnd = new Date(eventData.end);
+    const duration = originalEnd.getTime() - originalStart.getTime();
+    
+    // Apply the same duration to the clicked date
+    return new Date(new Date(clickedDate).getTime() + duration);
+  };
+
   // Per chiudere il modal con il tasto Escape
   useEffect(() => {
     const handleEscapeKey = (e) => {
@@ -54,6 +70,21 @@ const EventModal = function EventModal({
       setShowModal(false);
       resetForm();
     }
+  };
+
+  // Gestore per gli eventi ricorrenti
+  const handleRecurringEvent = (eventData, clickedDate) => {
+    if (eventData.recurrenceRule && clickedDate) {
+      // Se questo è un evento ricorrente e abbiamo cliccato su una occorrenza specifica
+      return {
+        ...eventData,
+        start: clickedDate, // Usa la data dell'occorrenza cliccata
+        end: calculateEndDate(eventData, clickedDate),
+        isRecurringInstance: true,
+        originalEventId: eventData._id
+      };
+    }
+    return eventData;
   };
 
   return (

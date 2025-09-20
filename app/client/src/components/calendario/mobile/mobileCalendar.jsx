@@ -326,9 +326,14 @@ const MobileCalendarApp = () => {
 
     // Aggiungo le proprietà specifiche per ogni tipo
     if (eventForModal.type === "activity") {
-      eventForModal.activityDate = eventData.extendedProps.activityDate
-        ? new Date(eventData.extendedProps.activityDate)
-        : start;
+      // For recurring activities, use the clicked occurrence date
+      if (eventData.extendedProps.recurrenceRule && start) {
+        eventForModal.activityDate = start; // Use the clicked occurrence date
+      } else {
+        eventForModal.activityDate = eventData.extendedProps.activityDate
+          ? new Date(eventData.extendedProps.activityDate)
+          : start;
+      }
       console.log("Modifico attività per il", eventForModal.activityDate.toDateString());
     } else if (eventForModal.type === "pomodoro") {
       eventForModal.pomodoro = eventData.extendedProps.pomodoro || {
@@ -337,12 +342,14 @@ const MobileCalendarApp = () => {
           breakTime: null,
           cycles: null,
         };
-      eventForModal.start = (newEvent.start || new Date()).toISOString();
-      eventForModal.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
-      console.log("Modifico pomodoro:", eventForModal.cyclesLeft, "cicli rimasti");
+      // For recurring pomodoros, use the clicked occurrence time
+      eventForModal.start = start; // Use the clicked occurrence date/time
+      eventForModal.end = end;     // Use the calculated end time for this occurrence
+      console.log("Modifico pomodoro:", eventForModal.start, "-", eventForModal.end);
     } else {
-      eventForModal.start = start;
-      eventForModal.end = end;
+      // For regular events, use the clicked occurrence date/time
+      eventForModal.start = start; // This will be the specific occurrence date
+      eventForModal.end = end;     // This will be the calculated end for this occurrence
       console.log("Modifico evento normale:", start, "-", end);
     }
 

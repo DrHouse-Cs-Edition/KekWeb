@@ -1,0 +1,341 @@
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--dusk-modal-overlay);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal {
+  background: var(--dusk-card-solid);
+  border-radius: 16px;
+  box-shadow: var(--dusk-shadow);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid var(--dusk-border);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--dusk-border);
+  background: rgba(59, 45, 90, 0.7); /* Slightly different shade for header */
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dusk-text-header);
+}
+
+.modalHeader button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--dusk-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.modalHeader button:hover {
+  background: var(--dusk-button-bg);
+  color: var(--dusk-accent);
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--dusk-muted);
+  font-size: 0.875rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--dusk-input-border);
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+  background-color: var(--dusk-input-bg);
+  color: var(--dusk-text);
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--dusk-input-focus-border);
+  box-shadow: var(--dusk-input-focus-shadow);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.formGroup select {
+  cursor: pointer;
+  /* SVG color for dark theme */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1c7e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  appearance: none;
+}
+
+.formGroup input[type="datetime-local"],
+.formGroup input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Notification Settings Styles */
+.notificationGroup {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(75, 53, 112, 0.3);
+  border-radius: 10px;
+  border: 1px solid var(--dusk-border);
+}
+
+.notificationCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.notificationCheckbox input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.1);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationCheckbox label {
+  margin: 0 !important;
+  font-weight: 500 !important;
+  color: var(--dusk-text) !important;
+  cursor: pointer;
+  font-size: 0.875rem !important;
+}
+
+.notificationSubSettings {
+  margin-top: 16px;
+  padding-left: 24px;
+  border-left: 2px solid var(--dusk-accent);
+  background: rgba(75, 53, 112, 0.2);
+  border-radius: 0 8px 8px 0;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notificationTypeGroup {
+  margin-top: 12px;
+}
+
+.notificationTypeLabel {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--dusk-muted) !important;
+  margin-bottom: 8px !important;
+}
+
+.notificationTypeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notificationTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notificationTypeOption input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: scale(1.05);
+  accent-color: var(--dusk-accent);
+}
+
+.notificationTypeOption label {
+  font-size: 0.875rem !important;
+  font-weight: normal !important;
+  color: var(--dusk-text) !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+
+/* Modal Footer */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--dusk-border);
+  background: rgba(59, 45, 90, 0.7); /* Consistent with modal header */
+}
+
+.modalFooter button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 80px;
+}
+
+.modalFooter button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saveBtn {
+  background: var(--dusk-accent);
+  color: var(--dusk-card-solid); /* Dark text on accent bg for contrast */
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 140, 107, 0.4); /* Shadow from accent color */
+  background: var(--dusk-accent-light);
+}
+
+.cancelBtn {
+  background: var(--dusk-input-bg);
+  color: var(--dusk-muted);
+  border: 1px solid var(--dusk-border);
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: var(--dusk-border);
+  color: var(--dusk-text);
+}
+
+.deleteBtn {
+  background: #c70039; /* A suitable dark red for delete */
+  color: var(--dusk-text);
+  margin-right: auto;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(199, 0, 57, 0.4);
+  background: #900c3f; /* Darker red on hover */
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .modalFooter button {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus,
+.modalFooter button:focus {
+  outline: 2px solid var(--dusk-accent);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .modalOverlay {
+    display: none;
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modalOverlay {
+    padding: 0.5rem;
+  }
+  
+  .modal {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+  
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+  }
+  
+  .deleteBtn {
+    margin-right: 0;
+    order: 3;
+  }
+  
+  .cancelBtn {
+    order: 1;
+  }
+  
+  .saveBtn {
+    order: 2;
+  }
+}

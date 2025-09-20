@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import itLocale from "@fullcalendar/core/locales/it";
-import CalendarView from "./CalendarView";
-import EventModal from "./EventModal";
 import { RRule } from "rrule";
+import EventModal from "./EventModal";
 import styles from "./Calendario.module.css";
 
 export default function CalendarApp() {
@@ -12,11 +10,12 @@ export default function CalendarApp() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [serverDate, setServerDate] = useState(new Date());
-  const [newEvent, setNewEvent] = useState({ //*holds all data regarding a possible event
+  const [currentDate, setCurrentDate] = useState(new Date()); // Mese che sto visualizzando
+  const [newEvent, setNewEvent] = useState({
     id: "",
     title: "",
     type: "event",
-    pomodoro: {     //serverside is just the Title, here is the whole object
+    pomodoro: {
       _id: "",
       title: "",
       studyTime: null,
@@ -69,101 +68,22 @@ export default function CalendarApp() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchServerDate();
-    }, 5000); // Update every 5 seconds
+    }, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   // Funzione per caricare tutti gli eventi dal server
   const loadAllEvents = () => {
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
-      credentials: "include", // Serve per mandare i cookie
+      credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
           console.log("Eventi caricati dal server:", data.list);
-          
-          // Trasformo gli eventi per FullCalendar
-          let eventsForCalendar = data.list.map((event) => {
-            console.log("Elaboro evento:", event.title, "tipo:", event.type);
-            
-            // Creo l'oggetto base
-            let eventObj = {
-              id: event._id,
-              title: event.title,
-              extendedProps: {
-                type: event.type,
-                pomodoro: event.pomodoro,
-                location: event.location,
-                recurrenceRule: event.recurrenceRule,
-                description: event.description,
-                alarm: event.alarm || {
-                  earlyness: 15,
-                  repeat_times: 1,
-                  repeat_every: 0
-                }
-              },
-            };
-            
-            // Gestisco i diversi tipi di eventi
-            if (event.type === "activity") {
-              // Per le attività uso activityDate
-              let actDate = event.activityDate ? new Date(event.activityDate) : new Date();
-              eventObj.start = actDate;
-              eventObj.end = actDate;
-              eventObj.allDay = true; // Le attività durano tutto il giorno
-              eventObj.backgroundColor = "#4285F4"; // Blu per le attività
-              eventObj.extendedProps.activityDate = actDate;
-                
-              // Se ha ricorrenza la aggiungo
-              if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
-                try {
-                  let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
-                  if (freqMatch && freqMatch[1]) {
-                    eventObj.rrule = {
-                      freq: freqMatch[1].toLowerCase(),
-                      dtstart: actDate.toISOString()
-                    };
-                    console.log("Aggiunta ricorrenza all'attività:", eventObj.rrule);
-                  }
-                } catch (err) {
-                  console.error("Errore ricorrenza attività:", err);
-                }
-              }
-            } else if (event.type === "pomodoro") {
-              // Per i pomodoro
-              eventObj.start = event.start ? new Date(event.start) : new Date();
-              eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 25 * 60000); // 25 minuti
-              eventObj.backgroundColor = "#EA4335"; // Rosso per i pomodoro
-            } else {
-              // Per gli eventi normali
-              eventObj.start = event.start ? new Date(event.start) : new Date();
-              eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 3600000); // 1 ora
-              eventObj.backgroundColor = "#3174ad"; // Blu scuro per eventi
-                
-              // Gestisco la ricorrenza anche per gli eventi normali
-              if (event.recurrenceRule && event.recurrenceRule.includes('FREQ=')) {
-                try {
-                  let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
-                  if (freqMatch && freqMatch[1]) {
-                    eventObj.rrule = {
-                      freq: freqMatch[1].toLowerCase(),
-                      dtstart: eventObj.start.toISOString()
-                    };
-                    console.log("Aggiunta ricorrenza all'evento:", eventObj.rrule);
-                  }
-                } catch (err) {
-                  console.error("Errore ricorrenza evento:", err);
-                }
-              }
-            }
-            return eventObj;
-          });
-          
-          setEvents(eventsForCalendar);
-          console.log("Eventi pronti per il calendario:", eventsForCalendar.length);
+          setEvents(data.list);
         } else {
           console.log("Nessun evento trovato");
         }
@@ -174,67 +94,192 @@ export default function CalendarApp() {
       });
   };
 
-  // Quando clicco su una data per creare un nuovo evento
-  const handleDateSelect = (selectInfo) => {
-    console.log("Data selezionata:", selectInfo.start, "a", selectInfo.end);
+  // Funzione per ottenere gli eventi di una specifica data
+  const getEventsForDate = (date) => {
+    const eventsForDay = [];
     
-    setIsEditing(false); // Sto creando, non modificando
-    setNewEvent({
-      ...newEvent,
-      id: uuidv4(), // ID casuale
-      start: selectInfo.start,
-      end: selectInfo.end,
-      type: "event", // Evento normale di default
-      recurrenceRule: "",
-      activityDate: selectInfo.start,
+    events.forEach(event => {
+      if (!event.recurrenceRule) {
+        // Eventi non ricorrenti - gestione normale
+        let eventDate;
+        if (event.type === "activity") {
+          eventDate = new Date(event.activityDate);
+        } else {
+          eventDate = new Date(event.start);
+        }
+        
+        if (
+          eventDate.getDate() === date.getDate() &&
+          eventDate.getMonth() === date.getMonth() &&
+          eventDate.getFullYear() === date.getFullYear()
+        ) {
+          eventsForDay.push(event);
+        }
+      } else {
+        // Eventi ricorrenti - gestione con UTC
+        try {
+          const rrule = RRule.fromString(event.recurrenceRule);
+          
+          // FIX: Usa la stessa logica UTC del salvataggio
+          // Crea la data target in UTC a mezzogiorno
+          let targetDateUTC = new Date(Date.UTC(
+            date.getFullYear(), 
+            date.getMonth(), 
+            date.getDate(), 
+            12, 0, 0, 0
+          ));
+          
+          // Controlla solo questo giorno specifico in UTC
+          let startOfDayUTC = new Date(Date.UTC(
+            date.getFullYear(), 
+            date.getMonth(), 
+            date.getDate(), 
+            0, 0, 0, 0
+          ));
+          
+          let endOfDayUTC = new Date(Date.UTC(
+            date.getFullYear(), 
+            date.getMonth(), 
+            date.getDate(), 
+            23, 59, 59, 999
+          ));
+          
+          // Ottieni tutte le occorrenze per questo giorno
+          const occurrences = rrule.between(startOfDayUTC, endOfDayUTC, true);
+          
+          // Debug per vedere cosa sta succedendo
+          if (event.title === "prova") {
+            console.log(`Controllo evento "${event.title}" per ${date.toDateString()}:`);
+            console.log("- Data target UTC:", targetDateUTC.toISOString());
+            console.log("- Range UTC:", startOfDayUTC.toISOString(), "->", endOfDayUTC.toISOString());
+            console.log("- Occorrenze trovate:", occurrences.length);
+            console.log("- RRule originale:", event.recurrenceRule);
+          }
+          
+          if (occurrences.length > 0) {
+            // Crea l'evento virtuale per questa occorrenza
+            const virtualEvent = {
+              ...event,
+              isRecurringInstance: true,
+              originalId: event._id,
+            };
+            
+            if (event.type === "activity") {
+              // Per le attività, usa la data locale
+              virtualEvent.activityDate = new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate()
+              ).toISOString();
+            } else {
+              // Per gli eventi, mantieni l'ora originale ma usa la data corrente
+              const originalStart = new Date(event.start);
+              const originalEnd = new Date(event.end);
+              
+              virtualEvent.start = new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(),
+                originalStart.getHours(), 
+                originalStart.getMinutes()
+              ).toISOString();
+              
+              virtualEvent.end = new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(),
+                originalEnd.getHours(), 
+                originalEnd.getMinutes()
+              ).toISOString();
+            }
+            
+            eventsForDay.push(virtualEvent);
+          }
+        } catch (error) {
+          console.error("Error processing recurring event:", error);
+          console.error("Evento problematico:", event);
+        }
+      }
     });
-    setShowModal(true); // Apro il modal
-    selectInfo.view.calendar.unselect(); // Tolgo la selezione dal calendario
+    
+    return eventsForDay;
   };
 
-  // Quando clicco su un evento esistente per modificarlo
-  const handleEventClick = (clickInfo) => {
-    console.log("Evento cliccato:", clickInfo.event.title);
+  // Funzione per gestire il click su una data (creare evento)
+  const handleDateClick = (date) => {
+    console.log("Data cliccata:", date);
+    
+    setIsEditing(false);
+    setNewEvent({
+      ...newEvent,
+      id: uuidv4(),
+      start: date,
+      end: new Date(date.getTime() + 60 * 60 * 1000), // +1 ora
+      activityDate: date,
+      type: "event",
+      recurrenceRule: "",
+    });
+    setShowModal(true);
+  };
+
+  // Funzione per gestire il click su un evento (modificare)
+  const handleEventClick = (event, clickedDate = null) => {
+    console.log("Evento cliccato:", event.title);
     
     // Estraggo la ricorrenza se c'è
     let recurrence = "";
-    if (clickInfo.event.extendedProps.recurrenceRule) {
-      let freqMatch = clickInfo.event.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
+    if (event.recurrenceRule) {
+      let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
       if (freqMatch && freqMatch[1]) {
         recurrence = freqMatch[1].toLowerCase();
-        console.log("Ricorrenza trovata:", recurrence);
       }
     }
 
-    // Mi assicuro che le date siano valide
-    let startDate = clickInfo.event.start || new Date();
-    let endDate = clickInfo.event.end || new Date(startDate.getTime() + 3600000);
+    // For recurring instances, use the clicked date; otherwise use original date
+    let startDate, endDate;
     
-    // Preparo i dati dell'evento per il form
+    if (event.isRecurringInstance && clickedDate) {
+      // This is a recurring instance
+      if (event.type === "activity") {
+        startDate = clickedDate;
+        endDate = clickedDate;
+      } else {
+        // Preserve the original time but use the clicked date
+        const originalStart = new Date(event.start);
+        const originalEnd = new Date(event.end);
+        startDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
+                            originalStart.getHours(), originalStart.getMinutes());
+        endDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
+                          originalEnd.getHours(), originalEnd.getMinutes());
+      }
+    } else {
+      // Regular event or original recurring event
+      startDate = event.start ? new Date(event.start) : new Date();
+      endDate = event.end ? new Date(event.end) : new Date(startDate.getTime() + 3600000);
+    }
+    
     let eventData = {
-      id: clickInfo.event.id,
-      title: clickInfo.event.title || "",
-      type: clickInfo.event.extendedProps.type || "event",
-      location: clickInfo.event.extendedProps.location || "",
+      id: event._id,
+      title: event.title || "",
+      type: event.type || "event",
+      location: event.location || "",
       recurrenceRule: recurrence,
-      description: clickInfo.event.extendedProps.description || "",
-      alarm: clickInfo.event.extendedProps.alarm || {
+      description: event.description || "",
+      alarm: event.alarm || {
         earlyness: 15,
         repeat_times: 1,
         repeat_every: 0
       }
     };
     
-    // Add type-specific properties
     switch(eventData.type) {
       case "activity":
-        eventData.activityDate = clickInfo.event.extendedProps.activityDate 
-          ? new Date(clickInfo.event.extendedProps.activityDate) 
-          : startDate;
+        eventData.activityDate = event.isRecurringInstance && clickedDate ? 
+          clickedDate : 
+          (event.activityDate ? new Date(event.activityDate) : startDate);
         break;
       case "pomodoro":
-        //load up a pomodoro Obj with: Title, studyTime, breakTime and cycles
-        eventData.pomodoro = clickInfo.event.extendedProps.pomodoro || {
+        eventData.pomodoro = event.pomodoro || {
           title: "",
           studyTime: null,
           breakTime: null,
@@ -250,9 +295,61 @@ export default function CalendarApp() {
         break;
     }
     
-    setIsEditing(true); // Sto modificando
-    setNewEvent(eventData); // Riempio il form
-    setShowModal(true); // Apro il modal
+    setIsEditing(true);
+    setNewEvent(eventData);
+    setShowModal(true);
+  };
+
+  // Navigazione mesi
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date(serverDate));
+  };
+
+  // Genera i giorni del mese
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // Primo giorno del mese e ultimo giorno del mese
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Quanti giorni del mese precedente mostrare
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1); // Lunedì come primo giorno
+    
+    const days = [];
+    const totalDays = 42; // 6 settimane x 7 giorni
+    
+    for (let i = 0; i < totalDays; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      const isCurrentMonth = date.getMonth() === month;
+      const isToday = 
+        date.getDate() === serverDate.getDate() &&
+        date.getMonth() === serverDate.getMonth() &&
+        date.getFullYear() === serverDate.getFullYear();
+      
+      const dayEvents = getEventsForDate(date);
+      
+      days.push({
+        date,
+        isCurrentMonth,
+        isToday,
+        events: dayEvents
+      });
+    }
+    
+    return days;
   };
 
   // Funzione per salvare l'evento (nuovo o modificato)
@@ -292,12 +389,55 @@ export default function CalendarApp() {
             ? (newEvent.activityDate || new Date()) 
             : (newEvent.start || new Date());
           
-          let rruleObj = new RRule({
+          // Crea la data senza problemi di timezone
+          let rruleDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+          
+          if (newEvent.type === "event") {
+            // Per gli eventi, mantieni l'ora originale
+            rruleDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
+          }
+          
+          // FIX: Per le ricorrenze settimanali, specifica il giorno della settimana
+          let rruleOptions = {
             freq: freq,
-            dtstart: startDate
-          });
+            dtstart: rruleDate
+          };
+          
+          // Se è settimanale, aggiungi il giorno specifico
+          if (newEvent.recurrenceRule === 'weekly') {
+            // RRule usa: MO=0, TU=1, WE=2, TH=3, FR=4, SA=5, SU=6
+            // JavaScript usa: Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5, Saturday=6
+            
+            let jsDay = rruleDate.getDay(); // Giorno in formato JavaScript
+            let rruleDay;
+            
+            // Converti da JavaScript day a RRule day
+            switch(jsDay) {
+              case 0: rruleDay = RRule.SU; break; // Domenica
+              case 1: rruleDay = RRule.MO; break; // Lunedì
+              case 2: rruleDay = RRule.TU; break; // Martedì
+              case 3: rruleDay = RRule.WE; break; // Mercoledì
+              case 4: rruleDay = RRule.TH; break; // Giovedì
+              case 5: rruleDay = RRule.FR; break; // Venerdì
+              case 6: rruleDay = RRule.SA; break; // Sabato
+              default: rruleDay = RRule.MO; break;
+            }
+            
+            rruleOptions.byweekday = [rruleDay];
+            console.log("Giorno JS:", jsDay, "Giorno RRule:", rruleDay, "Data:", rruleDate.toString());
+          }
+          
+          let rruleObj = new RRule(rruleOptions);
           rruleString = rruleObj.toString();
           console.log("RRule creata:", rruleString);
+          
+          // Debug: verifica le prime occorrenze
+          const testOccurrences = rruleObj.between(
+            new Date(rruleDate.getTime() - 7 * 24 * 60 * 60 * 1000), // 1 settimana prima
+            new Date(rruleDate.getTime() + 14 * 24 * 60 * 60 * 1000)  // 2 settimane dopo
+          );
+          console.log("Prime occorrenze generate:", testOccurrences.map(d => d.toString()));
+          
         } else {
           console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
           alert("Ricorrenza non valida");
@@ -323,11 +463,12 @@ export default function CalendarApp() {
     // Add type-specific properties
     switch(newEvent.type) {
       case "activity":
-        eventData.activityDate = (newEvent.activityDate || new Date()).toISOString();
-        eventData.recurrenceRule = rruleString; // Add recurrence rule to activities
+        let activityDate = newEvent.activityDate || new Date();
+        // Keep it simple - just use the date without complex timezone manipulation
+        eventData.activityDate = activityDate.toISOString();
+        eventData.recurrenceRule = rruleString;
         break;
       case "pomodoro":
-        //serverside, pomodoro is just the title as ref to the schema
         eventData.pomodoro = newEvent.pomodoro.title || "";
         eventData.start = (newEvent.start || new Date()).toISOString();
         eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
@@ -429,16 +570,79 @@ export default function CalendarApp() {
     setIsEditing(false);
   };
 
+  const monthNames = [
+    "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+    "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
+  ];
+
+  const dayNames = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+
   return (
     <div className={styles.calendarContainer}>
-      <CalendarView
-        key={serverDate.toISOString()} // Forza re-render quando serverDate cambia
-        events={events}
-        handleDateSelect={handleDateSelect}
-        handleEventClick={handleEventClick}
-        locale={itLocale}
-        serverDate={serverDate}
-      />
+      {/* Header del calendario */}
+      <div className={styles.calendarHeader}>
+        <div className={styles.navigationControls}>
+          <button onClick={goToPreviousMonth} className={styles.navButton}>
+            ◀
+          </button>
+          <button onClick={goToToday} className={styles.todayButton}>
+            Oggi
+          </button>
+          <button onClick={goToNextMonth} className={styles.navButton}>
+            ▶
+          </button>
+        </div>
+        
+        <h2 className={styles.monthTitle}>
+          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+        </h2>
+      </div>
+
+      {/* Griglia del calendario */}
+      <div className={styles.calendarGrid}>
+        {/* Header giorni della settimana */}
+        {dayNames.map(day => (
+          <div key={day} className={styles.dayHeader}>
+            {day}
+          </div>
+        ))}
+        
+        {/* Giorni del mese */}
+        {generateCalendarDays().map((day, index) => (
+          <div
+            key={index}
+            className={`${styles.dayCell} ${
+              !day.isCurrentMonth ? styles.otherMonth : ''
+            } ${day.isToday ? styles.today : ''}`}
+            onClick={() => handleDateClick(day.date)}
+          >
+            <div className={styles.dayNumber}>
+              {day.date.getDate()}
+            </div>
+            
+            {/* Eventi del giorno */}
+            <div className={styles.dayEvents}>
+              {day.events.slice(0, 3).map((event, eventIndex) => (
+                <div
+                  key={eventIndex}
+                  className={`${styles.eventItem} ${styles[`event-${event.type}`]}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEventClick(event, day.date);
+                  }}
+                >
+                  {event.title || "Evento"}
+                </div>
+              ))}
+              {day.events.length > 3 && (
+                <div className={styles.moreEvents}>
+                  +{day.events.length - 3} altri
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       {showModal && (
         <EventModal
