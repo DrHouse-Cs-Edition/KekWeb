@@ -244,8 +244,12 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                 id : pomodoroId
             })
         }).then( res => res.json())
-        .catch(error => console.log(" Pomodoro.onSubmit: error is " + error));
-        console.log("renaming to ", pomodoroTitle)
+        .then(()=>{
+            alert("pomodoro aggiornato")
+        })
+        .catch(error => {console.log(" Pomodoro.onSubmit: error is " + error);
+            alert("errore nell'aggiornamento del pomdoro")
+        });
         return;
         }
         //creating new pomodoro
@@ -263,9 +267,13 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                 breakTime : BreakTime,
                 cycles : Cycles
             })
-        }).then( res => res.json())
+        }).then( res => {res.json();
+            alert("pomodoro creato");
+        })
         .then(window.location.reload())
-        .catch(error => console.log(" Timer.onSubmit: error is " + error));
+        .catch(error => {console.log(" Timer.onSubmit: error is " + error)
+            alert("errore nella creazione del pomodoro" + error)
+        });
     }
     
     //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL

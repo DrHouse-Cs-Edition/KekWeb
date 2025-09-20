@@ -10,13 +10,14 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
 
     const onSubmit = ( data =>{
         let st, bt, c;
-        st = data.studyTime;
-        bt =  data.breakTime;
-        c = data.cycles;
+        st = data.Studio;
+        bt =  data.Pausa;
+        c = data.Cicli;
         if( !(c || bt || st) ){
             console.log("no data for registration somewhere")
         }
-        passTimeData(data.studyTime, data.breakTime, data.cycles );   //multiplication by 60 transforms seconds in minutes
+        passTimeData(data.Studio, data.Pausa, data.Cicli );   //multiplication by 60 transforms seconds in minutes
+        alert("Impostazione selezionata: è possibile avviare il pomodoro")
         return false;
     })
 
@@ -33,7 +34,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
             >
                 <div className="inputDiv" id="cyclesDiv">
                     <Input 
-                    label = {"Durata Studio"}
+                    label = {"Studio"}
                     type = "number"
                     id = "studyTimeField"
                     defaultValue={"45"}
@@ -45,7 +46,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     </Input>
 
                     <Input 
-                    label = {"Durata Pausa"}
+                    label = {"Pausa"}
                     type = "number"
                     id = "breakTimeField"
                     defaultValue={"15"}
@@ -100,7 +101,7 @@ function TTform( {passTimeData}, isNewPomodoro){
      */
     function initOptions(data){
         hasComputed.current = 1;    //makes certain actions now possible, given that they required the computation of the time first
-        tt.current = data.TotalTime;
+        tt.current = data.Tempo;
         tt.current = tt.current - (tt.current % 5);                             //normalize total time to a multiple of 5 minutes
         
         while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 ){      //until we can safely provide a valid option
@@ -156,6 +157,7 @@ function TTform( {passTimeData}, isNewPomodoro){
 
     
     const TThandleSubmit = (data)=>{
+        alert("opzione selezionata: è possibile usare il pomodoro")
         if ( !hasComputed.current ){
             alert("Attenzione: inserire prima una durata e cliccare su \" vedi opzioni \" ");
             return;
@@ -178,7 +180,7 @@ function TTform( {passTimeData}, isNewPomodoro){
                 >
                     <div className="inputDiv" id="TTdiv">
                         <Input 
-                        label = {"Tempo a disposizione"}
+                        label = {"Tempo"}
                         type = "Number"
                         id = "studyTimeField"
                         defaultValue={"120"}
