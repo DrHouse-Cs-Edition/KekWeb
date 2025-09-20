@@ -153,6 +153,7 @@ const ModalBody = ({
           type="number"
           value={newEvent.pomodoro.studyTime || 0}
           onChange={handleInputChange}
+          disabled={true}
           required
         />
         <FormField
@@ -162,6 +163,7 @@ const ModalBody = ({
           type="number"
           value={newEvent.pomodoro.breakTime || 0}
           onChange={handleInputChange}
+          disabled={true}
           required
         />
         <FormField
@@ -171,6 +173,7 @@ const ModalBody = ({
           type="number"
           value={newEvent.pomodoro.cycles || 0}
           onChange={handleInputChange}
+          disabled={true}
           min="1"
           required
         />
@@ -278,13 +281,13 @@ const ModalBody = ({
 };
 
 // Componente per un singolo campo del form
-const FormField = ({ id, name, label, type, value, onChange, ...rest }) => (
+const FormField = ({ id, name, label, type, value, onChange, disabled = false, ...rest }) => (
   <div className={styles.formGroup}>
     <label htmlFor={id}>{label}</label>
     {type === "textarea" ? (
-      <textarea id={id} name={name} value={value} onChange={onChange} {...rest} />
+      <textarea id={id} name={name} value={value} onChange={onChange} disabled={disabled} {...rest} />
     ) : (
-      <input type={type} id={id} name={name} value={value} onChange={onChange} {...rest} />
+      <input type={type} id={id} name={name} value={value} onChange={onChange} disabled={disabled} {...rest} />
     )}
   </div>
 );

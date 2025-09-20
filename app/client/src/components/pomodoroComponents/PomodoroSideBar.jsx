@@ -103,8 +103,8 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
                     {title}
                 </h3>
             </div>
-            <div className={style.pomodoroChart} >  
-                <button  className={style.pomodoroOpen}onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>
+            <div className={style.pomodoroChart}  onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>  
+                {/* <button  className={style.pomodoroOpen} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}> */}
                     <PieChart
                     className={style.pomodoroPie}
                     series={[{
@@ -115,7 +115,7 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
                     },
                     ]}
                     ></PieChart>
-                </button>
+                {/* </button> */}
             </div>
             <div className={style.buttons}>
                 {/* <button className={`${style.openB} ${style.button}`} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button> */}
