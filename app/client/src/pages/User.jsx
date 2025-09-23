@@ -374,7 +374,7 @@ const User = ()=>{
                     <option value="push">Notifiche push</option>
                 </select>
 
-                <button className={style.Button} onClick={() => updateNotificationMethod(this.value)}>Conferma metodo di notifica</button>
+                <button className={style.Button} onClick={() => updateNotificationMethod(notifications)}>Conferma metodo di notifica</button>
             </div>
         </div>
     </div>
