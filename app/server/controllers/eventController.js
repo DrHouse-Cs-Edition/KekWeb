@@ -1,42 +1,12 @@
 const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
-const { subMinutes } = require('date-fns');
+const { subMinutes, addDays } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
-
-// utils
-
-function initAlarm(event, now){
-
-  event.nextAlarm = subMinutes(event.start, event.alarm.earlyness);
-
-  // controllo che il momento della notifica non sia già passato
-
-  while(event.nextAlarm < now){
-      if(event.repeated < event.alarm.repeat_times){ // se non ho finito di ripetere l'avviso all'utente
-          event.nextAlarm = addMinutes(last_alarm, event.alarm.repeat_every);
-          event.repeated = event.repeated +1;
-      }
-      else{
-        // controllo regola ripetizione evento nel tempo
-        regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-        if (regola.freq && regola.dtStart){
-          const rule = new RRule( regola );
-          const next = rule.after(now);
-          if (next){ // se ho finito di avvisare l'utente ma l'evento si ripete nel tempo
-            event.nextAlarm = subMinutes(next, event.alarm.earlyness);
-            event.repeated = 0;
-          }
-        }
-      }
-  }
-
-  return event.nextAlarm;
-  
-}
+const { getNextAlarm } = require('../jobs/notifications.js');
 
 // chiamate
 
-const saveEvent = async (request, response, now) => {
+const saveEvent = async (request, response, now) => { // now ottenuto come valore dal server
     console.log("recieved backend event: ", request.body);
     const eventInput = request.body;
     const eventDB = new Event({
@@ -54,9 +24,11 @@ const saveEvent = async (request, response, now) => {
       completed: eventInput.completed || false,
       // alarm = {earlyness, repeat_times, repeat_every}
       alarm: eventInput.alarm,
-      nextAlarm: initAlarm(eventInput,now),
+      nextAlarm: null,
       repeated: 0,
     });
+
+    eventDB.nextAlarm = getNextAlarm(eventDB,now);
 
   try{
       await eventDB.save();
@@ -241,15 +213,14 @@ const isPomodoroScheduled = (req, res, next)=>{
         }})      
 }
 
-const movePomodoros = ()=>{
+const movePomodoros = (date)=>{
   console.log("proceding to move pomodoros");
-  let date = new Date();
-  let datePlus = new Date();
+  let datePlus = new Date(date);
   datePlus.setDate(datePlus.getDate() + 1)
   Event.find({type : "pomodoro"})
   .then(p => {
     p.forEach( (evento)=>{
-      if (evento.end < Date.now() && evento.completed == false){
+      if (evento.end < date && evento.completed == false){
         
         evento.start = date;
         evento.end = datePlus;
@@ -301,4 +272,50 @@ const latestP = async function (req, res){
     })
   }  
 }
-module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled, movePomodoros, latestP };
+
+const moveActivities = async (date)=>{
+  let datePlus = addDays(date,1);
+  let operations = [];
+
+  activities = await Event.find({type : "activity"})
+  
+  activities.forEach( (evento)=>{
+    if (evento.end < Date.now() && evento.completed != true){
+      operations.push({
+        updateOne: {
+          filter: { _id: evento._id },
+          update: { $set: { start: date, end: datePlus, } }
+        }
+      });
+    }
+  })
+
+  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
+  if(operations.length > 0 )
+    Event.bulkWrite(operations);
+}
+
+const movePomodorosAndActivities = async (date)=>{ // più efficiente
+  let datePlus = addDays(date,1);
+  let operations = [];
+
+  activities = await Event.find({type: {$in: ["activity", "pomodoro"]} })
+  
+  activities.forEach( (evento)=>{
+    if (evento.end < Date.now() && evento.completed != true){
+      operations.push({
+        updateOne: {
+          filter: { _id: evento._id },
+          update: { $set: { start: date, end: datePlus, } }
+        }
+      });
+    }
+  })
+
+  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
+  if(operations.length > 0 )
+    Event.bulkWrite(operations);
+}
+
+module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent,
+   toggleComplete, isPomodoroScheduled, movePomodoros, latestP, moveActivities, movePomodorosAndActivities};

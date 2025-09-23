@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     name : String,
     surname : String,
     picture :  String,
-    notifichePush : Boolean,
+    notifications : String, // disabled | email | push
 });
 
 module.exports = new mongoose.model("User", userSchema);

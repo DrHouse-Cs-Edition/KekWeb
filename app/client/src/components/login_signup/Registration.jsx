@@ -29,7 +29,8 @@ async function registerUser(data) {
             bio : data.bio,
             birthday : data.birthday,
             name : data.name,
-            surname : data.surname
+            surname : data.surname,
+            notifications : data.notifications ? "email" : "disabled"
             })
         }).then(res => res.json())
         .then(json => {
@@ -58,6 +59,7 @@ function Registration({updateToken}){
             let response = await registerUser(data);
             updateToken(response);
             setUsername(data.username);
+            window.alert("Utente creato correttamente");
         }catch(e){
             console.log("error in login form: ", e);
         }
@@ -99,6 +101,15 @@ function Registration({updateToken}){
                     isRequired = {0}
                     >
                     </Input>
+
+                    <label className={style.checkbox}>
+                        <input
+                            label="abilita notifiche via email"
+                            type="checkbox"
+                            id="notifications"
+                        />
+                        abilita notifiche via email
+                    </label>
 
                     <Input 
                     label={"bio"}

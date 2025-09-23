@@ -19,7 +19,7 @@ const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
 const eventRoutes = require('./routes/events');
 const noteRoutes = require('./routes/notes');
 const pushRoutes = require('./routes/pushNotifications');
-const eventControllerRoutes = require("./controllers/eventController.js")
+const eventController = require("./controllers/eventController.js")
 const { notifications, timeTravelNotificationsUpdate, timeTravelNotificationsReset } = require ("./jobs/notifications.js");
 
 const UserRoutes = require ("./pagesMethods/Users.js");
@@ -43,18 +43,20 @@ const check = () => {
         now = addMinutes(now, timeShift);
 
     // debugging (controlla che si attivi ogni minuto)
-    if(now.getMinutes%2 === 0)
-        console.log("tick")
+    if(now.getMinutes()%2 === 0)
+        console.log("tick");
     else
-        console.log("tack")
+        console.log("tack");
 
-    notifications(now);
     // controllo di mezzanotte
     if (now.getHours() === 0 && now.getMinutes() === 0) {
         // MUOVI POMODORI
-        eventControllerRoutes.movePomodoros();
-        // MUOVI ATTIVITA' SCADUTE
+            // eventController.movePomodoros(midnight);
+        // MUOVI POMODORI E ATTIVITA' SCADUTE in maniera efficiente
+            eventController.movePomodorosAndActivities(midnight);
     }
+    // invio notifiche
+    notifications(now);new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 cron.schedule('* * * * *', async () => { // any time = ogni minuto
@@ -91,7 +93,7 @@ app.post("/api/Pomodoro/saveP", pomodoroRoutes.saveP);
 app.get("/api/Pomodoro/getP", pomodoroRoutes.getP);
 app.post("/api/Pomodoro/renameP", pomodoroRoutes.renameP);
 app.delete("/api/Pomodoro/deleteP/:id", pomodoroRoutes.deleteP);
-app.post("/api/Pomodoro/cyclesUpdate", eventControllerRoutes.isPomodoroScheduled, pomodoroRoutes.subCycles)//, pomodoroRoutes.subCycles
+app.post("/api/Pomodoro/cyclesUpdate", eventController.isPomodoroScheduled, pomodoroRoutes.subCycles)//, pomodoroRoutes.subCycles
 app.post("/api/Pomodoro/updateP", pomodoroRoutes.updateP);
 
 //************* User METHODS ******************************* */
@@ -100,13 +102,19 @@ app.post("/api/user/sendRegistration", UserRoutes.registration);
 app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
 app.put("/api/user/updateUData", UserRoutes.updateDataV2);
-app.put("/api/user/setPushNotifications", UserRoutes.setPushNotifications);
+app.put("/api/user/updateNotificationMethod", UserRoutes.updateNotificationMethod);
 //*********************************************************** */
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
     timeShift = timeShift + Number(req.body.minutes);
     let now = new Date;
+    today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     now = addMinutes(now, timeShift);
+    newToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if(newToday > today)
+        eventController.movePomodorosAndActivities(newToday); 
+
     timeTravelNotificationsUpdate(now);
     check();
     res.json({success: true})

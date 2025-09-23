@@ -24,6 +24,7 @@ const User = ()=>{
     const [showForm, setShowForm] = useState(0);
     const [showCPW, setShowCPW] = useState(0);
     const [attempts, setAttempts] = useState(0);
+    const [notifications, setNotifications] = useState();
 
 
     //esegui il logout dell'utente
@@ -88,6 +89,7 @@ const User = ()=>{
                     console.log(res);
                     setShowCPW(0); 
                     updatePersonalData()
+                    window.alert("dati modificati");
                     })
             } catch(e){
                 console.log("error in user page, submit phase: ", e);
@@ -101,11 +103,11 @@ const User = ()=>{
 
     //*FUNCTION GETS PERSONAL DATA FROM SERVER 
     const updatePersonalData = async ()=>{
-        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1], ["picture", 1]]);
+        const params = new URLSearchParams([["email" , 1], ["bio", 1], ["birthday", 1], ["name", 1], ["surname", 1], ["picture", 1], ["notifications", 1]]); // se ho 1 -> ritorna il dato
         getPersonalData(params)
         .then(data => data.json())
         .then((data) =>{
-            let {email : e, bio : b, birthday : bd, name : rn, surname : rs, picture : p} = data;
+            let {email : e, bio : b, birthday : bd, name : rn, surname : rs, picture : p, notifications : ntf} = data;
             setEmail(e);
             setBio(b);
             const dateArr = bd?.split("T");
@@ -113,26 +115,22 @@ const User = ()=>{
             setName(rn);
             setSurname(rs);
             setImageCallback(p);
+            setNotifications(ntf);
         })
     }
-
-    //update personal data on component render
-    useEffect(()=>{
-        updatePersonalData();
-    }, [])
 
     const saveButtonComponent = (formMethods)=>{
         return(
             <>
             <button onClick={formMethods.handleSubmit(onSubmit, onError)} className={style.Button}>Save</button>
             <button onClick={()=>{updatePersonalData();}} className={style.Button}>Restore</button>
-            </>   
+            </>
         )
     }
     const FullForm = ()=>{
         return (
             <FormProvider {...formMethods} >
-                <img src={image} alt="preview image" className={style.image}/>
+                <img src={image} className={style.image}/>
                 <FileBase64 multiple={false}
                 onDone={setImageCallback}/>
                 
@@ -204,7 +202,7 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image} alt="preview image" className={style.image}/>
+                <img src={image} className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
                         Name:
@@ -238,53 +236,110 @@ const User = ()=>{
         return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
     }
 
-    const handleSubscribe = async () => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) { // serviceWorker = registra lo script di background | PushManager = crea il "canale" per inviare notifiche 
-      try {
-        // 1. Richiesta permesso all'utente
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          alert('Permesso negato!');
-          return;
+    const handleSubscribe = async (alertIfEnabled = true) => {
+        if ('serviceWorker' in navigator && 'PushManager' in window) { // serviceWorker = registra lo script di background | PushManager = crea il "canale" per inviare notifiche
+            try{
+                console.log("A");
+                // 0. controllo non ci sia già subscription
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.getSubscription();
+                console.log("B");
+                if(sub){
+                    if(alertIfEnabled)
+                        alert("notifiche push già abilitate su questo dispositivo");
+                }
+                else{ // continua
+
+                    // 1. Richiesta permesso all'utente
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        alert('Permesso negato!');
+                    return;
+                    }
+
+                    // 2. Registrazione Service Worker
+                    const register = await navigator.serviceWorker.register('/sw.js', { // registra service worker (salvato in public)
+                    scope: '/', // scope = tutto il sito
+                    });
+
+                    // 3. Iscrizione al Push Manager
+                    const subscription = await register.pushManager.subscribe({
+                    userVisibleOnly: true, // le mostra all'utente (obbligatorio)
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey), // public key per riconoscere server
+                    });
+
+                    // 4. Invio iscrizione al server
+                    await fetch('http://localhost:5000/api/pushNotifications/subscribe', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: JSON.stringify(subscription),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    });
+
+                    alert('Notifiche attivate!');
+                }
+            }
+            catch (err) {
+                console.error('Errore iscrizione:', err);
+            }
+        }else {
+            alert('Il browser non supporta le notifiche push.');
+        }
+    };
+
+    const handleUnsubscribe = async () => {
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+
+            if (sub){
+                await sub.unsubscribe();
+                alert("Dispositivo disiscritto alle notifiche di push");
+            }
+        } catch (err) {
+            console.error("Errore unsubscribe:", err);
+        }
+    };
+
+    const receiveNotification = async () => {
+        await fetch('http://localhost:5000/api/pushNotifications/notify', {
+            method: 'PUT',
+            credentials: 'include',
+        });
+    }
+
+    const updateNotificationMethod = async (value) => {
+        if( value == "email" && email === false ){
+            alert("se vuoi ricevere notifiche via mail devi prima inserire una mail!");
+            notifications = "disabled";
+            return;
         }
 
-        // 2. Registrazione Service Worker
-        const register = await navigator.serviceWorker.register('/sw.js', { // registra service worker (salvato in public)
-          scope: '/', // scope = tutto il sito
-        });
-
-        // 3. Iscrizione al Push Manager
-        const subscription = await register.pushManager.subscribe({
-          userVisibleOnly: true, // le mostra all'utente (obbligatorio)
-          applicationServerKey: urlBase64ToUint8Array(publicVapidKey), // public key per riconoscere server
-        });
-
-        // 4. Invio iscrizione al server
-        await fetch('http://localhost:5000/api/pushNotifications/subscribe', {
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify(subscription),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        alert('Notifiche attivate!');
-      } catch (err) {
-        console.error('Errore iscrizione:', err);
-      }
-    } else {
-      alert('Il browser non supporta le notifiche push.');
+        if(value == "push"){
+            const alertIfEnabled = false;
+            await handleSubscribe(alertIfEnabled);
+        }
+        
+        try {
+            await fetch("http://localhost:5000/api/user/updateNotificationMethod",{
+                method : "PUT",
+                headers:{ 'Content-Type': 'application/json' },
+                body : JSON.stringify({
+                    notifications: notifications
+                })
+            });
+            window.alert("Metodo di notifica modificato");
+        } catch(e){
+            console.log("errore update subscription al server: ", e);
+        }
     }
-};
 
-const receiveNotification = async () => {
-  await fetch('http://localhost:5000/api/pushNotifications/notify', {
-    method: 'PUT',
-    credentials: 'include',
-  });
-}
-     
+    //update personal data on component render
+    useEffect(()=>{
+        updatePersonalData();
+    }, [])
 
     return(
     <div className={style.userBody}>
@@ -303,8 +358,24 @@ const receiveNotification = async () => {
 
         <div>
             <h1 className={style.TitleNotifications}>Notifiche Push</h1>
-            <button className={style.Button} onClick={handleSubscribe}>Permetti Notifiche Push</button>
-            <button className={style.Button} onClick={receiveNotification}>Ricevi Notifica di test</button>
+            <div>
+                <button className={style.Button} onClick={handleSubscribe}>Permetti Notifiche Push</button>
+                <button className={style.Button} onClick={() => handleUnsubscribe()}>Disattiva notifiche Push sul dispositivo</button>
+            </div>
+            <div>
+                <label>Scegli un'opzione di notifica:</label>
+                <select
+                    value={notifications}
+                    onChange={(e) => setNotifications(e.target.value)}
+                    className={style.a}
+                >
+                    <option value="disabled">Disattivate</option>
+                    <option value="email">Via email</option>
+                    <option value="push">Notifiche push</option>
+                </select>
+
+                <button className={style.Button} onClick={() => updateNotificationMethod(this.value)}>Conferma metodo di notifica</button>
+            </div>
         </div>
     </div>
     )
