@@ -132,6 +132,7 @@ const User = ()=>{
             <FormProvider {...formMethods} >
                 <img src={image} className={style.image}/>
                 <FileBase64 multiple={false}
+                label = {"Immagine Profilo:"}
                 onDone={setImageCallback}/>
                 
                 <Input
@@ -202,7 +203,7 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image} className={style.image}/>
+                <img src={image} alt=" " className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
                         Name:
@@ -357,11 +358,7 @@ const User = ()=>{
         <button onClick={logout} className={style.Button_logout}>Logout</button>
 
         <div>
-            <h1 className={style.TitleNotifications}>Notifiche Push</h1>
-            <div>
-                <button className={style.Button} onClick={handleSubscribe}>Permetti Notifiche Push</button>
-                <button className={style.Button} onClick={() => handleUnsubscribe()}>Disattiva notifiche Push sul dispositivo</button>
-            </div>
+            <h1 className={style.TitleNotifications}>Notifiche</h1>
             <div>
                 <label>Scegli un'opzione di notifica:</label>
                 <select
@@ -376,6 +373,14 @@ const User = ()=>{
 
                 <button className={style.Button} onClick={() => updateNotificationMethod(notifications)}>Conferma metodo di notifica</button>
             </div>
+
+            {notifications == "push" && (
+                <div>
+                    <button className={style.Button} onClick={handleSubscribe}>Permetti Notifiche Push</button>
+                    <button className={style.Button} onClick={() => handleUnsubscribe()}>Disattiva notifiche Push sul dispositivo</button>
+                </div>
+            )}
+
         </div>
     </div>
     )
