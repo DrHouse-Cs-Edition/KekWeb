@@ -85,10 +85,13 @@ const PomodoroWidgetDiv = (id, title, studyT, breakT, cycles, loadPomodoro, dele
 
     return (
         <div className={style.barItem}>
-            <div className={style.pomodoroChart}>
+            <div className={style.itemTitle}>
                 <h3 style={{wordWrap: "break-word", maxWidth : "15ch"}}>
                     {title}
                 </h3>
+            </div>
+            <div className={style.pomodoroChart}>
+                
                 <PieChart
                     className={style.pomodoroPie}
                     series={[{

@@ -9,6 +9,7 @@ const MobileCalendarApp = () => {
   // Stati del componente
   const [currentDate, setCurrentDate] = useState(new Date()); // Il mese che sto vedendo
   const [selectedDate, setSelectedDate] = useState(new Date()); // La data di cui vedo gli eventi
+  const [serverDate, setServerDate] = useState(new Date()); // Add server date state
   const [events, setEvents] = useState([]); // Tutti gli eventi
   const [showModal, setShowModal] = useState(false); // Se mostro il modal o no
   const [isEditing, setIsEditing] = useState(false); // Se sto modificando o creando
@@ -16,7 +17,7 @@ const MobileCalendarApp = () => {
     id: "",
     title: "",
     type: "event",
-    pomodoro: {     //serverside is just the Title, here is the whole object
+    pomodoro: {
       _id: "",
       title: "",
       studyTime: null,
@@ -36,11 +37,37 @@ const MobileCalendarApp = () => {
     }
   }); // I dati dell'evento che sto creando/modificando
 
-  // Quando il componente si carica, prendo tutti gli eventi
+  // Function to get server date from time machine API
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/timeMachine/date", {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json();
+      if (json.success) {
+        const currentServerDate = new Date(json.date);
+        setServerDate(currentServerDate);
+        setCurrentDate(currentServerDate); // Set current month view to server date
+        setSelectedDate(currentServerDate); // Set selected date to server date
+        return currentServerDate;
+      }
+    } catch (error) {
+      console.error('Error fetching server date:', error);
+    }
+    return new Date(); // Fallback to local date
+  };
+
+  // Load server date and events when component mounts
   useEffect(() => {
-    loadAllEvents();
+    const initializeCalendar = async () => {
+      await fetchServerDate();
+      loadAllEvents();
+    };
+    initializeCalendar();
   }, []);
 
+  // Quando il componente si carica, prendo tutti gli eventi
   // Funzione per caricare tutti gli eventi dal server
   const loadAllEvents = () => {
     console.log("Carico tutti gli eventi dal server...");
@@ -78,7 +105,7 @@ const MobileCalendarApp = () => {
             // A seconda del tipo di evento cambio colore e durata
             if (event.type === "activity") {
               // Le attività durano tutto il giorno e sono blu
-              let actDate = event.activityDate ? new Date(event.activityDate) : new Date();
+              let actDate = event.activityDate ? new Date(event.activityDate) : serverDate;
               eventObj.start = actDate;
               eventObj.end = actDate;
               eventObj.allDay = true;
@@ -87,14 +114,14 @@ const MobileCalendarApp = () => {
               console.log("Attività creata per il", actDate.toDateString());
             } else if (event.type === "pomodoro") {
               // I pomodoro durano 25 minuti e sono rossi
-              eventObj.start = event.start ? new Date(event.start) : new Date();
+              eventObj.start = event.start ? new Date(event.start) : serverDate;
               eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 25 * 60000);
               eventObj.backgroundColor = "#EA4335";
               eventObj.color = "#EA4335";
               console.log("Pomodoro creato:", eventObj.start, "-", eventObj.end);
             } else {
               // Gli eventi normali hanno durata personalizzata e sono blu scuri
-              eventObj.start = event.start ? new Date(event.start) : new Date();
+              eventObj.start = event.start ? new Date(event.start) : serverDate;
               eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 3600000); // Default 1 ora
               eventObj.backgroundColor = "#3174ad";
               eventObj.color = "#3174ad";
@@ -179,14 +206,13 @@ const MobileCalendarApp = () => {
     setCurrentDate(prev => {
       let newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
-      let today = new Date();
       
-      // Se torno al mese corrente, seleziono oggi
-      if (newDate.getMonth() === today.getMonth() && newDate.getFullYear() === today.getFullYear()) {
-        setSelectedDate(today);
-        console.log("Torno al mese corrente, seleziono oggi");
+      // If returning to current month, select server date (today)
+      if (newDate.getMonth() === serverDate.getMonth() && newDate.getFullYear() === serverDate.getFullYear()) {
+        setSelectedDate(serverDate);
+        console.log("Torno al mese corrente, seleziono oggi (server date)");
       } else {
-        // Altrimenti seleziono il primo del mese
+        // Otherwise select first of the month
         setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
         console.log("Seleziono il primo del mese");
       }
@@ -219,8 +245,7 @@ const MobileCalendarApp = () => {
 
   // Funzioni di utilità per controllare le date
   const isToday = (date) => {
-    let today = new Date();
-    return date.toDateString() === today.toDateString();
+    return date.toDateString() === serverDate.toDateString();
   };
 
   const isSelected = (date) => {
@@ -480,8 +505,8 @@ const MobileCalendarApp = () => {
         cycles: null,
       },
       activityDate: null,
-      start: new Date(),
-      end: new Date(),
+      start: serverDate, // Use server date instead of new Date()
+      end: serverDate,   // Use server date instead of new Date()
       location: "",
       recurrenceRule: "",
       description: "",
