@@ -5,6 +5,7 @@ const { type } = require('os');
 const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
+    // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
     username: String,
     password: String, // per ora tipo String, poi vediamo cosa fanno le librerie "password1!" -> "2ashvd&%fewf&//°Lè&"
     email: String,
@@ -13,7 +14,7 @@ const userSchema = new mongoose.Schema({
     name : String,
     surname : String,
     picture :  String,
-    // _id lo da già mongoDB (e viene usato come chiave esterna da altri Schema)
+    notifications : String, // disabled | email | push
 });
 
 module.exports = new mongoose.model("User", userSchema);

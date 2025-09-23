@@ -70,11 +70,8 @@ function NoteNavigation() {
     })
     .then(response => response.json())
     .then(json => {
-      if (json.success) {
+      if (json.success) // se ho trovato almeno una nota
         loadNotes(json.list); // aggiorna tutte note html
-      } else {
-        alert(json.messge);
-      }
     })
     .catch(err => console.error(err));
   };

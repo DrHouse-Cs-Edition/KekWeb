@@ -7,7 +7,7 @@ const noteSchema = new Schema({
     text: String,
     createdAt: Date,
     lastModified: Date,
-    user: { 
+    user: {
         type: Schema.Types.ObjectId, // Specifica che è un ObjectId
         ref: 'User', // Nome del modello a cui fa riferimento
         // required: true, // OBBLIGA ad avere un campo user alle note

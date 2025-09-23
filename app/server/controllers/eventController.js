@@ -1,9 +1,12 @@
 const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
-const { subMinutes } = require('date-fns');
+const { subMinutes, addDays } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
+const { getNextAlarm } = require('../jobs/notifications.js');
 
-const saveEvent = async (request, response) => {
+// chiamate
+
+const saveEvent = async (request, response, now) => { // now ottenuto come valore dal server
     console.log("recieved backend event: ", request.body);
     const eventInput = request.body;
     const eventDB = new Event({
@@ -19,8 +22,13 @@ const saveEvent = async (request, response) => {
       recurrenceRule: eventInput.recurrenceRule,
       urgencyLevel: eventInput.urgencyLevel || 0,
       completed: eventInput.completed || false,
-      alarm: eventInput.alarm // Add alarm field
+      // alarm = {earlyness, repeat_times, repeat_every}
+      alarm: eventInput.alarm,
+      nextAlarm: null,
+      repeated: 0,
     });
+
+    eventDB.nextAlarm = getNextAlarm(eventDB,now);
 
   try{
       await eventDB.save();
@@ -57,7 +65,7 @@ const updateEvent = async (request, response) => {
         recurrenceRule: eventInput.recurrenceRule,
         urgencyLevel: eventInput.urgencyLevel,
         completed: eventInput.completed,
-        alarm: eventInput.alarm // Add alarm field
+        // alarm MANCANTE
       });
       
       response.json({
@@ -205,15 +213,14 @@ const isPomodoroScheduled = (req, res, next)=>{
         }})      
 }
 
-const movePomodoros = ()=>{
+const movePomodoros = (date)=>{
   console.log("proceding to move pomodoros");
-  let date = new Date();
-  let datePlus = new Date();
+  let datePlus = new Date(date);
   datePlus.setDate(datePlus.getDate() + 1)
   Event.find({type : "pomodoro"})
   .then(p => {
     p.forEach( (evento)=>{
-      if (evento.end < Date.now() && evento.completed == false){
+      if (evento.end < date && evento.completed == false){
         
         evento.start = date;
         evento.end = datePlus;
@@ -276,4 +283,50 @@ const latestP = async function (req, res){
     })
   }  
 }
-module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete, isPomodoroScheduled, movePomodoros, latestP };
+
+const moveActivities = async (date)=>{
+  let datePlus = addDays(date,1);
+  let operations = [];
+
+  activities = await Event.find({type : "activity"})
+  
+  activities.forEach( (evento)=>{
+    if (evento.end < Date.now() && evento.completed != true){
+      operations.push({
+        updateOne: {
+          filter: { _id: evento._id },
+          update: { $set: { start: date, end: datePlus, } }
+        }
+      });
+    }
+  })
+
+  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
+  if(operations.length > 0 )
+    Event.bulkWrite(operations);
+}
+
+const movePomodorosAndActivities = async (date)=>{ // più efficiente
+  let datePlus = addDays(date,1);
+  let operations = [];
+
+  activities = await Event.find({type: {$in: ["activity", "pomodoro"]} })
+  
+  activities.forEach( (evento)=>{
+    if (evento.end < Date.now() && evento.completed != true){
+      operations.push({
+        updateOne: {
+          filter: { _id: evento._id },
+          update: { $set: { start: date, end: datePlus, } }
+        }
+      });
+    }
+  })
+
+  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
+  if(operations.length > 0 )
+    Event.bulkWrite(operations);
+}
+
+module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent,
+   toggleComplete, isPomodoroScheduled, movePomodoros, latestP, moveActivities, movePomodorosAndActivities};

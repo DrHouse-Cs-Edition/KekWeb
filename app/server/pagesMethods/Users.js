@@ -115,12 +115,13 @@ exports.userData = function (req, res){
     const query = req.query;
     Users.findById(req.user).lean()
     .then(result => {
-        const email = query.email ? result.email : null;
+        const email = query.email ? result.email : null; // se la query richiede il valore-> lo inserisco, else null
         const bio = query.bio ? result.bio : null; 
         const birthday = query.birthday ? result.birthday : null;
         const name = query.name ? result.name : null;
         const surname = query.surname ? result.surname : null;
         const picture = query.picture ? result.picture : null;
+        const notifications = query.notifications ? result.notifications : null;
         res.status(200).json({
             success: true,
             email : email,
@@ -129,6 +130,7 @@ exports.userData = function (req, res){
             name : name, 
             surname : surname,
             picture : picture,
+            notifications: notifications, // valore
         })
     })
 }
@@ -183,6 +185,22 @@ exports.updateDataV2 = function (req, res){
         res.status(400).json({
             success: false,
             message: "general error in user data update"
+        })
+    }
+}
+
+exports.updateNotificationMethod = async function (req, res){
+    const userId = req.user;
+    try {
+        await Users.findByIdAndUpdate(userId,{ notifications: req.body.notifications });
+        res.status(200).json({
+            success : true,
+            message : "Preferenza notifiche aggiornata"
+        })
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: "Errore impostando preferenza notifiche"
         })
     }
 }

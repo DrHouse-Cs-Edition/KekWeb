@@ -169,7 +169,7 @@ const lastNote = async (request,response)=>{
         const nota = await Note.findOne({ user: request.user }).sort({ lastModified: -1 }).lean(); // dà piu recente
         response.json({
             success: true,
-            id: nota.id,
+            id: nota._id,
             title: nota.title,
             categories: nota.categories,
             text: nota.text,

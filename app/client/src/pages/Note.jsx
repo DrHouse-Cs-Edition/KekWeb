@@ -55,31 +55,45 @@ function Note() {
   };
 
   //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
-  const handleSave = () => {
+  const handleSave = async () => {
     if (getName()) { // se c'é un titolo
-      const note = {
-        title: noteName.trim(),
-        categories: noteCategories,
-        text: noteText,
-        lastModified: new Date().toISOString(), // Use current date in ISO format
-      };
 
-      fetch('http://localhost:5000/api/notes/update/' + id, {
-        method: 'PUT',
+      let date = null;
+      // prendo data dal server
+      const response = await fetch('http://localhost:5000/api/timeMachine/date', {
+        method: 'GET',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify(note)
-      })
-      .then(response => response.json())
-      .then(json => {
+      });
+      const json = await response.json();
+      date = new Date(json.date);
+
+      const note = {
+        title: noteName.trim(),
+        categories: noteCategories,
+        text: noteText,
+        lastModified: date.toISOString(), // Use current date in ISO format
+      };
+
+      try{
+        const response = await fetch('http://localhost:5000/api/notes/update/' + id, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: JSON.stringify(note)
+        });
+        const json = await response.json();
         if (json.success)
           alert("Nota salvata");
         else
           alert(json.message);
-      })
-      .catch(err => console.error('Failed to save note:', err));
+      }catch(err){
+        console.error('Failed to save note:', err)
+      };
     }
     else{
       alert("per salvare la nota devi inserire un titolo")
@@ -119,7 +133,7 @@ function Note() {
   const resizeTextarea = () => {
     const textarea = document.getElementById("noteText");
     textarea.style.height = "auto"; // reset altezza
-    textarea.style.height = (textarea.scrollHeight+3) + "px"; // altezza contenuto (+3px per eliminare scrollbar)
+    textarea.style.height = (textarea.scrollHeight+5) + "px"; // altezza contenuto (+3px per eliminare scrollbar)
   }
 
   // useEffect esegue handleLoad una volta quando il componente viene montato
@@ -130,6 +144,20 @@ function Note() {
   useEffect(() => {
     resizeTextarea();
   }, [noteText]); // anche al aricamento pagina (perche handleLoad cambia noteText)
+
+  useEffect(() => { // intercetto Ctrl + s
+    const handleKeyDown = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") { // windows/linux o mac
+        event.preventDefault();
+        handleSave();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown); // aggiungo eventListener pressione tastiera
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown); // cleanup
+    };
+  }, [noteName, noteText, noteCategories]); // devo ricrearlo ogni volta che valori cambiano
 
   return (
     <>
@@ -152,13 +180,13 @@ function Note() {
                 className={Style.textareaMarkdown}
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}>
-              </textarea> 
+              </textarea>
               <p id="outputText" className={Style.output}></p>
           </div>
 
           <button className= {Style.button} onClick={handleDelete}>Delete</button>
           <button className= {Style.button} onClick={handleCopy}>Copy</button>
-          <button className= {Style.button} onClick={handleSave}>Save</button>
+          <button className= {Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Save</button>
         </div>
     </>
   );

@@ -126,3 +126,10 @@ label{
 .inputDiv_Class_CPW{
     color: var(--dusk-text);
 }
+
+.TitleNotifications{
+    color: var(--dusk-accent);
+    margin-bottom: 1rem; /* Space below the welcome title */
+    font-size: 2rem;
+    text-align: center;
+}
