@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Circle, Calendar, X, Edit3 } from 'lucide-react';
+import { CheckCircle, Circle, Calendar, X, Edit3, Plus } from 'lucide-react';
 import styles from './TodoList.module.css';
 
 const TodoList = () => {
@@ -8,7 +8,13 @@ const TodoList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
+  const [newTodo, setNewTodo] = useState({
+    title: '',
+    description: '',
+    activityDate: ''
+  });
   const [serverDate, setServerDate] = useState(new Date());
 
   // Function to get server date from time machine API
@@ -31,20 +37,27 @@ const TodoList = () => {
   // Function to process and sort todos
   const processAndSortTodos = (activities, currentDate) => {
     let processedTodos = activities.map(activity => {
-      let activityDate = new Date(activity.activityDate);
-      let daysDiff = Math.ceil((currentDate - activityDate) / (1000 * 60 * 60 * 24));
-      
       let calculatedUrgency = activity.urgencyLevel || 0;
-      
-      if (daysDiff > 0) {
-        calculatedUrgency = Math.min(10, calculatedUrgency + daysDiff);
+      let daysPastDue = 0;
+      let isOverdue = false;
+
+      // Solo se ha una data di scadenza, calcola l'urgenza in base ai giorni
+      if (activity.activityDate) {
+        let activityDate = new Date(activity.activityDate);
+        let daysDiff = Math.ceil((currentDate - activityDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff > 0) {
+          calculatedUrgency = Math.min(10, calculatedUrgency + daysDiff);
+          daysPastDue = daysDiff;
+          isOverdue = true;
+        }
       }
       
       return {
         ...activity,
         calculatedUrgency,
-        daysPastDue: Math.max(0, daysDiff),
-        isOverdue: daysDiff > 0
+        daysPastDue,
+        isOverdue
       };
     });
 
@@ -52,10 +65,22 @@ const TodoList = () => {
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1;
       }
+      
+      // Le attività con data di scadenza hanno priorità su quelle senza
+      if ((a.activityDate && !b.activityDate)) return -1;
+      if ((!a.activityDate && b.activityDate)) return 1;
+      
       if (a.calculatedUrgency !== b.calculatedUrgency) {
         return b.calculatedUrgency - a.calculatedUrgency;
       }
-      return new Date(a.activityDate) - new Date(b.activityDate);
+      
+      // Se entrambe hanno data, ordina per data
+      if (a.activityDate && b.activityDate) {
+        return new Date(a.activityDate) - new Date(b.activityDate);
+      }
+      
+      // Se nessuna ha data, ordina per titolo
+      return a.title.localeCompare(b.title);
     });
   };
 
@@ -163,8 +188,11 @@ const TodoList = () => {
     }
   };
 
-  // Get urgency color
-  const getUrgencyColor = (urgency, isOverdue) => {
+  // Get urgency color - modificato per gestire attività senza data
+  const getUrgencyColor = (urgency, isOverdue, hasDate) => {
+    // Se non ha data di scadenza, sempre verde
+    if (!hasDate) return '#059669';
+    
     if (urgency >= 8) return '#dc2626';
     if (urgency >= 6) return '#ea580c';
     if (urgency >= 4) return '#d97706';
@@ -173,8 +201,10 @@ const TodoList = () => {
     return '#059669';
   };
 
-  // Get urgency badge
-  const getUrgencyBadge = (urgency, isOverdue) => {
+  // Get urgency badge - modificato per gestire attività senza data
+  const getUrgencyBadge = (urgency, isOverdue, hasDate) => {
+    if (!hasDate) return { text: 'NESSUNA SCADENZA', color: '#059669' };
+    
     if (urgency >= 8) return { text: 'CRITICO', color: '#dc2626' };
     if (urgency >= 6) return { text: 'ALTO', color: '#ea580c' };
     if (urgency >= 4) return { text: 'MEDIO', color: '#d97706' };
@@ -233,6 +263,75 @@ const TodoList = () => {
     }
   };
 
+  // Handle add new todo
+  const handleAddClick = () => {
+    setNewTodo({
+      title: '',
+      description: '',
+      activityDate: ''
+    });
+    setShowAddModal(true);
+  };
+
+  // Save new todo
+  const handleSaveNewTodo = async () => {
+    if (!newTodo.title.trim()) {
+      alert('Inserisci un titolo!');
+      return;
+    }
+
+    try {
+      console.log('Sending new todo:', newTodo);
+
+      const requestBody = {
+        title: newTodo.title,
+        description: newTodo.description || '',
+        type: 'activity',
+        completed: false,
+        urgencyLevel: 1
+      };
+
+      // Solo aggiunge activityDate se è stata fornita
+      if (newTodo.activityDate) {
+        const activityDateTime = new Date(newTodo.activityDate + 'T12:00:00');
+        requestBody.activityDate = activityDateTime.toISOString();
+      }
+
+      console.log('Request body:', requestBody);
+
+      const response = await fetch('http://localhost:5000/api/events/save', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Server response:', result);
+
+      if (result.success) {
+        await fetchTodos(false);
+        setShowAddModal(false);
+        setNewTodo({ title: '', description: '', activityDate: '' });
+        console.log('Nuova attività creata con successo');
+      } else {
+        console.error('Server error:', result.message);
+        alert('Errore nel creare la nuova attività: ' + (result.message || 'Errore sconosciuto'));
+      }
+    } catch (error) {
+      console.error('Errore creazione attività:', error);
+      alert('Errore di connessione: ' + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -265,10 +364,21 @@ const TodoList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Lista Activity</h1>
-        <p className={styles.subtitle}>
-          {todos.filter(t => !t.completed).length} da fare • {todos.filter(t => t.completed).length} completati
-        </p>
+        <div className={styles.headerTop}>
+          <div>
+            <h1 className={styles.title}>Lista Attività</h1>
+            <p className={styles.subtitle}>
+              {todos.filter(t => !t.completed).length} da fare • {todos.filter(t => t.completed).length} completati
+            </p>
+          </div>
+          <button 
+            onClick={handleAddClick}
+            className={styles.addButton}
+            title="Aggiungi nuova attività"
+          >
+            <Plus className={styles.addIcon} />
+          </button>
+        </div>
       </div>
 
       {todos.filter(t => !t.completed).length === 0 ? (
@@ -276,18 +386,26 @@ const TodoList = () => {
           <CheckCircle className={styles.emptyIcon} />
           <p className={styles.emptyText}>Tutto fatto!</p>
           <p className={styles.emptySubtext}>Nessun todo da completare</p>
+          <button 
+            onClick={handleAddClick}
+            className={styles.emptyAddButton}
+          >
+            <Plus className={styles.addIcon} />
+            Aggiungi prima attività
+          </button>
         </div>
       ) : (
         <div className={styles.todosList}>
           {todos
             .filter(todo => !todo.completed)
             .map((todo) => {
+              const hasDate = !!todo.activityDate;
               return (
                 <div
                   key={todo._id}
                   className={styles.todoCard}
                   style={{
-                    borderLeftColor: getUrgencyColor(todo.calculatedUrgency, todo.isOverdue),
+                    borderLeftColor: getUrgencyColor(todo.calculatedUrgency, todo.isOverdue, hasDate),
                     opacity: todo.completed ? 0.6 : 1,
                   }}
                   onClick={() => setSelectedTodo(todo)}
@@ -321,10 +439,10 @@ const TodoList = () => {
                       <div className={styles.dateInfo}>
                         <Calendar className={styles.metaIcon} />
                         <span style={{
-                          color: todo.isOverdue && !todo.completed ? '#dc2626' : '#9ca3af'
+                          color: (todo.isOverdue && !todo.completed && hasDate) ? '#dc2626' : '#9ca3af'
                         }}>
-                          {formatDate(todo.activityDate)}
-                          {todo.daysPastDue > 0 && !todo.completed && (
+                          {hasDate ? formatDate(todo.activityDate) : 'Nessuna scadenza'}
+                          {todo.daysPastDue > 0 && !todo.completed && hasDate && (
                             <span className={styles.overdueBadge}>
                               {todo.daysPastDue} giorno{todo.daysPastDue > 1 ? 'i' : ''} in ritardo
                             </span>
@@ -384,7 +502,9 @@ const TodoList = () => {
               <div className={styles.modalTodoDetails}>
                 <div className={styles.modalDetailItem}>
                   <Calendar className={styles.modalDetailIcon} />
-                  <span>{formatDate(selectedTodo.activityDate)}</span>
+                  <span>
+                    {selectedTodo.activityDate ? formatDate(selectedTodo.activityDate) : 'Nessuna scadenza'}
+                  </span>
                 </div>
               </div>
               
@@ -513,6 +633,114 @@ const TodoList = () => {
                 disabled={!editingTodo.title.trim()}
               >
                 Salva Modifiche
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal per aggiungere nuovo todo */}
+      {showAddModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Nuova Attività</h2>
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setNewTodo({ title: '', description: '', activityDate: '' });
+                }}
+                className={styles.closeButton}
+              >
+                <X className={styles.closeIcon} />
+              </button>
+            </div>
+            
+            <div className={styles.modalContent}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ffe5d9' }}>
+                    Titolo *
+                  </label>
+                  <input
+                    type="text"
+                    value={newTodo.title}
+                    onChange={(e) => setNewTodo(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Inserisci il titolo dell'attività..."
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      borderRadius: '0.375rem',
+                      border: '1px solid #5c3c6e',
+                      backgroundColor: 'rgba(36, 41, 73, 0.95)',
+                      color: '#ffe5d9'
+                    }}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ffe5d9' }}>
+                    Descrizione
+                  </label>
+                  <textarea
+                    value={newTodo.description}
+                    onChange={(e) => setNewTodo(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Descrizione opzionale..."
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      borderRadius: '0.375rem',
+                      border: '1px solid #5c3c6e',
+                      backgroundColor: 'rgba(36, 41, 73, 0.95)',
+                      color: '#ffe5d9',
+                      resize: 'vertical'
+                    }}
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ffe5d9' }}>
+                    Data di scadenza (opzionale)
+                  </label>
+                  <input
+                    type="date"
+                    value={newTodo.activityDate}
+                    onChange={(e) => setNewTodo(prev => ({ ...prev, activityDate: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      borderRadius: '0.375rem',
+                      border: '1px solid #5c3c6e',
+                      backgroundColor: 'rgba(36, 41, 73, 0.95)',
+                      color: '#ffe5d9'
+                    }}
+                  />
+                  <small style={{ color: '#b3a1c7', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                    Lascia vuoto se non hai una scadenza specifica
+                  </small>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.modalFooter}>
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setNewTodo({ title: '', description: '', activityDate: '' });
+                }}
+                className={styles.cancelButton}
+              >
+                Annulla
+              </button>
+              <button 
+                onClick={handleSaveNewTodo}
+                className={styles.editButton}
+                disabled={!newTodo.title.trim()}
+              >
+                <Plus className={styles.addIcon} />
+                Crea Attività
               </button>
             </div>
           </div>

@@ -47,7 +47,7 @@ const User = ()=>{
             })
         }catch(e){
             console.log("error in user page, logout phase: ", e);
-        }  
+        }
     }
 
     // useEffect(()=>{
@@ -362,9 +362,9 @@ const User = ()=>{
             <div>
                 <label>Scegli un'opzione di notifica:</label>
                 <select
+                    className={style.selectorNote}
                     value={notifications}
                     onChange={(e) => setNotifications(e.target.value)}
-                    className={style.a}
                 >
                     <option value="disabled">Disattivate</option>
                     <option value="email">Via email</option>

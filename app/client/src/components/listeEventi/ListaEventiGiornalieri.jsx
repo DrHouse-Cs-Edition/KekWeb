@@ -7,13 +7,12 @@ const ListaEventiGiornalieri = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [serverDate, setServerDate] = useState(new Date()); // Add server date state
+  const [serverDate, setServerDate] = useState(new Date());
 
   useEffect(() => {
     fetchServerDateAndEvents();
   }, []);
 
-  // Function to get server date from time machine API
   const fetchServerDate = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
@@ -28,16 +27,14 @@ const ListaEventiGiornalieri = () => {
     } catch (error) {
       console.error('Error fetching server date:', error);
     }
-    return new Date(); // Fallback to local date
+    return new Date();
   };
 
   const fetchServerDateAndEvents = async () => {
     setLoading(true);
     try {
-      // First get the server date
       const currentServerDate = await fetchServerDate();
       
-      // Then fetch events
       const response = await fetch("http://localhost:5000/api/events/all", {
         method: "GET",
         credentials: "include",
@@ -45,7 +42,6 @@ const ListaEventiGiornalieri = () => {
       const json = await response.json();
       
       if (json.success) {
-        // Filter for today's events using server date and only event type
         const todaysEvents = json.list.filter(event => {
           if (event.type !== 'event') return false;
           
@@ -56,11 +52,11 @@ const ListaEventiGiornalieri = () => {
         setEvents(todaysEvents);
         setError(null);
       } else {
-        setError('No events found');
+        setError('Nessun evento trovato');
       }
     } catch (err) {
       console.error('Error fetching events:', err);
-      setError('Failed to load events');
+      setError('Impossibile caricare gli eventi');
     } finally {
       setLoading(false);
     }
@@ -72,16 +68,15 @@ const ListaEventiGiornalieri = () => {
 
   const formatTime = (date) => {
     if (!date) return '';
-    return new Date(date).toLocaleTimeString('en-US', {
+    return new Date(date).toLocaleTimeString('it-IT', {
       hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      minute: '2-digit'
     });
   };
 
   const formatDate = (date) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', {
+    return new Date(date).toLocaleDateString('it-IT', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -114,7 +109,7 @@ const ListaEventiGiornalieri = () => {
             onClick={fetchTodaysEvents}
             className={styles.retryButton}
           >
-            Retry
+            Riprova
           </button>
         </div>
       </div>
@@ -124,15 +119,15 @@ const ListaEventiGiornalieri = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Today's Events</h1>
+        <h1 className={styles.title}>Eventi di Oggi</h1>
         <p className={styles.date}>{formatDate(serverDate)}</p>
       </div>
 
       {events.length === 0 ? (
         <div className={styles.emptyState}>
           <Calendar className={styles.emptyIcon} />
-          <p className={styles.emptyText}>No events scheduled for today</p>
-          <p className={styles.emptySubtext}>Enjoy your free time!</p>
+          <p className={styles.emptyText}>Nessun evento programmato per oggi</p>
+          <p className={styles.emptySubtext}>Goditi il tempo libero!</p>
         </div>
       ) : (
         <div className={styles.eventsList}>
@@ -178,7 +173,7 @@ const ListaEventiGiornalieri = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Event Details</h2>
+              <h2 className={styles.modalTitle}>Dettagli Evento</h2>
               <button
                 onClick={() => setSelectedEvent(null)}
                 className={styles.closeButton}
@@ -209,14 +204,14 @@ const ListaEventiGiornalieri = () => {
                 {selectedEvent.recurrenceRule && (
                   <div className={styles.modalDetailItem}>
                     <Calendar className={styles.modalDetailIcon} />
-                    <span>Repeats: {selectedEvent.recurrenceRule}</span>
+                    <span>Si ripete: {selectedEvent.recurrenceRule}</span>
                   </div>
                 )}
               </div>
               
               {selectedEvent.description && (
                 <div className={styles.modalDescription}>
-                  <h4 className={styles.modalDescriptionTitle}>Description</h4>
+                  <h4 className={styles.modalDescriptionTitle}>Descrizione</h4>
                   <p className={styles.modalDescriptionText}>
                     {selectedEvent.description}
                   </p>
@@ -229,10 +224,10 @@ const ListaEventiGiornalieri = () => {
                 onClick={() => setSelectedEvent(null)}
                 className={styles.cancelButton}
               >
-                Close
+                Chiudi
               </button>
               <button className={styles.editButton}>
-                Edit Event
+                Modifica Evento
               </button>
             </div>
           </div>
@@ -248,7 +243,7 @@ const ListaEventiGiornalieri = () => {
     if (event.start) {
       return formatTime(event.start);
     }
-    return 'All day';
+    return 'Tutto il giorno';
   }
 };
 
