@@ -3,7 +3,7 @@ import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
-import CategoriesList from '../components/NoteEditor/CategoriesList.jsx';
+import CategoriesList from '../components/Note/CategoriesList.jsx';
 
 function Note() {
 
@@ -54,7 +54,7 @@ function Note() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(noteText)
-      .then(() => alert("Testo copiato su appunti"))
+      .then(() => {/*alert("Testo copiato su appunti")*/})
       .catch(err => console.error('Errore durante la copia:', err));
   };
 
@@ -91,8 +91,9 @@ function Note() {
           body: JSON.stringify(note)
         });
         const json = await response.json();
-        if (json.success)
-          alert("Nota salvata");
+        if (json.success){
+          // alert("Nota salvata");
+        }
         else
           alert(json.message);
       }catch(err){
@@ -188,9 +189,9 @@ function Note() {
               <p id="outputText" className={Style.output}></p>
           </div>
 
-          <button className= {Style.button} onClick={handleDelete}>Delete</button>
-          <button className= {Style.button} onClick={handleCopy}>Copy</button>
-          <button className= {Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Save</button>
+          <button className= {Style.button} onClick={handleDelete}>Elimina</button>
+          <button className= {Style.button} onClick={handleCopy}>Copia su appunti</button>
+          <button className= {Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Salva modifiche</button>
         </div>
     </>
   );

@@ -134,11 +134,12 @@ label{
     text-align: center;
 }
 
-.a{
+.selectorNote{
     padding: 6px 10px;
     border-radius: 8px;
     font-weight: 300;
     font-size: 0.675rem;
+    color: white;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
