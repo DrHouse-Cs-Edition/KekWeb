@@ -9,16 +9,24 @@
     border-radius: 0.75rem;
     box-shadow: var(--dusk-shadow);
     height: fit-content;
-    max-height: 600px;
-    overflow-y: auto;
+    /* Rimuovi max-height e overflow-y da qui */
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    text-align: center;
     border-bottom: 1px solid #5c3c6e;
+    flex-shrink: 0; /* Impedisce al header di ridursi */
+}
+
+.headerTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .title {
@@ -32,6 +40,52 @@
     font-size: 0.875rem;
     margin: 0;
     color: #b3a1c7;
+}
+
+.addButton {
+    background: #ff8c6b;
+    color: #232b4d;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.addButton:hover {
+    background: #ffb997;
+    transform: scale(1.05);
+}
+
+.addIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.emptyAddButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #ff8c6b;
+    color: #232b4d;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.emptyAddButton:hover {
+    background: #ffb997;
+    transform: translateY(-1px);
 }
 
 .loadingContainer {
@@ -97,6 +151,7 @@
     border-radius: 0.5rem;
     padding: 1.5rem;
     text-align: center;
+    /* Non ha bisogno di scroll specifico */
 }
 
 .emptyIcon {
@@ -122,6 +177,29 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    /* Aggiungi scroll alla lista delle attività */
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem; /* Spazio per la scrollbar */
+}
+
+/* Stile personalizzato per la scrollbar */
+.todosList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.todosList::-webkit-scrollbar-track {
+    background: rgba(92, 60, 110, 0.3);
+    border-radius: 3px;
+}
+
+.todosList::-webkit-scrollbar-thumb {
+    background: rgba(255, 140, 107, 0.6);
+    border-radius: 3px;
+}
+
+.todosList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 140, 107, 0.8);
 }
 
 .todoCard {

@@ -4,35 +4,40 @@
 }
 
 .layout {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  grid-template-rows: auto auto auto; /* Three rows */
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto auto; /* Cambia da 1fr a auto */
   gap: 2rem;
-  align-items: start;
+  align-items: start; /* Cambia da stretch a start */
+  min-height: 80vh;
 }
 
 .eventsSection {
-  grid-column: 1 / -1; /* Spans both columns - top row */
+  grid-column: 1;
   grid-row: 1;
+  /* Rimuovi min-height */
 }
 
 .lastPomodoro {
-  grid-column: 1; /* Left column - second row */
+  grid-column: 1;
   grid-row: 2;
+  /* Rimuovi min-height */
 }
 
 .todoSection {
-  grid-column: 2; /* Right column - second row */
-  grid-row: 2;
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
+  grid-column: 1;
+  grid-row: 3;
+  /* Rimuovi min-height */
+  /* max-height: none; - già rimosso */
+  /* overflow-y: auto; - già rimosso */
 }
 
 .lastNote {
-  grid-column: 1 / -1; /* Spans both columns - bottom row */
-  grid-row: 3;
+  grid-column: 1;
+  grid-row: 4;
+  /* Rimuovi min-height */
 }
 
 /* Responsive design */
@@ -43,10 +48,11 @@
   
   .layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto; /* Four rows on mobile */
+    grid-template-rows: auto auto auto auto;
     gap: 1.5rem;
     max-width: none;
     padding: 0 0.5rem;
+    min-height: auto;
   }
   
   .eventsSection {
