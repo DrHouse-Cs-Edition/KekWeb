@@ -296,9 +296,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                     <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2> </button> : 
                     <button onClick={()=>{setRunTimer(1)}} ref={runButtonRef} disabled={disableRun} className={`${style.runButton} ${style.pomodoroButton}`}> Avvia timer 
                     <Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2></button>}
-                <br></br>
                 <button onClick={()=>{CyclesReset()}} ref={resetButtonRef} className={style.pomodoroButton}> Ricomincia ciclo </button>
-                <br/>
                 <button onClick={()=>{gotoNext()}} ref={skipButtonRef} className={style.pomodoroButton}> Salta </button>
             </div>
             <div style={{padding: "5px"}}>
@@ -309,7 +307,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
         <div id= "FormDiv" style={{textAlign : 'center', display: isModing ? "block" : "none"}}>
             <h2> Titolo del Pomodoro </h2>
-            {titleComponent2}<br></br>
+            {titleComponent2}
             {formComponents[formType]}
             <div className={style.buttonDiv1}>
                 <button onClick = {()=>{newPomodoro()}} className={style.pomodoroButton}> Ripristina pomodoro</button>
@@ -322,8 +320,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         {/* {<Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>} */}
         { <button className={style.pomodoroButton}
         onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
-        {isModing ? "Pronto allo studio!": "crea/modifica Pomodoro"}            </button> }
-        <br></br>
+        {isModing ? "Pronto allo studio!": "crea/modifica Pomodoro"}</button>}
         <div className={style.sideBar}>
             <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
         </div>

@@ -37,6 +37,7 @@
     transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
     border: 1px solid transparent;
     background: var(--dusk-input-focus-border);
+    margin-bottom: 1rem;
 }
 
 .buttonsDiv{
@@ -50,6 +51,7 @@
   border-radius: 30%;
   color: #000000;
   font-size: large;
+  margin-bottom: 1rem;
 }
 /* .headerDiv {
   font-size: large;

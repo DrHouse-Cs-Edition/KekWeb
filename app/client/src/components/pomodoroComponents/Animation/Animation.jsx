@@ -37,11 +37,10 @@ export const Animation = ({currentTimer, studyTime, breakTime, run, resetFlag})=
     return(
         <div className={style.animationDiv} ref={animationDiv} >
             <div className={[style.loadingBar, style.outherBar].join(" ")} ref={animationDiv_outher}>
-                    {/* {currentTimer ? <StudyAnimation duration = {"5s"} run = {run && currentTimer}></StudyAnimation> :
-                    <BreakAnimation duration = {"5s"} run = {run && !currentTimer}></BreakAnimation>} */}
-                    {loadingBar[currentTimer]}
+                {/* {currentTimer ? <StudyAnimation duration = {"5s"} run = {run && currentTimer}></StudyAnimation> :
+                <BreakAnimation duration = {"5s"} run = {run && !currentTimer}></BreakAnimation>} */}
+                {loadingBar[currentTimer]}
             </div>
-            <br></br>
         </div>
     )
 }

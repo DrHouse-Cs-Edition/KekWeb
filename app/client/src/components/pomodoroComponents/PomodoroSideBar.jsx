@@ -121,7 +121,6 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
                 {/* <button className={`${style.openB} ${style.button}`} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button> */}
                 <button className={`${style.deleteB} ${style.button}`} onClick={()=>{deletePomodoro(); setDisplay(0)}}>Cancella</button>
             </div>
-            <br></br>
         </div>
     )
 }
