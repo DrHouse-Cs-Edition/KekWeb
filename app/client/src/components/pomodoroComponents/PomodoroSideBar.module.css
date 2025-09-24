@@ -37,7 +37,7 @@
     border-color: rgb(104, 66, 110);
     border-style: solid;
     border-width: medium;
-    width: 50%; /* width: 300px dà bug altezza infinita PieChart */
+    width: 100%; /* width: 300px dà bug altezza infinita PieChart */
     @media (width < 600px) {
         width: 100%;   
     }
@@ -73,9 +73,9 @@
     }
 }
 
-.pomdoroPie{
+/* .pomdoroPie{
     max-height: 100px;
-}
+} */
 
 .pomodoroOpen > div > ul{
     font-size: large;
