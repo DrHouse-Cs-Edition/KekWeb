@@ -6,45 +6,63 @@ const { getNextAlarm } = require('../jobs/notifications.js');
 
 // chiamate
 
-const saveEvent = async (request, response, now) => { // now ottenuto come valore dal server
-    console.log("recieved backend event: ", request.body);
-    const eventInput = request.body;
-    const eventDB = new Event({
-      user: request.user, // Add user association
-      title: eventInput.title,
-      description: eventInput.description,
-      location: eventInput.location,
-      type: eventInput.type,
-      pomodoro: eventInput.pomodoro,
-      activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
-      start: eventInput.start ? new Date(eventInput.start) : null,
-      end: eventInput.end ? new Date(eventInput.end) : null,
-      recurrenceRule: eventInput.recurrenceRule,
-      urgencyLevel: eventInput.urgencyLevel || 0,
-      completed: eventInput.completed || false,
-      // alarm = {earlyness, repeat_times, repeat_every}
-      alarm: eventInput.alarm,
-      nextAlarm: null,
-      repeated: 0,
-    });
+const saveEvent = async (request, response, now) => {
+    console.log("received backend event: ", request.body);
+    console.log("user from request: ", request.user);
+    
+    try {
+        const eventInput = request.body;
+        
+        // Check if user is authenticated
+        if (!request.user) {
+            return response.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            });
+        }
 
-    eventDB.nextAlarm = getNextAlarm(eventDB,now);
+        const eventDB = new Event({
+            user: request.user,
+            title: eventInput.title,
+            description: eventInput.description,
+            location: eventInput.location,
+            type: eventInput.type,
+            pomodoro: eventInput.pomodoro,
+            activityDate: eventInput.activityDate ? new Date(eventInput.activityDate) : null,
+            start: eventInput.start ? new Date(eventInput.start) : null,
+            end: eventInput.end ? new Date(eventInput.end) : null,
+            recurrenceRule: eventInput.recurrenceRule,
+            urgencyLevel: eventInput.urgencyLevel || 0,
+            completed: eventInput.completed || false,
+            alarm: eventInput.alarm,
+            nextAlarm: null,
+            repeated: 0,
+        });
 
-  try{
-      await eventDB.save();
-      response.json({
-          success: true,
-          id: eventDB._id, // può servire(?)
-          message: "Event saved"
-      });
-  }
-  catch(e){
-      console.log(e.message);
-      response.json({
-          success: false,
-          message: "Errore durante il salvataggio sul DB"+e
-      });
-  }
+        // Calculate nextAlarm only if alarm is provided
+        if (eventDB.alarm) {
+            eventDB.nextAlarm = getNextAlarm(eventDB, now);
+        }
+
+        console.log("Event to save: ", eventDB);
+
+        await eventDB.save();
+        
+        console.log("Event saved successfully with ID: ", eventDB._id);
+        
+        response.json({
+            success: true,
+            id: eventDB._id,
+            message: "Event saved"
+        });
+    }
+    catch(e){
+        console.error("Error saving event: ", e);
+        response.status(500).json({
+            success: false,
+            message: "Errore durante il salvataggio sul DB: " + e.message
+        });
+    }
 };
 
 const updateEvent = async (request, response) => {

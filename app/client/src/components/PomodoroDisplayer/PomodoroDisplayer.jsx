@@ -32,12 +32,9 @@ const PomodoroDisplayer = ()=>{
             })
                 .then(res => res.json())
                 .then(res => {
-                    console.log("latest pomodoro event found ", res);
                     if( res.success == true){
-                        console.log("response is positive")
                         setPomodoroEvent(res.pomodoro);
                     }else{
-                        console.log("response is negative ");
                         return null;
                     }
             })
@@ -61,7 +58,7 @@ const PomodoroDisplayer = ()=>{
     return (
         <div className={style.container}>
             <div className={style.header}>
-                <h1 className={style.title}>Closest Pomodoro: <u>{pomodoroEvent?.title}</u></h1>
+                <h1 className={style.title}>Pomodoro più urgente: <u>{pomodoroEvent?.title}</u></h1>
                 <p className={style.date}>{formatDate(new Date(pomodoroEvent?.date))}</p>
             </div>
 
@@ -71,17 +68,17 @@ const PomodoroDisplayer = ()=>{
                         className={style.pomodoroPie}
                         series={[{
                             data : [
-                                {id : 0, value : pomodoroEvent?.studyT, label : "Study Time"},
-                                {id : 1, value : pomodoroEvent?.breakT, label : "Break Time"}
+                                {id : 0, value : pomodoroEvent?.studyT, label : "Durata studio"},
+                                {id : 1, value : pomodoroEvent?.breakT, label : "Durata pausa"}
                             ],
                         },
                     ]}
                     ></PieChart>
                 </div>
                 <div className={style.pomodoroStats}>
-                    <span>Study: {pomodoroEvent?.studyT} minutes </span>
-                    <span>Break: {pomodoroEvent?.breakT} minutes</span>
-                    <span>Cycles: {pomodoroEvent?.cycles}</span>
+                    <span>Studio: {pomodoroEvent?.studyT} minuti </span>
+                    <span>Pausa: {pomodoroEvent?.breakT} minuti</span>
+                    <span>Cicli: {pomodoroEvent?.cycles}</span>
                 </div>
                 <Link  to={"/pomodoro"}
                     state={{
@@ -93,7 +90,7 @@ const PomodoroDisplayer = ()=>{
                     }}
                     className={style.linkButton} // Apply the new button style
                 >
-                    Start Pomodoro
+                    Inizia il Pomodoro
                 </Link>
             </div>
         </div>
@@ -108,15 +105,15 @@ const NoPomodoro = ()=>{
     return (
         <div className={style.container}>
             <div className={style.header}>
-                <h1 className={style.title}>No scheduled pomodoro</h1>
+                <h1 className={style.title}>Nessun pomodoro pendente</h1>
             </div>
 
             <div className={style.pomodoroBody}>
                 <h2>
-                    You have not scheduled any pomodoro yet. <br></br>
-                    Go to the pomodoro page to create one, the add it to the calendar for scheduling.
+                    Non hai nessun Pomodoro fissato per una data. <br></br>
+                    Vai alla pagina pomodoro per crearne uno, e poi dal calendario puoi aggiungerlo.
                 </h2>
-                <Link to={"/pomodoro"}>Pomodoro Page</Link>
+                <Link to={"/pomodoro"}>Pagina Pomodoro</Link>
             </div>
         </div>
     )

@@ -79,9 +79,9 @@ const User = ()=>{
                     email : data.Email,
                     // bio : data.Bio,
                     bio : bio,
-                    birthday : data.Birthday,
-                    name : data.Name,
-                    surname : data.Surname,
+                    birthday : data.Compleanno,
+                    name : data.Nome,
+                    surname : data.Cognome,
                     picture : image, //image base 64 encoded
                     })
                 }).then(res => res.json())
@@ -157,7 +157,7 @@ const User = ()=>{
                 </div>
 
                 <Input
-                label = {"Birthday"}
+                label = {"Compleanno"}
                 type = "date"
                 id = "birthday"
                 value={birthday}
@@ -166,7 +166,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Name"}
+                label = {"Nome"}
                 type = "string"
                 id = "name"
                 value={name}
@@ -176,7 +176,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Surname"}
+                label = {"Cognome"}
                 type = "string"
                 id = "surname"
                 value={surname}
@@ -185,7 +185,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Confirm Password"}
+                label = {"Conferma Password"}
                 type = "password"
                 id = "CPW"
                 placeholder={"enter password to proceed"}
@@ -206,14 +206,14 @@ const User = ()=>{
                 <img src={image? image : "/utenteGenerico.png"} alt=" " className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
-                        Name:
+                        Nome:
                         <div className={style.data}>{name}</div>
                     </div>
                     <div className={style.dataLabel}>
-                        Surname: <div className={style.data}>{surname}</div>
+                        Cognome: <div className={style.data}>{surname}</div>
                     </div>
                     <div className={style.dataLabel}>
-                        Birthday: <div className={style.data}>{birthday}</div>
+                        Compleanno: <div className={style.data}>{birthday}</div>
                     </div>
                     <div className={style.dataLabel}>
                         email: <div className={style.data}>{email}</div>
