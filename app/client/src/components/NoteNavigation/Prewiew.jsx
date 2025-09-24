@@ -1,5 +1,4 @@
 // import React, { useEffect } from 'react';
-import Trash from './Trash.png'
 import Style from "./Prewiew.module.css";
 import { marked } from 'marked';
 import { Trash2 } from "lucide-react";
@@ -25,7 +24,7 @@ function Prewiew({id, title, categories, text, modified, handleDelete, handleCli
         <p className={Style.text} dangerouslySetInnerHTML={ {__html: marker(text)} } ></p>
         <p className={Style.date}>ultima modifica: {modified? modified.toLocaleString() : null}</p>
         <div className={Style.row}>
-          <button className={Style.button} onClick={handleClick}>Open</button>
+          <button className={Style.button} onClick={handleClick}>Apri</button>
           <Trash2 className={Style.delete} onClick={ ()=>handleDelete() } />
         </div>
       </div>

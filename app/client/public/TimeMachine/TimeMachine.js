@@ -40,7 +40,6 @@ class TimeMachine extends HTMLElement {
           }
           .tm-bar button {
             flex: 1;              /* i bottoni si allargano */
-            min-width: 80px;
           }
         }
       </style>
