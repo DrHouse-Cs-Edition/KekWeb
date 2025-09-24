@@ -1,7 +1,7 @@
 const Event = require('../mongoSchemas/Event.js');
 const Subscription = require('../mongoSchemas/Subscription.js');
 const User = require('../mongoSchemas/UserSchemas.js');
-const { RRule } = require('rrule');
+const { RRule, rrulestr } = require('rrule');
 const { subDays, addDays, subMinutes, addMinutes } = require('date-fns');
 const nodemailer = require("nodemailer");
 
@@ -53,10 +53,11 @@ async function sendPush(evento, alertTime){
   subscription.forEach( async (sub) => {
       console.log("subscription found!");
       try{
-          await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload) // .catch(console.error) //.then( out => {console.log(out)});
-        }
+        await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload);
+      }
       catch(err){ // se c'è errore (iscrizione client eliminata -> la elimino da DB)
-        if (err.statusCode === 410 || err.statusCode === 404) { // se permesso scaduto
+        console.log(err.statusCode);
+        if (err.statusCode === 400 || err.statusCode === 403 || err.statusCode === 410 || err.statusCode === 404) { // se permesso scaduto
           try{
             await Subscription.deleteOne({_id: sub._id});
           }
@@ -72,44 +73,53 @@ async function sendPush(evento, alertTime){
 
 async function notify(utente, evento, alertTime){
   const localDate = new Date(evento.nextAlarm);
-  if(utente.notifichePush){ // != null && true
+  if(utente.notifications == "push"){
       console.log("notifica push?");
       sendPush(evento, alertTime);
     }
-    else if (utente.email){
-      console.log("notifica mail?");
-      sendEmail(utente, evento, alertTime);
-    }
+  else if (utente.notifications == "email" && utente.email){
+    console.log("notifica mail?");
+    sendEmail(utente, evento, alertTime);
+  }
+  // else if(utente.notifications == "disabled") { do nothing }
 }
 
 function getNextAlarm(event, now){
   let nextAlarm = null;
 
+  console.log("NOW: " + now);
   if(event.alarm && event.alarm.repeat_times > 0){
     // evento con rrule
-    if (event.rrule){
-      regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-      if (regola.freq && regola.dtStart){ // possibile controllo se ricorrenza è finita?
-        const rule = new RRule( regola );
+    if (event.recurrenceRule){
+      console.log("RRULE")
+      const rule = rrulestr(event.recurrenceRule);
+      if (rule){ // possibile controllo se ricorrenza è finita?
         let next = rule.after(now);
-        if (subMinutes(next, event.alarm.earlyness) < now) // se abbiamo superato orario notifica -> vado avanti
+        while (subMinutes(next, event.alarm.earlyness) < now){ // se abbiamo superato orario notifica -> vado avanti
           next = rule.after(next);
+          console.log("HA");
+        }
         nextAlarm = subMinutes(next, event.alarm.earlyness);
       }
     }
+    // evento senza rrule
+    else{
+      let next = subMinutes(event.start, event.alarm.earlyness);
+      if(next > now) // se l'orario di notifica non è ancora passato
+        nextAlarm = next;
+      else  
+        nextAlarm = null; // per chiarezza, ma dovrebbe essere già null
+    }
   }
-  // evento senza rrule
-  else{
-    if(nextAlarm > now)
-      nextAlarm = subMinutes(next, event.alarm.earlyness);
-  }
+
+  console.log("NEXTALARM " + nextAlarm);
+  return nextAlarm;
 }
 
 // aggiorna nextAlarm
-function updateAlarm(event, now){
+function updateAlarmAndGetNotificationTimes(event, now){
   console.log("upd alarm")
-  const localDate = new Date(evento.last_alarm);
-  let orario = `\n${localDate}`;
+  let notificationTimes = ``;
 
   // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei llop, e no solo 1)
   do{
@@ -123,16 +133,13 @@ function updateAlarm(event, now){
   // se ho finito con le ripetizioni
   if(event.repeated == event.alarm.repeat_times){
     event.nextAlarm = null;
-    if (event.rrule){
-      regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-      if (regola.freq && regola.dtStart){
-        const rule = new RRule( regola );
+    if (event.recurrenceRule){
+      const rule = rrulestr(event.recurrenceRule);
+      if (rule){ // possibile controllo se ricorrenza è finita?
         const next = rule.after(now);
-        //if (...){ // possibile controllo se ricorrenza è finita?
-          console.log("Da next")
-          event.nextAlarm = subMinutes(next, event.alarm.earlyness);
-          event.repeated = 0;
-        //}
+        console.log("Da next")
+        event.nextAlarm = subMinutes(next, event.alarm.earlyness);
+        event.repeated = 0;
       }
     }
   }
@@ -170,27 +177,26 @@ async function timeTravelNotificationsUpdate(now){
   let operations = [];
 
   // aggiorno orario di notifica per eventi con rrule
-  const eventiRrule = await Event.find({ alarm: { $ne: null }, rrule: { $ne: null } });
+  const eventiRrule = await Event.find({ alarm: { $ne: null }, recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    const regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-    if (regola.freq && regola.dtStart){
-      const rule = new RRule( regola );
+    const rule = rrulestr(event.recurrenceRule);
+    if (rule){
+      console.log("rrule");
       const next = rule.after(now);
       // calcolo quando sarebbe prossima notifica con nuova data
       const alarmDate = subMinutes(next, event.alarm.earlyness);
-      if( alarmDate>=today && alarmDate<tomorrow && alarmDate!=event.nextAlarm ){ // limito per maggior efficienza nell'update
-        operations.push({
-          updateOne: {
-            filter: { _id: event._id },
-            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-          }
-        });
-      }
+      console.log(alarmDate);
+      operations.push({
+        updateOne: {
+          filter: { _id: event._id },
+          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+        }
+      });
     }
   });
 
-  // setto Alarm suonati che dovrebbero suonare (se faccio viaggio nel passato)
-  const eventi = await Event.find({ alarm: { $ne: null }, rrule: null, start: { $gte: now } });
+  // riattivo Alarm che dovrebbero suonare (se faccio viaggio nel passato)
+  const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
     const alarmDate = subMinutes( event.start, event.alarm.earlyness);
     if( alarmDate >= now && alarmDate!=event.nextAlarm ){
@@ -213,11 +219,10 @@ async function timeTravelNotificationsReset(now){
   let operations = [];
 
   // aggiorno orario di notifica per eventi con rrule
-  const eventiRrule = await Event.find({ rrule: { $ne: null } });
+  const eventiRrule = await Event.find({ recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    const regola = { freq: event.rrule.match(/FREQ=([A-Z]+)/)?.[1], dtStart: recurrenceRule.match(/DTSTART=([A-Z]+)/)?.[1]}
-    if (regola.freq && regola.dtStart){
-      const rule = new RRule( regola );
+    const rule = rrulestr(event.recurrenceRule);
+    if (rule){
       const next = rule.after(now);
       // calcolo quando sarebbe prossima notifica con nuova data
       const alarmDate = subMinutes(next, event.alarm.earlyness);
@@ -233,7 +238,7 @@ async function timeTravelNotificationsReset(now){
   });
 
   // resetto Alarm suonati dopo viaggio nel tempo
-  const eventi = await Event.find({ alarm: { $ne: null }, rrule: null, start: { $gte: now } });
+  const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
     const alarmDate = subMinutes( event.start, event.alarm.earlyness);
     if( alarmDate!=event.nextAlarm ){ // solo eventi che necessitano aggiornamento sul DB
@@ -247,11 +252,12 @@ async function timeTravelNotificationsReset(now){
   })
 
   // elimino Alarm settati dopo viaggio nel tempo ma non più rilevanti
-  const eventiPassati = await Event.find({ nextAlarm:{ $lt: now } });
-  Event.updateMany({
-    filter: { nextAlarm:{ $lt: now } },
-    update: { $set: {nextAlarm: null} }
-  });
+  const res = await Event.updateMany(
+    { nextAlarm:{ $lt: now } }, // filter
+    { $set: {nextAlarm: null} } // update
+  );
+
+  console.log(res.matchedCount, res.modifiedCount);
 
   // invio tutte le operazioni in una sola volta
   if(operations.length > 0 )

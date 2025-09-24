@@ -77,7 +77,7 @@ app.delete("/api/user/logout", UserRoutes.logout);
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
 // gestione api eventi
-app.use('/api/events', eventRoutes(timeShift)); // passo timeShift
+app.use('/api/events', eventRoutes( addMinutes(new Date(), timeShift) ) ); // passo timeShift
 // gestione api note
 app.use('/api/notes', noteRoutes);
 // gestione notifiche
@@ -107,9 +107,8 @@ app.put("/api/user/updateNotificationMethod", UserRoutes.updateNotificationMetho
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
     timeShift = timeShift + Number(req.body.minutes);
-    let now = new Date;
+    const now = addMinutes(new Date(), timeShift);
     today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    now = addMinutes(now, timeShift);
     newToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     if(newToday > today)
@@ -121,8 +120,7 @@ app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
 })
 
 app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
-    let now = new Date;
-    now = addMinutes(now, timeShift);
+    const now = addMinutes(new Date(), timeShift);
     res.json({date: now.toString(), success: true})
 })
 
