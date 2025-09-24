@@ -177,7 +177,7 @@ const ModalBody = ({
       {newEvent.type === "pomodoro" ? (
         <>
         <SelectPomodoros newEvent = {newEvent} setNewEvent = {setNewEvent}></SelectPomodoros>
-        <FormField
+        {newEvent.pomodoro.studyTime && <FormField
           id="studyTime"
           name="studyTime"
           label="studyTime"
@@ -186,8 +186,8 @@ const ModalBody = ({
           onChange={handleInputChange}
           disabled={true}
           required
-        />
-        <FormField
+        />}
+        {newEvent.pomodoro.breakTime && <FormField
           id="breakTime"
           name="breakTime"
           label="breakTime"
@@ -196,8 +196,8 @@ const ModalBody = ({
           onChange={handleInputChange}
           disabled={true}
           required
-        />
-        <FormField
+        />}
+        {newEvent.pomodoro.cycles && <FormField
           id="cycles"
           name="cycles"
           label="cycles"
@@ -207,8 +207,8 @@ const ModalBody = ({
           disabled={true}
           min="1"
           required
-        />
-
+        />}
+        <br></br>
         <Link to={"/pomodoro"} state={newEvent?.pomodoro} className={styles.linkButton}>Visit Pomodoro</Link>     
         </> 
       ) : (
@@ -545,7 +545,7 @@ useEffect(()=>{
       ? newEvent.pomodoro // If it's a string (initial state)
       : newEvent.pomodoro?.title || "" // If it's an object or null/undefined
     } >
-      <option value="">
+      <option value="" className={styles.initialOption}>
         select a pomodoro
       </option>
       {pomodoroOptions.map(el =>(

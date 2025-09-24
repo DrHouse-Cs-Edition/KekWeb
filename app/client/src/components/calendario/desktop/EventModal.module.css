@@ -345,7 +345,6 @@
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.25rem;
-    margin-top: 1rem;
     background: var(--dusk-accent); /* Use the accent color for buttons */
     color: #232b4d; /* Dark text for contrast on accent background */
     border: none;
@@ -365,4 +364,17 @@
 .linkButton:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+.selectTitle{
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 6px 16px;
+  background-color: var(--dusk-input-border);
+  margin-bottom: 1rem;
 }

@@ -15,7 +15,6 @@ export const Animation2 = ({currentTimer, studyTime, breakTime, run, resetFlag})
                 <div style={{height : "180px", width : "130"
                 }}><CatAnimation run = {run && currentTimer} resetFlag = {resetFlag}></CatAnimation></div> : 
                 <StudyAnimation_new run = {run && !currentTimer} resetFlag = {resetFlag}></StudyAnimation_new>}
-            <br></br>
         </div>
     )
 }

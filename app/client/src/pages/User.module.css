@@ -133,3 +133,15 @@ label{
     font-size: 2rem;
     text-align: center;
 }
+
+.a{
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 300;
+    font-size: 0.675rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 80px;
+    background-color: var(--dusk-accent);
+}
