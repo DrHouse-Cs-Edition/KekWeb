@@ -130,7 +130,7 @@ const User = ()=>{
     const FullForm = ()=>{
         return (
             <FormProvider {...formMethods} >
-                <img src={image} className={style.image}/>
+                <img src={image? image : "/utenteGenerico.png"} alt=" " className={style.image}/>
                 <FileBase64 multiple={false}
                 label = {"Immagine Profilo:"}
                 onDone={setImageCallback}/>
@@ -203,7 +203,7 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image} alt=" " className={style.image}/>
+                <img src={image? image : "/utenteGenerico.png"} alt=" " className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
                         Name:
