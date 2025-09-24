@@ -37,7 +37,12 @@ function NoteNavigation() {
 
   // API
 
-  const handleRemove = (index) => {
+  const handleDelete = (index) => {
+
+    if (!window.confirm("Sei sicuro di voler la nota " + notes[index].title +"?")) {
+      return;
+    }
+
     fetch('http://localhost:5000/api/notes/remove/' + notes[index].id, {
       method: 'DELETE',
       credentials: 'include',
@@ -143,7 +148,7 @@ function NoteNavigation() {
         </button>
 
         <div className={Style.notesList}>
-          {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleRemove(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
+          {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleDelete(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
         </div>
 
       </div>

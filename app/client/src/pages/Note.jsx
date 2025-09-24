@@ -28,6 +28,11 @@ function Note() {
   }, [noteText]);  // funzione viene applicata ogni volta che cambia noteText
   
   const handleDelete = () => {
+
+    if (!window.confirm("Sei sicuro di voler eliminare la tua nota?")) {
+      return;
+    }
+
     fetch('http://localhost:5000/api/notes/remove/' + id, {
       method: 'DELETE',
       credentials: 'include',
@@ -38,7 +43,6 @@ function Note() {
     .then(response => response.json())
     .then(json => {
       if (json.success) {
-        alert(json.message);
         navigate(`/note`); // torno alle note
       } else {
         alert(json.message);

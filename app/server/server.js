@@ -116,19 +116,25 @@ app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
 
     timeTravelNotificationsUpdate(now);
     check();
-    res.json({success: true})
+    res.json({
+        date: now.toString(),
+        success: true
+    });
 })
 
 app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
     const now = addMinutes(new Date(), timeShift);
-    res.json({date: now.toString(), success: true})
+    res.json({date: now.toString(), success: true});
 })
 
 app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità
     timeShift = 0;
     const now = new Date();
     timeTravelNotificationsReset(now);
-    res.json({success: true});
+    res.json({
+        date: now.toString(),
+        success: true
+    });
 })
 
 app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

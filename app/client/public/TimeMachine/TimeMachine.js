@@ -51,15 +51,19 @@ class TimeMachine extends HTMLElement {
         <input type="number" id="minutes" placeholder="Minuti" />
         <button id="submit">Invia</button>
         <button id="reset" class="reset">Reset</button>
+        <p>Orario del server:</p>
+        <p id="tm-time"></p>
       </div>
     `;
   }
 
   connectedCallback() {
+    this.getDate();
     this.shadowRoot.getElementById("submit")
       .addEventListener("click", () => this.submit("days", "hours", "minutes"));
     this.shadowRoot.getElementById("reset")
       .addEventListener("click", () => this.reset());
+    setInterval(() => this.getDate(), 10000); // ogni 10 secondi
   }
 
   async submit(dId, hId, mId) {
@@ -78,9 +82,11 @@ class TimeMachine extends HTMLElement {
       const json = await res.json();
       if (json.success) {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
+        const localDate = this.dateformat(new Date(json.date));
+        this.shadowRoot.getElementById("tm-time").innerText = localDate;
       }
     } catch (err) {
-      console.error("Errore submit:", err);
+      console.error("Errore submit: ", err);
     }
   }
 
@@ -93,11 +99,35 @@ class TimeMachine extends HTMLElement {
       const json = await res.json();
       if (json.success) {
         alert("Data resettata al valore normale");
+        const localDate = this.dateFormat(new Date(json.date));
+        this.shadowRoot.getElementById("tm-time").innerText = localDate;
       }
     } catch (err) {
-      console.error("Errore reset:", err);
+      console.error("Errore reset: ", err);
     }
   }
+
+  async getDate(){
+    try {
+      const res = await fetch("http://localhost:5000/api/timeMachine/date", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const json = await res.json();
+      if (json.success) {
+        const localDate = this.dateFormat(new Date(json.date));
+        this.shadowRoot.getElementById("tm-time").innerText = localDate;
+      }
+    } catch (err) {
+      console.error("Errore getDate: ", err);
+    }
+  }
+
+  dateFormat(date){
+    return date.toLocaleDateString('it-IT') + ", " + date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  }
+
 }
 
 if (!customElements.get("time-machine")) {
