@@ -15,10 +15,6 @@ import Testing from "./Testing/testing.jsx";
 
 function App() {
   const {token, setToken} = UseToken();
-  
-  // if(!token){
-  //   return (<Signup updateToken = {setToken}/>)
-  // }
   return (
     <div>
       {/* Desktop background */}
