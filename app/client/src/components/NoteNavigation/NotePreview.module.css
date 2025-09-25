@@ -1,11 +1,10 @@
 .div{
-    margin-bottom: 5%;
     background: var(--dusk-bg); /* Use the defined background variable */
     color: var(--dusk-text);
     border: 1px solid var(--dusk-border);
     border-radius: 0.75rem;
     box-shadow: var(--dusk-shadow);
-    padding: 1%;
+    padding: .5rem;
 }
 .button{
     cursor: pointer;

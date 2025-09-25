@@ -30,8 +30,8 @@ async function sendEmail(utente, evento, alertTime) {// MAIL V 2.0
   const mailOptions = {
       from: 'selfieapp17@gmail.com',
       to: utente.email,
-      subject: `Promemoria: ${evento.titolo}`,
-      text: `Ricordati del tuo evento: ${evento.descrizione? evento.descrizione : ""}\norario di notifica:${alertTime}`
+      subject: `Promemoria: ${evento.title}`,
+      text: `Ricordati del tuo evento${evento.description? (": " + evento.description) : ""}\norario di notifica:${alertTime}`
   };
   
   try{
@@ -121,12 +121,12 @@ function updateAlarmAndGetNotificationTimes(event, now){
   console.log("upd alarm")
   let notificationTimes = ``;
 
-  // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei llop, e no solo 1)
   do{
     notificationTimes = notificationTimes + ` ${event.nextAlarm.toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit' })} |`;
     event.repeated = event.repeated + 1;
     event.nextAlarm = addMinutes(event.nextAlarm, event.alarm.repeat_every);
     console.log("one notification time update!");
+  // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei loop, e no solo 1)
   }while( event.repeated < event.alarm.repeat_times // se devo ancora ripeterlo
     && addMinutes(event.nextAlarm, event.alarm.repeat_every) < now) // e la prossima sveglia è nel passato)
 

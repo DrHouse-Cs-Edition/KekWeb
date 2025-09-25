@@ -69,7 +69,7 @@
 }
 
 .content{
-  padding-bottom: 50px;
+    padding-bottom: 5rem; /*spazio per TM*/
 }
 
 /* Media query for mobile devices (e.g., screens up to 767px wide) */
@@ -79,5 +79,8 @@
   }
   .mobile_bg {
     display: block; /* Show mobile background on mobile */
+  }
+  .content{
+    padding-bottom: 7rem; /*spazio per TM*/
   }
 }

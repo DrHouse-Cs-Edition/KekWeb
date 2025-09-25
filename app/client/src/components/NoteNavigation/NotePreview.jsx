@@ -1,10 +1,10 @@
 // import React, { useEffect } from 'react';
-import Style from "./Prewiew.module.css";
+import Style from "./NotePreview.module.css";
 import { marked } from 'marked';
 import { Trash2 } from "lucide-react";
 // import DOMPurify from 'dompurify'; lo mettiamo?
 
-function Prewiew({id, title, categories, text, modified, handleDelete, handleClick}) {
+function NotePreview({id, title, categories, text, modified, handleDelete, handleClick}) {
 
   const marker = (txt) =>{
     if(txt != '' && txt != null){
@@ -32,4 +32,4 @@ function Prewiew({id, title, categories, text, modified, handleDelete, handleCli
   );
 }
 
-export default Prewiew;
+export default NotePreview;
