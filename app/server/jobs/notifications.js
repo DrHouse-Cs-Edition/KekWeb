@@ -257,6 +257,22 @@ async function timeTravelNotificationsReset(now){
     { $set: {nextAlarm: null} } // update
   );
 
+  //sposto indietro Attività e Pomodori
+  // NOTA non posso spostare pomodori perche non conosco data originale
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const toMove = await Event.find({ type: {$in: ["activity", "pomodoro"]}, start: {$gt: today}, completed: {$ne: true} }) // attivita non completate successive ad adesso
+  toMove.forEach( (event) => {
+    if( event.activityDate && event.activityDate < event.start ){ // se data originaria era piu indietro di quella attualmente salvata
+      const newDate = (today > event.activityDate)? today : event.activityDate; // lo sposto a data attuale o originale, in base a quella più futura
+      operations.push({
+        updateOne: {
+          filter: { _id: event._id },
+          update: { $set: { start: newDate, end: addDays(newDate,1) } }
+        }
+      });
+    }
+  })
+
   console.log(res.matchedCount, res.modifiedCount);
 
   // invio tutte le operazioni in una sola volta

@@ -53,7 +53,8 @@ const check = () => {
         // MUOVI POMODORI
             // eventController.movePomodoros(midnight);
         // MUOVI POMODORI E ATTIVITA' SCADUTE in maniera efficiente
-            eventController.movePomodorosAndActivities(midnight);
+            // now = new Date(now.getFullYear(), now.getMonth(), now.getDate()) // per avere mezzanotte
+            eventController.movePomodorosAndActivities(now);
     }
     // invio notifiche
     notifications(now);new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -107,12 +108,17 @@ app.put("/api/user/updateNotificationMethod", UserRoutes.updateNotificationMetho
 
 app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
     timeShift = timeShift + Number(req.body.minutes);
-    const now = addMinutes(new Date(), timeShift);
+    // calcolo data attuale
+    let now = new Date();
     today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // calcolo nuova data
+    now = addMinutes(now, timeShift);
     newToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if(newToday > today)
+    // se cambia la data attivo funzione che normalmente attivo a mezzanotte
+    if(newToday > today){
+        console.log("CHANGE DAY!");
         eventController.movePomodorosAndActivities(newToday); 
+    }
 
     timeTravelNotificationsUpdate(now);
     check();

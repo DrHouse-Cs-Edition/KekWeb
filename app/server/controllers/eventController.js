@@ -302,18 +302,18 @@ const latestP = async function (req, res){
   }  
 }
 
-const moveActivities = async (date)=>{
-  let datePlus = addDays(date,1);
+const moveActivities = async (newDate)=>{
+  let newEndDate = addDays(newDate,1);
   let operations = [];
 
   activities = await Event.find({type : "activity"})
   
   activities.forEach( (evento)=>{
-    if (evento.end < Date.now() && evento.completed != true){
+    if (evento.end < newDate && evento.completed != true){
       operations.push({
         updateOne: {
           filter: { _id: evento._id },
-          update: { $set: { start: date, end: datePlus, } }
+          update: { $set: { start: newDate, end: newEndDate, } }
         }
       });
     }
@@ -324,18 +324,18 @@ const moveActivities = async (date)=>{
     Event.bulkWrite(operations);
 }
 
-const movePomodorosAndActivities = async (date)=>{ // più efficiente
-  let datePlus = addDays(date,1);
+const movePomodorosAndActivities = async (newDate)=>{ // più efficiente
+  let newEndDate = addDays(newDate,1);
   let operations = [];
 
-  activities = await Event.find({type: {$in: ["activity", "pomodoro"]} })
+  activities = await Event.find({ type: {$in: ["activity", "pomodoro"]}, end: {$lte: newDate} }) // lte (e non lt) perche confronto vecchia_fine con nuovo_inizio
   
   activities.forEach( (evento)=>{
-    if (evento.end < Date.now() && evento.completed != true){
+    if (evento.completed != true){
       operations.push({
         updateOne: {
           filter: { _id: evento._id },
-          update: { $set: { start: date, end: datePlus, } }
+          update: { $set: { start: newDate, end: newEndDate, } } // activityDate resta la stessa (per conoscere il ritardo)
         }
       });
     }
