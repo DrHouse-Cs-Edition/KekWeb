@@ -11,7 +11,6 @@ import User from "./pages/User.jsx";
 import style from "./App.module.css";
 import bgDesktop from './assets/bg_desktop.png';
 import bgMobile from './assets/bg_mobile.png';
-import Testing from "./Testing/testing.jsx";
 
 function App() {
   const {token, setToken} = UseToken();
@@ -33,7 +32,6 @@ function App() {
             <Route path="/note" element={<NoteNavigation />} />
             <Route path="/pomodoro" element={<Pomodoro />} />
             <Route path="/utente" element={<User />} />
-            <Route path="/testing" element={<Testing/>} />
           </Routes>
         </div>
         <time-machine />
