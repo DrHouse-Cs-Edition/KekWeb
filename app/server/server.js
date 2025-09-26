@@ -8,17 +8,14 @@ const nodemailer = require('nodemailer');
 const PORT = 5000;
 const app = express();
 
-// connessione a server mongoDB
-const connectDB = require('./config/database.js');
-connectDB();
 
 // per timemachine
 let timeShift = 0;
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
 const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
-const eventRoutes = require('./routes/events');
-const noteRoutes = require('./routes/notes');
-const pushRoutes = require('./routes/pushNotifications');
+const eventRoutes = require('./routes/events.js');
+const noteRoutes = require('./routes/notes.js');
+const pushRoutes = require('./routes/pushNotifications.js');
 const eventController = require("./controllers/eventController.js")
 const { notifications, timeTravelNotificationsUpdate, timeTravelNotificationsReset } = require ("./jobs/notifications.js");
 
@@ -31,7 +28,6 @@ app.get('/utente', (req, res) => {
 const loginCookies =  require ("./controllers/cookiesLogin.js");
 
 app.use(express.text({limit: "50mb"}), express.json({limit: "50mb"})); // IMPORTANTE PER RICEVERE JSON
-app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
 const cron = require('node-cron');
@@ -77,6 +73,8 @@ app.delete("/api/user/logout", UserRoutes.logout);
 //*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
+// pagine web
+app.use(express.static(path.join(__dirname, '../client/build')));
 // gestione api eventi
 app.use('/api/events', eventRoutes( addMinutes(new Date(), timeShift) ) ); // passo timeShift
 // gestione api note
@@ -147,6 +145,10 @@ app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a inde
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
-app.listen(PORT, () => { // per mettere il server in ascolto di richieste
-    console.log(`Server is running on port ${PORT}`);
-});
+// connessione a server mongoDB
+const connectDB = require('./config/database.js');
+connectDB().then( () =>{
+    app.listen(PORT, () => { // per mettere il server in ascolto di richieste
+        console.log(`Server is running on port ${PORT}`);
+    });
+}); // fintanto che non mi connetto a DB non accetto richieste
