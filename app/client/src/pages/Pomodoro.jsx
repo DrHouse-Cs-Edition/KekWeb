@@ -1,7 +1,7 @@
-import {useState, useEffect, Fragment, useRef} from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import {useState, useEffect, useRef} from 'react';
+import { useLocation } from 'react-router-dom';
 
-import {FormProvider, useForm} from "react-hook-form";
+import {useForm} from "react-hook-form";
 
 import style from "./Pomodoro.module.css"
 
@@ -12,7 +12,6 @@ import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
 import Animation2 from "../components/pomodoroComponents/Animation/newAnimation.jsx"
 import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.jsx';
-import Help from "../components/pomodoroComponents/PomodoroHelp.jsx"
 
 function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
@@ -46,10 +45,8 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     const stopButtonRef = useRef(null);
     const resetButtonRef = useRef(null);
     const skipButtonRef = useRef(null);
-    const registerButtonRef = useRef(null);
     const formatButtonRef = useRef(null);
     const saveButtonRef = useRef(null);
-    const titleInputRef = useRef(null);
 
     const [disableSave, setDisableSave] = useState(1);
     const [disableRun, setDisableRun] = useState(1);
