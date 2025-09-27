@@ -1,5 +1,5 @@
 const express = require('express');
-const { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete ,isPomodoroScheduled, latestP } = require('../controllers/eventController');
+const { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete ,isPomodoroScheduled, latestP } = require('../controllers/eventController.js');
 const eventRouter = express.Router();
 
 module.exports = (timeShift) => {

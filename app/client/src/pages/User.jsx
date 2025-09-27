@@ -305,7 +305,7 @@ const User = ()=>{
     };
 
     const receiveNotification = async () => {
-        await fetch('http://localhost:5000/api/pushNotifications/notify', {
+        await fetch('http://localhost:5000/api/pushNotifications/testNotication', {
             method: 'PUT',
             credentials: 'include',
         });

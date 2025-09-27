@@ -2,7 +2,7 @@ const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
 const { subMinutes, addDays } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
-const { getNextAlarm } = require('../jobs/notifications.js');
+const { getNextAlarm } = require('../services/notifications.js');
 
 // chiamate
 
