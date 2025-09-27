@@ -28,6 +28,7 @@ app.get('/utente', (req, res) => {
 const loginCookies =  require ("./controllers/cookiesLogin.js");
 
 app.use(express.text({limit: "50mb"}), express.json({limit: "50mb"})); // IMPORTANTE PER RICEVERE JSON
+app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(cookieParser());
 
 const cron = require('node-cron');
@@ -73,8 +74,6 @@ app.delete("/api/user/logout", UserRoutes.logout);
 //*********************************************************** */
 
 app.use( loginCookies.authToken); // Protegge tutte le API successive con il middleware
-// pagine web
-app.use(express.static(path.join(__dirname, '../client/build')));
 // gestione api eventi
 app.use('/api/events', eventRoutes( addMinutes(new Date(), timeShift) ) ); // passo timeShift
 // gestione api note
@@ -96,9 +95,6 @@ app.post("/api/Pomodoro/cyclesUpdate", eventController.isPomodoroScheduled, pomo
 app.post("/api/Pomodoro/updateP", pomodoroRoutes.updateP);
 
 //************* User METHODS ******************************* */
-app.post("/api/user/reqLogin", UserRoutes.login);
-app.post("/api/user/sendRegistration", UserRoutes.registration);
-app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
 app.put("/api/user/updateUData", UserRoutes.updateDataV2);
 app.put("/api/user/updateNotificationMethod", UserRoutes.updateNotificationMethod);

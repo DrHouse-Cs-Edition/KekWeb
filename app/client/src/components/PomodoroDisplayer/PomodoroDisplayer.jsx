@@ -30,13 +30,11 @@ const PomodoroDisplayer = ()=>{
                     'Accept': 'application/json',
                     },
             })
-                .then(res => res.json())
-                .then(res => {
-                    if( res.success == true){
-                        setPomodoroEvent(res.pomodoro);
-                    }else{
-                        return null;
-                    }
+            .then(res => res.json())
+            .then(res => {
+                if( res.success == true){
+                    setPomodoroEvent(res.pomodoro);
+                }
             })
         } catch (e) {
             console.log("error in reatrieving latest pomodoro scheduled \n", e);
