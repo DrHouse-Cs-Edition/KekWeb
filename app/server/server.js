@@ -8,17 +8,14 @@ const nodemailer = require('nodemailer');
 const PORT = 5000;
 const app = express();
 
-// connessione a server mongoDB
-const connectDB = require('./config/database.js');
-connectDB();
 
 // per timemachine
 let timeShift = 0;
 //*IMPORTING ROUTES WRITTEN IN OTHER FILES
 const pomodoroRoutes = require("./pagesMethods/pomodoro.js");
-const eventRoutes = require('./routes/events');
-const noteRoutes = require('./routes/notes');
-const pushRoutes = require('./routes/pushNotifications');
+const eventRoutes = require('./routes/events.js');
+const noteRoutes = require('./routes/notes.js');
+const pushRoutes = require('./routes/pushNotifications.js');
 const eventController = require("./controllers/eventController.js")
 const { notifications, timeTravelNotificationsUpdate, timeTravelNotificationsReset } = require ("./jobs/notifications.js");
 
@@ -98,9 +95,6 @@ app.post("/api/Pomodoro/cyclesUpdate", eventController.isPomodoroScheduled, pomo
 app.post("/api/Pomodoro/updateP", pomodoroRoutes.updateP);
 
 //************* User METHODS ******************************* */
-app.post("/api/user/reqLogin", UserRoutes.login);
-app.post("/api/user/sendRegistration", UserRoutes.registration);
-app.delete("/api/user/logout", UserRoutes.logout);
 app.get("/api/user/getData", UserRoutes.userData );
 app.put("/api/user/updateUData", UserRoutes.updateDataV2);
 app.put("/api/user/updateNotificationMethod", UserRoutes.updateNotificationMethod);
@@ -147,6 +141,10 @@ app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a inde
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
-app.listen(PORT, () => { // per mettere il server in ascolto di richieste
-    console.log(`Server is running on port ${PORT}`);
-});
+// connessione a server mongoDB
+const connectDB = require('./config/database.js');
+connectDB().then( () =>{
+    app.listen(PORT, () => { // per mettere il server in ascolto di richieste
+        console.log(`Server is running on port ${PORT}`);
+    });
+}); // fintanto che non mi connetto a DB non accetto richieste

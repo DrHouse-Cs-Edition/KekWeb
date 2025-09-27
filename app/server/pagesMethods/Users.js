@@ -94,17 +94,19 @@ exports.logout = function (req, res){
         .then(result => {
             if(result.length === 0)
                 res.status(403).json({
-                success: false,
-                message: "no token for the username found"
+                    success: false,
+                    message: "no token for the username found"
                 })
-            // faccio eliminare i cookies al client
-            res.clearCookie("accessToken");
-            res.clearCookie("refreshToken");
-            
-            res.status(200).json({
-                success: true,
-                message: "You have been logged out"
-            })
+            else{
+                // faccio eliminare i cookies al client
+                res.clearCookie("accessToken");
+                res.clearCookie("refreshToken");
+                
+                res.status(200).json({
+                    success: true,
+                    message: "You have been logged out"
+                })
+            }
         })
     });
     

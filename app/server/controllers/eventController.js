@@ -177,8 +177,7 @@ const getEvent = async (request,response) => { // serve?
 
 const allEvent = async (request, response) => {
     try {
-        // Add user filtering
-        const eventList = await Event.find({ user: request.user }).lean();
+        const eventList = await Event.find({ user: request.user }).lean(); // user filtering
 
         if (eventList.length > 0) {
             response.json({
@@ -216,19 +215,20 @@ const allEvent = async (request, response) => {
 };
 
 const isPomodoroScheduled = (req, res, next)=>{
+    const userId = req.user;
     const {title} = req.body;
     console.log("pomodoro scheduling verification for: ", title);
-    Event.find({pomodoro : title}).lean()
-    .then(
-      (events) =>{
-        console.log("pomodoro events found: ", events.length);
-        if(events.length > 0){
-          console.log("found pomodoro")
-          next();
-        }else{
-          console.log("no pomodoro found")
-          return;
-        }})      
+    Event.find({ user: userId, pomodoro : title}).lean()
+    .then( (events) =>{
+      console.log("pomodoro events found: ", events.length);
+      if(events.length > 0){
+        console.log("found pomodoro")
+        next();
+      }else{
+        console.log("no pomodoro found")
+        return res.status(404).json({ message: "Nessun pomodoro trovato" });
+      }
+    }) 
 }
 
 const movePomodoros = (date)=>{
@@ -248,29 +248,25 @@ const movePomodoros = (date)=>{
 }
 
 const latestP = async function (req, res){
+  const userId = req.user;
   try {
-    const foundEV = await Event.findOne({type: "pomodoro"}).sort("end").then(ev =>{
-      console.log("dio bestia" + ev);
-      return ev;
-    })
-  if(!foundEV){
-    console.log("no EV")
-    res.status(404).json({
-    success: false,
-    message: "no pomodoro event found"
-    })
-    return;
-  }
+    const foundEV = await Event.findOne({ user: userId, type: "pomodoro" }).sort("end")
+    if(!foundEV){
+      console.log("no EV")
+      res.status(200).json({ // non dà errore (caso in cui utente non ha ancora un pomodoro)
+        success: false,
+        message: "no pomodoro event found"
+      })
+      return;
+    }
 
-    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}).then(pom =>{
-      return pom
-    })
+    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}) // cerco pomodoro associato all'evento
 
     if(!foundP){
       console.log("no foundP")
       res.status(404).json({
-      success: false,
-      message: "no pomodoro connected to the event"
+        success: false,
+        message: "no pomodoro connected to the event"
       })
       return;
     }
@@ -287,9 +283,9 @@ const latestP = async function (req, res){
       date : foundEV.start
     }
     res.status(200).json({
-    success : true,
-    pomodoro: latestPomodoro2,
-    message: "pomodoro event has been found"
+      success : true,
+      pomodoro: latestPomodoro2,
+      message: "pomodoro event has been found"
     })
     
   }catch (e) {

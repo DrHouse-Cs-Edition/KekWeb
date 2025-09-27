@@ -60,19 +60,19 @@ exports.registration = async function (req, res){
 exports.authToken = function (req, res, next){ // middleware
     const token = req?.cookies.accessToken;
     if (!token){
-        return res.status(401).json({ message: "Manca cookie token" });
+        return res.status(401).json({ message: "Effettua il login!" });
     }
 
     jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
         if(err)
             return res.status(403).json({
                 success: false,
-                message: "Invalid token"
+                message: "Sessione scaduta o token invalido"
             });
         // salvare nome utente e id per API
         req.user = decoded.id; // Aggiunge username alla req passata dopo middleware
-        }   
-    )
+        }
+    );
     next(); 
 }
 /*

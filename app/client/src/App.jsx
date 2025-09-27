@@ -22,7 +22,7 @@ function App() {
       <img className={`${style.background_image} ${style.mobile_bg}`} src={bgMobile} alt="Mobile background" />
       {!token ?
           (<Signup updateToken = {setToken}/>) : 
-        <> 
+        <>
         <Navbar />
         <div className={style.content}>
           <Routes>
@@ -34,7 +34,7 @@ function App() {
             <Route path="/utente" element={<User />} />
           </Routes>
         </div>
-        <time-machine />
+        <script src="/timeMachine.js" defer></script> {/* defer lo fa eseguire dopo il parsing del DOM */}
         </>
         }
     </div>

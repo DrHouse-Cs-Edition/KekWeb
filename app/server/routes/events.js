@@ -9,7 +9,7 @@ module.exports = (timeShift) => {
     eventRouter.delete('/remove/:id', removeEvent);
     eventRouter.get('/get/:id', getEvent);
     eventRouter.get('/all', allEvent);
-    eventRouter.get("isPomodoroScheduled", isPomodoroScheduled);
+    eventRouter.get("/isPomodoroScheduled", isPomodoroScheduled);
     eventRouter.put('/toggle-complete/:id', toggleComplete);
     eventRouter.get("/latestP", latestP );
 

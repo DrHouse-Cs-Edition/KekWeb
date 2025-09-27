@@ -131,7 +131,7 @@ function updateAlarmAndGetNotificationTimes(event, now){
     && addMinutes(event.nextAlarm, event.alarm.repeat_every) < now) // e la prossima sveglia è nel passato)
 
   // se ho finito con le ripetizioni
-  if(event.repeated == event.alarm.repeat_times){
+  if(event.repeated >= event.alarm.repeat_times){
     event.nextAlarm = null;
     if (event.recurrenceRule){
       const rule = rrulestr(event.recurrenceRule);
@@ -153,7 +153,7 @@ async function notifications(now){
 
   const today= new Date(now.getFullYear(), now.getMonth(), now.getDate()); // cancella orario -> mezzanotte
   // Cerca eventi da notificare
-  const eventi = await Event.find({ //})
+  const eventi = await Event.find({
     nextAlarm: { $lte: now, $gte: today }, //tutte notifiche di oggi di cui è giunto/superato momento
   });
 
@@ -240,14 +240,16 @@ async function timeTravelNotificationsReset(now){
   // resetto Alarm suonati dopo viaggio nel tempo
   const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
-    const alarmDate = subMinutes( event.start, event.alarm.earlyness);
-    if( alarmDate!=event.nextAlarm ){ // solo eventi che necessitano aggiornamento sul DB
-      operations.push({
-        updateOne: {
-          filter: { _id: event._id },
-          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-        }
-      });
+    if(event.alarm && event.alarm.repeat_times > 0){ // se l'allarme originariamente suonava
+      const alarmDate = subMinutes( event.start, event.alarm.earlyness);
+      if( alarmDate < now && alarmDate!=event.nextAlarm){ // se deve ancora arrivare momento alarm (&& solo se necessita aggiornamento sul DB)
+        operations.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+        });
+      }
     }
   })
 
