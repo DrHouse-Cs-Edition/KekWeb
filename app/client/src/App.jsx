@@ -34,7 +34,7 @@ function App() {
             <Route path="/utente" element={<User />} />
           </Routes>
         </div>
-        <script src="/timeMachine.js" defer></script> {/* defer lo fa eseguire dopo il parsing del DOM */}
+        <time-machine />
         </>
         }
     </div>
