@@ -18,7 +18,6 @@
     font-style: italic;
     font-size: 0.9rem;
     border: 1px dashed var(--dusk-border);
-    pointer-events: none;
 }
 
 .pomodoroList{
@@ -90,8 +89,4 @@
 
 .itemTitle{
     text-align: center;
-}
-
-.pomodoroPie{
-    pointer-events: none;
 }
