@@ -47,7 +47,7 @@ const User = ()=>{
             })
         }catch(e){
             console.log("error in user page, logout phase: ", e);
-        }  
+        }
     }
 
     // useEffect(()=>{
@@ -79,9 +79,9 @@ const User = ()=>{
                     email : data.Email,
                     // bio : data.Bio,
                     bio : bio,
-                    birthday : data.Birthday,
-                    name : data.Name,
-                    surname : data.Surname,
+                    birthday : data.Compleanno,
+                    name : data.Nome,
+                    surname : data.Cognome,
                     picture : image, //image base 64 encoded
                     })
                 }).then(res => res.json())
@@ -130,7 +130,7 @@ const User = ()=>{
     const FullForm = ()=>{
         return (
             <FormProvider {...formMethods} >
-                <img src={image} className={style.image}/>
+                <img src={image? image : "/utenteGenerico.png"} alt=" " className={style.image}/>
                 <FileBase64 multiple={false}
                 label = {"Immagine Profilo:"}
                 onDone={setImageCallback}/>
@@ -157,7 +157,7 @@ const User = ()=>{
                 </div>
 
                 <Input
-                label = {"Birthday"}
+                label = {"Compleanno"}
                 type = "date"
                 id = "birthday"
                 value={birthday}
@@ -166,7 +166,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Name"}
+                label = {"Nome"}
                 type = "string"
                 id = "name"
                 value={name}
@@ -176,7 +176,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Surname"}
+                label = {"Cognome"}
                 type = "string"
                 id = "surname"
                 value={surname}
@@ -185,7 +185,7 @@ const User = ()=>{
                 ></Input>
 
                 <Input
-                label = {"Confirm Password"}
+                label = {"Conferma Password"}
                 type = "password"
                 id = "CPW"
                 placeholder={"enter password to proceed"}
@@ -203,17 +203,17 @@ const User = ()=>{
 
         return(
             <div className={style.dataDiv}>
-                <img src={image} alt=" " className={style.image}/>
+                <img src={image? image : "/utenteGenerico.png"} alt=" " className={style.image}/>
                 <div>
                     <div className={style.dataLabel}>
-                        Name:
+                        Nome:
                         <div className={style.data}>{name}</div>
                     </div>
                     <div className={style.dataLabel}>
-                        Surname: <div className={style.data}>{surname}</div>
+                        Cognome: <div className={style.data}>{surname}</div>
                     </div>
                     <div className={style.dataLabel}>
-                        Birthday: <div className={style.data}>{birthday}</div>
+                        Compleanno: <div className={style.data}>{birthday}</div>
                     </div>
                     <div className={style.dataLabel}>
                         email: <div className={style.data}>{email}</div>
@@ -305,7 +305,7 @@ const User = ()=>{
     };
 
     const receiveNotification = async () => {
-        await fetch('http://localhost:5000/api/pushNotifications/notify', {
+        await fetch('http://localhost:5000/api/pushNotifications/testNotication', {
             method: 'PUT',
             credentials: 'include',
         });
@@ -362,9 +362,9 @@ const User = ()=>{
             <div>
                 <label>Scegli un'opzione di notifica:</label>
                 <select
+                    className={style.selectorNote}
                     value={notifications}
                     onChange={(e) => setNotifications(e.target.value)}
-                    className={style.a}
                 >
                     <option value="disabled">Disattivate</option>
                     <option value="email">Via email</option>

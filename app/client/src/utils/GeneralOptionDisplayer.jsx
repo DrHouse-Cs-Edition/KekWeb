@@ -9,9 +9,9 @@ const GenOptionDisplayer = ({optionA, optionB, optionC})=>{
     return(
       <Fragment>
         <div className="optionDisplayer" >  
-          <span> Study Time: </span> {optionA}
-          <span> Break Time: </span> {optionB}
-          <span> Cycles: </span> {optionC}
+          <span> Tempo di studio: </span> {optionA}
+          <span> Tempo di pausa: </span> {optionB}
+          <span> Cicli: </span> {optionC}
         </div>
       </Fragment>
     )

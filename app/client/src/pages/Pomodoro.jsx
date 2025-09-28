@@ -1,22 +1,21 @@
-import {useState, useEffect, Fragment, useRef} from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import {useState, useEffect, useRef} from 'react';
+import { useLocation } from 'react-router-dom';
 
-import {FormProvider, useForm} from "react-hook-form";
+import {useForm} from "react-hook-form";
 
 import style from "./Pomodoro.module.css"
 
 import {GenOptionDisplayer} from "../utils/GeneralOptionDisplayer.jsx"
 
-import {UseToken} from '../components/login_signup/UserHooks.jsx';
+// import {UseToken} from '../components/login_signup/UserHooks.jsx';
 
 import {TTform, CyclesForm} from "../components/pomodoroComponents/FormSelector.jsx";
 import Animation2 from "../components/pomodoroComponents/Animation/newAnimation.jsx"
 import PomodoroSideBar from '../components/pomodoroComponents/PomodoroSideBar.jsx';
-import Help from "../components/pomodoroComponents/PomodoroHelp.jsx"
 
 function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in seconds
     const formMethods = useForm();
-    const {token, setToken} = UseToken();
+    // const {token, setToken} = UseToken();
     const location = useLocation();
     //* THESE 5 STATES CONTAIN THE POMODORO SETTING FOR SAVING AND STARTING
     //* THEY ARE NOT USED FOR THE TIMER ITSELF */
@@ -46,10 +45,8 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     const stopButtonRef = useRef(null);
     const resetButtonRef = useRef(null);
     const skipButtonRef = useRef(null);
-    const registerButtonRef = useRef(null);
     const formatButtonRef = useRef(null);
     const saveButtonRef = useRef(null);
-    const titleInputRef = useRef(null);
 
     const [disableSave, setDisableSave] = useState(1);
     const [disableRun, setDisableRun] = useState(1);
@@ -226,7 +223,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
     //!it references saveP in pomodoro.js
     //TODO check for pomodoro title
     const onSubmit = async (data)=>{
-        console.log(pomodoroTitle + " titolo")
         if(pomodoroId){ //updating existing pomodoro
             fetch('/api/Pomodoro/updateP', {
             method : 'POST',
@@ -236,7 +232,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                 'Accept': 'application/json',
             },
             body : JSON.stringify({
-                token : token,
+                // token : token,
                 title : pomodoroTitle,
                 studyTime : StudyTime,
                 breakTime : BreakTime,
@@ -261,7 +257,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                 'Accept': 'application/json',
             },
             body : JSON.stringify({
-                token : token,
+                // token : token,
                 title : pomodoroTitle,
                 studyTime : StudyTime,
                 breakTime : BreakTime,
@@ -310,9 +306,9 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
             {titleComponent2}
             {formComponents[formType]}
             <div className={style.buttonDiv1}>
-                <button onClick = {()=>{newPomodoro()}} className={style.pomodoroButton}> Ripristina pomodoro</button>
+                <button onClick = {()=>{newPomodoro()}} className={style.pomodoroButton}> Ripristina</button>
                 <button onClick={changeForm} ref={formatButtonRef} className={style.pomodoroButton}>Cambia Formato</button>
-                <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} className={style.pomodoroButton}> { pomodoroId ? "Aggiorna il pomodoro" : "Salva il Pomodoro"} </button>
+                <button onClick={formMethods.handleSubmit(onSubmit, onError) } ref={saveButtonRef} disabled={disableSave} className={style.pomodoroButton}> { pomodoroId ? "Aggiorna" : "Salva"} </button>
             </div>
         </div>        
         {/* <Animation currentTimer = {curTimer} studyTime = {StudyTime} breakTime = {BreakTime} run = {runTimer} resetFlag={resetFlag}/> */}

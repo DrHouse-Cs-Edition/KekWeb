@@ -32,7 +32,7 @@ const subscribe = async (req,res) => {
     }
 }
 
-const notify = async (req,res) => {
+const testNotication = async (req,res) => {
     const payload = JSON.stringify({ title: 'Notifica!', body: "prova prova" });
 
     const subscription = await Subscription.find( {user: req.user} ).lean();
@@ -64,4 +64,4 @@ const notify = async (req,res) => {
     
 }
 
-module.exports = { subscribe, notify };
+module.exports = { subscribe, testNotication };

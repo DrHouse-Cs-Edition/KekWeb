@@ -1,5 +1,5 @@
 const express = require('express');
-const { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete ,isPomodoroScheduled, movePomodoros, latestP } = require('../controllers/eventController');
+const { saveEvent, updateEvent, removeEvent, getEvent, allEvent, toggleComplete ,isPomodoroScheduled, latestP } = require('../controllers/eventController.js');
 const eventRouter = express.Router();
 
 module.exports = (timeShift) => {
@@ -9,7 +9,7 @@ module.exports = (timeShift) => {
     eventRouter.delete('/remove/:id', removeEvent);
     eventRouter.get('/get/:id', getEvent);
     eventRouter.get('/all', allEvent);
-    eventRouter.get("isPomodoroScheduled", isPomodoroScheduled);
+    eventRouter.get("/isPomodoroScheduled", isPomodoroScheduled);
     eventRouter.put('/toggle-complete/:id', toggleComplete);
     eventRouter.get("/latestP", latestP );
 

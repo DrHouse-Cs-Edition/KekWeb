@@ -16,3 +16,55 @@
   margin-left: 0px;
   margin-right: 0px;
 }
+
+.addButtonWrapper{
+  display: flex;
+  justify-content: center; /* centra il bottone dentro al wrapper */
+  width: 100%;             /* prende tutta la larghezza */
+  margin-bottom: 1.5rem;
+}
+
+.addButton{
+  width: 100%;
+  padding: 2em;
+  background: var(--dusk-accent); /* Use the accent color for buttons */
+  color: #232b4d; /* Dark text for contrast on accent background */
+  font-size: 1.5em;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.addButtonV2{
+  width: 50%;
+  font-size: 3em;
+  padding: 1em;
+}
+
+@media screen and (orientation: landscape) {
+  .addButtonV2{
+    width: 25%;
+  }
+}
+
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* spazio uniforme tra gli elementi */
+}
+
+.selectorNote{
+  margin-top: 1em;
+  margin-bottom: 2em;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 80px;
+  background-color: var(--dusk-accent);
+}

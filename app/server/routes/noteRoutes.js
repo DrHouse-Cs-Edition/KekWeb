@@ -1,5 +1,5 @@
 const express = require('express');
-const { saveNote, updateNote, removeNote, loadNote, allNote, lastNote } = require('../controllers/noteController');
+const { saveNote, updateNote, removeNote, loadNote, allNote, lastNote } = require('../controllers/noteController.js');
 const noteRouter = express.Router();
 
 noteRouter.post('/save', saveNote); // gestisce richiesta fatta all'url del server + "/save"

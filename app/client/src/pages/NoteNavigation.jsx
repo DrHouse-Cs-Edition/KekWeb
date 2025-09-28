@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Prewiew from '../components/Note/Prewiew.jsx';
+import NotePreview from '../components/NoteNavigation/NotePreview.jsx';
 import { useNavigate } from "react-router-dom";
 import Style from './NoteNavigation.module.css'
 
@@ -93,7 +93,7 @@ function NoteNavigation() {
     });
     const time = timeJSON.json().date;
     const note = {
-      title: "insert title",
+      title: "",
       categories: [],
       text: "",
       createdAt: time,
@@ -135,20 +135,29 @@ function NoteNavigation() {
 
         <header className={Style.header}>Note</header>
 
-        <select className={Style.selector} value={sortOption} onChange={handleSortChange}>
-          <option value="">Seleziona...</option>
+        <select className={Style.selectorNote} value={sortOption} onChange={handleSortChange}>
+          <option value="">Ordina per...</option>
           <option value="asc">Alfabetico A-Z</option>
           <option value="desc">Alfabetico Z-A</option>
           <option value="date">Per data</option>
           <option value="length">Per lunghezza</option>
         </select>
 
-        <button onClick={()=>handleAdd()}>
-          Aggiungi nota
-        </button>
+        <div  className={Style.addButtonWrapper}>
+          <button className={Style.addButton} onClick={()=>handleAdd()}>
+            Aggiungi nota
+          </button>
+        </div>
+
+        {/*
+        <div  className={Style.addButtonWrapper}>
+          <button className={[Style.addButton, Style.addButtonV2].join(" ")} onClick={()=>handleAdd()}>
+            +
+          </button>
+        </div>*/}
 
         <div className={Style.notesList}>
-          {notes.map( (note,index)=> <Prewiew id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleDelete(index)} handleClick={()=>openNote(note.id)}></Prewiew> )}
+          {notes.map( (note,index)=> <NotePreview id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleDelete(index)} handleClick={()=>openNote(note.id)}></NotePreview> )}
         </div>
 
       </div>

@@ -55,7 +55,7 @@ const LoginPage = ({updateToken})=>{
         }catch(e){
             console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
-            updateToken(null);
+            // updateToken(null); ditched cause the presence of a token implies a logged in account
         }
     }
 
