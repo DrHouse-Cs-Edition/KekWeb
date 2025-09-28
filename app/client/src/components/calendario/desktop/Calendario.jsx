@@ -32,7 +32,8 @@ export default function CalendarApp() {
     alarm: {
       earlyness: 15,
       repeat_times: 1,
-      repeat_every: 0
+      repeat_every: 0,
+      enabled: false // Aggiunto campo enabled
     }
   });
 
@@ -100,29 +101,33 @@ export default function CalendarApp() {
     const eventsForDay = [];
     
     events.forEach(event => {
-      if (!event.recurrenceRule) {
-        // Eventi non ricorrenti - gestione normale
-        let eventDate;
+      if (!event.recurrenceRule || event.type === "activity") {
+        // Eventi non ricorrenti e TUTTE le attività (ignora ricorrenza per le attività)
+        let eventStartDate, eventEndDate;
+        
         if (event.type === "activity") {
-          eventDate = new Date(event.activityDate);
+          eventStartDate = new Date(event.activityDate);
+          eventEndDate = new Date(event.activityDate); // Le attività durano un giorno
         } else {
-          eventDate = new Date(event.start);
+          eventStartDate = new Date(event.start);
+          eventEndDate = new Date(event.end);
         }
         
-        if (
-          eventDate.getDate() === date.getDate() &&
-          eventDate.getMonth() === date.getMonth() &&
-          eventDate.getFullYear() === date.getFullYear()
-        ) {
+        // Normalizza le date per confronto (rimuovi ore/minuti/secondi)
+        const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const startDate = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+        const endDate = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+        
+        // Controlla se la data target è compresa tra inizio e fine evento (inclusi)
+        if (targetDate >= startDate && targetDate <= endDate) {
           eventsForDay.push(event);
         }
       } else {
-        // Eventi ricorrenti - gestione con UTC
+        // Eventi ricorrenti - solo per eventi e pomodoro, NON per attività
         try {
           const rrule = RRule.fromString(event.recurrenceRule);
           
           // FIX: Usa la stessa logica UTC del salvataggio
-          // Crea la data target in UTC a mezzogiorno
           let targetDateUTC = new Date(Date.UTC(
             date.getFullYear(), 
             date.getMonth(), 
@@ -130,7 +135,6 @@ export default function CalendarApp() {
             12, 0, 0, 0
           ));
           
-          // Controlla solo questo giorno specifico in UTC
           let startOfDayUTC = new Date(Date.UTC(
             date.getFullYear(), 
             date.getMonth(), 
@@ -145,60 +149,49 @@ export default function CalendarApp() {
             23, 59, 59, 999
           ));
           
-          // Ottieni tutte le occorrenze per questo giorno
           const occurrences = rrule.between(startOfDayUTC, endOfDayUTC, true);
           
-          // Debug per vedere cosa sta succedendo
-          if (event.title === "prova") {
-            console.log(`Controllo evento "${event.title}" per ${date.toDateString()}:`);
-            console.log("- Data target UTC:", targetDateUTC.toISOString());
-            console.log("- Range UTC:", startOfDayUTC.toISOString(), "->", endOfDayUTC.toISOString());
-            console.log("- Occorrenze trovate:", occurrences.length);
-            console.log("- RRule originale:", event.recurrenceRule);
-          }
-          
           if (occurrences.length > 0) {
-            // Crea l'evento virtuale per questa occorrenza
-            const virtualEvent = {
-              ...event,
-              isRecurringInstance: true,
-              originalId: event._id,
-            };
-            
-            if (event.type === "activity") {
-              // Per le attività, usa la data locale
-              virtualEvent.activityDate = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate()
-              ).toISOString();
-            } else {
-              // Per gli eventi, mantieni l'ora originale ma usa la data corrente
+            // Per ogni occorrenza, controlla se l'evento si estende su più giorni
+            occurrences.forEach(occurrence => {
               const originalStart = new Date(event.start);
               const originalEnd = new Date(event.end);
               
-              virtualEvent.start = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate(),
+              // Calcola la durata originale dell'evento
+              const eventDuration = originalEnd.getTime() - originalStart.getTime();
+              
+              // Crea le date di inizio e fine per questa occorrenza
+              const occurrenceStart = new Date(
+                occurrence.getFullYear(), 
+                occurrence.getMonth(), 
+                occurrence.getDate(),
                 originalStart.getHours(), 
                 originalStart.getMinutes()
-              ).toISOString();
+              );
               
-              virtualEvent.end = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate(),
-                originalEnd.getHours(), 
-                originalEnd.getMinutes()
-              ).toISOString();
-            }
-            
-            eventsForDay.push(virtualEvent);
+              const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
+              
+              // Normalizza le date per confronto
+              const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+              const startDate = new Date(occurrenceStart.getFullYear(), occurrenceStart.getMonth(), occurrenceStart.getDate());
+              const endDate = new Date(occurrenceEnd.getFullYear(), occurrenceEnd.getMonth(), occurrenceEnd.getDate());
+              
+              // Controlla se la data target è compresa nell'evento ricorrente
+              if (targetDate >= startDate && targetDate <= endDate) {
+                const virtualEvent = {
+                  ...event,
+                  isRecurringInstance: true,
+                  originalId: event._id,
+                  start: occurrenceStart.toISOString(),
+                  end: occurrenceEnd.toISOString()
+                };
+                
+                eventsForDay.push(virtualEvent);
+              }
+            });
           }
         } catch (error) {
           console.error("Error processing recurring event:", error);
-          console.error("Evento problematico:", event);
         }
       }
     });
@@ -227,9 +220,9 @@ export default function CalendarApp() {
   const handleEventClick = (event, clickedDate = null) => {
     console.log("Evento cliccato:", event.title);
     
-    // Estraggo la ricorrenza se c'è
+    // Estraggo la ricorrenza se c'è (solo per eventi e pomodoro, NON per attività)
     let recurrence = "";
-    if (event.recurrenceRule) {
+    if (event.recurrenceRule && event.type !== "activity") {
       let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
       if (freqMatch && freqMatch[1]) {
         recurrence = freqMatch[1].toLowerCase();
@@ -239,24 +232,22 @@ export default function CalendarApp() {
     // For recurring instances, use the clicked date; otherwise use original date
     let startDate, endDate;
     
-    if (event.isRecurringInstance && clickedDate) {
-      // This is a recurring instance
-      if (event.type === "activity") {
-        startDate = clickedDate;
-        endDate = clickedDate;
-      } else {
-        // Preserve the original time but use the clicked date
-        const originalStart = new Date(event.start);
-        const originalEnd = new Date(event.end);
-        startDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
-                            originalStart.getHours(), originalStart.getMinutes());
-        endDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
-                          originalEnd.getHours(), originalEnd.getMinutes());
-      }
+    if (event.isRecurringInstance && clickedDate && event.type !== "activity") {
+      // This is a recurring instance (non-activity)
+      const originalStart = new Date(event.start);
+      const originalEnd = new Date(event.end);
+      startDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
+                          originalStart.getHours(), originalStart.getMinutes());
+      endDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
+                        originalEnd.getHours(), originalEnd.getMinutes());
     } else {
-      // Regular event or original recurring event
-      startDate = event.start ? new Date(event.start) : new Date();
-      endDate = event.end ? new Date(event.end) : new Date(startDate.getTime() + 3600000);
+      // Regular event or activity - validazione delle date
+      startDate = event.start && !isNaN(new Date(event.start).getTime()) 
+        ? new Date(event.start) 
+        : new Date();
+      endDate = event.end && !isNaN(new Date(event.end).getTime()) 
+        ? new Date(event.end) 
+        : new Date(startDate.getTime() + 3600000);
     }
     
     let eventData = {
@@ -264,20 +255,27 @@ export default function CalendarApp() {
       title: event.title || "",
       type: event.type || "event",
       location: event.location || "",
-      recurrenceRule: recurrence,
+      recurrenceRule: event.type === "activity" ? "" : recurrence, // Nessuna ricorrenza per le attività
       description: event.description || "",
       alarm: event.alarm || {
         earlyness: 15,
         repeat_times: 1,
-        repeat_every: 0
+        repeat_every: 0,
+        enabled: false
       }
     };
     
     switch(eventData.type) {
       case "activity":
-        eventData.activityDate = event.isRecurringInstance && clickedDate ? 
-          clickedDate : 
-          (event.activityDate ? new Date(event.activityDate) : startDate);
+        // Validazione della data dell'attività
+        const activityDateValue = event.activityDate && !isNaN(new Date(event.activityDate).getTime()) 
+          ? new Date(event.activityDate) 
+          : startDate;
+        eventData.activityDate = activityDateValue;
+        // Per le attività, semplifica l'alarm a solo enabled/disabled
+        eventData.alarm = {
+          enabled: event.alarm ? event.alarm.enabled || false : false
+        };
         break;
       case "pomodoro":
         eventData.pomodoro = event.pomodoro || {
@@ -495,15 +493,36 @@ export default function CalendarApp() {
       return;
     }
 
+    // Validazione date per evitare errori
+    if (newEvent.type !== "activity") {
+      if (!newEvent.start || isNaN(new Date(newEvent.start).getTime())) {
+        alert("Data di inizio non valida!");
+        return;
+      }
+      if (!newEvent.end || isNaN(new Date(newEvent.end).getTime())) {
+        alert("Data di fine non valida!");
+        return;
+      }
+      if (new Date(newEvent.start) >= new Date(newEvent.end)) {
+        alert("La data di fine deve essere successiva alla data di inizio!");
+        return;
+      }
+    } else {
+      if (!newEvent.activityDate || isNaN(new Date(newEvent.activityDate).getTime())) {
+        alert("Data dell'attività non valida!");
+        return;
+      }
+    }
+
     // Scelgo URL e metodo in base se sto creando o modificando
     let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
     let method = isEditing ? "PUT" : "POST";
 
-    // Gestisco la ricorrenza se è stata impostata
+    // Gestisco la ricorrenza SOLO per eventi e pomodoro, NON per le attività
     let rruleString = null;
-    if ((newEvent.type === "event" || newEvent.type === "activity") && newEvent.recurrenceRule) {
+    if (newEvent.type !== "activity" && newEvent.recurrenceRule) {
       try {
         console.log("Creo ricorrenza per:", newEvent.recurrenceRule);
         
@@ -518,17 +537,19 @@ export default function CalendarApp() {
         let freq = frequencyMap[newEvent.recurrenceRule];
         
         if (freq !== undefined) {
-          let startDate = newEvent.type === "activity" 
-            ? (newEvent.activityDate || new Date()) 
-            : (newEvent.start || new Date());
+          let startDate = newEvent.start || new Date();
+          
+          // Validazione della data per RRule
+          if (isNaN(new Date(startDate).getTime())) {
+            alert("Data non valida per la ricorrenza!");
+            return;
+          }
           
           // Crea la data senza problemi di timezone
           let rruleDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
           
-          if (newEvent.type === "event") {
-            // Per gli eventi, mantieni l'ora originale
-            rruleDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
-          }
+          // Per gli eventi, mantieni l'ora originale
+          rruleDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
           
           // FIX: Per le ricorrenze settimanali, specifica il giorno della settimana
           let rruleOptions = {
@@ -538,9 +559,6 @@ export default function CalendarApp() {
           
           // Se è settimanale, aggiungi il giorno specifico
           if (newEvent.recurrenceRule === 'weekly') {
-            // RRule usa: MO=0, TU=1, WE=2, TH=3, FR=4, SA=5, SU=6
-            // JavaScript usa: Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5, Saturday=6
-            
             let jsDay = rruleDate.getDay(); // Giorno in formato JavaScript
             let rruleDay;
             
@@ -597,19 +615,38 @@ export default function CalendarApp() {
     switch(newEvent.type) {
       case "activity":
         let activityDate = newEvent.activityDate || new Date();
-        // Keep it simple - just use the date without complex timezone manipulation
-        eventData.activityDate = activityDate.toISOString();
-        eventData.recurrenceRule = rruleString;
+        // Validazione finale della data dell'attività
+        if (isNaN(new Date(activityDate).getTime())) {
+          alert("Data dell'attività non valida!");
+          return;
+        }
+        eventData.activityDate = new Date(activityDate).toISOString();
+        // NON inviare recurrenceRule per le attività
         break;
       case "pomodoro":
         eventData.pomodoro = newEvent.pomodoro.title || "";
-        eventData.start = (newEvent.start || new Date()).toISOString();
-        eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
+        let pomodoroStart = newEvent.start || new Date();
+        let pomodoroEnd = newEvent.end || new Date(Date.now() + 25 * 60000);
+        // Validazione date pomodoro
+        if (isNaN(new Date(pomodoroStart).getTime()) || isNaN(new Date(pomodoroEnd).getTime())) {
+          alert("Date del pomodoro non valide!");
+          return;
+        }
+        eventData.start = new Date(pomodoroStart).toISOString();
+        eventData.end = new Date(pomodoroEnd).toISOString();
+        eventData.recurrenceRule = rruleString;
         break;
       case "event":
       default:
-        eventData.start = (newEvent.start || new Date()).toISOString();
-        eventData.end = (newEvent.end || new Date(Date.now() + 3600000)).toISOString();
+        let eventStart = newEvent.start || new Date();
+        let eventEnd = newEvent.end || new Date(Date.now() + 3600000);
+        // Validazione date evento
+        if (isNaN(new Date(eventStart).getTime()) || isNaN(new Date(eventEnd).getTime())) {
+          alert("Date dell'evento non valide!");
+          return;
+        }
+        eventData.start = new Date(eventStart).toISOString();
+        eventData.end = new Date(eventEnd).toISOString();
         eventData.recurrenceRule = rruleString;
         break;
     }
@@ -697,7 +734,8 @@ export default function CalendarApp() {
       alarm: {
         earlyness: 15,
         repeat_times: 1,
-        repeat_every: 0
+        repeat_every: 0,
+        enabled: false // Aggiunto campo enabled
       }
     });
     setIsEditing(false);
