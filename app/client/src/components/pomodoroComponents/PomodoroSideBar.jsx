@@ -106,8 +106,8 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
         {
             data: [studyT, breakT],
             backgroundColor: ['#4254fb', '#ffb422'],
-            // borderColor: ['white', 'white'],
-            borderWidth: 0,
+            borderColor: ['white', 'white'],
+            borderWidth: 1,
         },
         ],
     };
