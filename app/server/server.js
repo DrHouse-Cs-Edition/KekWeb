@@ -3,7 +3,6 @@ const path = require ('path');
 const bodyParser = require('body-parser');
 const fs = require('fs')
 const cookieParser = require("cookie-parser");
-const nodemailer = require('nodemailer');
 
 // connessione a server mongoDB (e DOPO tutto il resto, per evitare errori chiamate DB non pronto)
 const connectDB = require('./config/database.js');
@@ -83,7 +82,7 @@ connectDB().then( () =>{
     app.use('/api/user', userRoutes);
 
     // time machine API
-    app.put("/api/timeMachine/travel", (req, res) => { // cambia data server
+    app.put("/api/timeMachine/travel", async (req, res) => { // cambia data server
         timeShift = timeShift + Number(req.body.minutes);
         // calcolo data attuale
         let now = new Date();
@@ -94,20 +93,22 @@ connectDB().then( () =>{
         // se cambia la data attivo funzione che normalmente attivo a mezzanotte
         if(newToday > today){
             console.log("CHANGE DAY!");
-            eventController.movePomodorosAndActivities(newToday); 
+            await eventController.movePomodorosAndActivities(newToday); 
         }
 
-        timeTravelNotificationsUpdate(now);
+        await timeTravelNotificationsUpdate(now);
         check();
         res.json({
             date: now.toString(),
             success: true
         });
+        console.log("travel");
     })
 
     app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
         const now = addMinutes(new Date(), timeShift);
         res.json({date: now.toString(), success: true});
+        console.log("date");
     })
 
     app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità
@@ -118,6 +119,7 @@ connectDB().then( () =>{
             date: now.toString(),
             success: true
         });
+        console.log("reset");
     })
 
     app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

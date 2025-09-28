@@ -1,4 +1,4 @@
-import Style from "./categoriesList.module.css";
+import Style from "./NoteCategoriesList.module.css";
 import { useState } from "react";
 
 function CategoriesList({categories, setCategories}) { // {} servono per destructuring delle prop
@@ -30,9 +30,7 @@ function CategoriesList({categories, setCategories}) { // {} servono per destruc
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Aggiungi una categoria..."
                 />
-                <button onClick={addCategory}>
-                    +
-                </button>
+                <button onClick={addCategory}>+ Aggiungi</button>
             </div>
 
             {/* Lista categorie */}

@@ -17,7 +17,7 @@ function Navbar() {
     <header className={Style.header}>
       <div className={Style.container}>
         <Link to="/" className={Style.logo} onClick={closeMenu}>
-          Logo
+          SelfieApp
         </Link>
 
         <button 

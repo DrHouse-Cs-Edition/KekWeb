@@ -36,10 +36,10 @@
   font-weight: bold;
   font-size: 1rem;
 }
-.list button{
+.removeCategory{
   padding: 5px;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   background: #ff8c6b;
   color: white;
   cursor: pointer;

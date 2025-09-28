@@ -3,7 +3,7 @@ import { marked } from 'marked';
 import Style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
-import CategoriesList from '../components/Note/CategoriesList.jsx';
+import CategoriesList from '../components/NoteCategoriesList/NoteCategoriesList.jsx';
 
 function Note() {
 
