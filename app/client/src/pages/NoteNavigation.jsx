@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import NotePreview from '../components/NoteNavigation/NotePreview.jsx';
+import NotePreview from '../components/NotePreview/NotePreview.jsx';
 import { useNavigate } from "react-router-dom";
 import Style from './NoteNavigation.module.css'
 

@@ -15,10 +15,12 @@
     align-items: center;
     flex-direction: column;
     z-index: 2;
-    overflow-y: scroll;
     font-size: 1.125rem;
     font-weight: bold;
-}
+
+    /*padding-bottom: 80px; /* spazio sufficiente per il time-machine */
+    /*box-sizing: border-box; /* per includere padding nelle dimensioni */
+  }
 
 .PomodoroTitleDiv>label {
   visibility: hidden;

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import style from './PomodoroSideBar.module.css';
 import { PieChart } from "@mui/x-charts";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 
 //TODO cambiare da una sidebar ad un menù verticale
 
@@ -95,6 +97,48 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
             }
         );
     }
+
+    ChartJS.register(ArcElement, Tooltip, Legend);
+
+    const data = {
+        labels: ['Study', 'Relax'],
+        datasets: [
+        {
+            data: [studyT, breakT],
+            backgroundColor: ['#4254fb', '#ffb422'],
+            // borderColor: ['white', 'white'],
+            borderWidth: 0,
+        },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false, // occupa lo spazio disponibile
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: 'white', // legenda bianca
+                },
+            },
+        },
+        tooltip: {
+            enabled: true,
+        },
+        datalabels: {
+            color: 'white',
+            formatter: (value, context) => {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return ((value / total) * 100).toFixed(0) + '%';
+            },
+            font: {
+                weight: 'bold',
+                size: 14,
+            },
+        },
+    };
+
     // style={{display: display ? "grid" : "none"}}
     return (
         <div className={style.barItem} style={{display: display ? "" : "none"} }>
@@ -105,17 +149,7 @@ const PomodoroWidgetDiv = ({id, title, studyT, breakT, cycles, loadPomodoro, del
             </div>
             <div className={style.pomodoroChart}  onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>  
                 {/* <button  className={style.pomodoroOpen} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}> */}
-                    <PieChart
-                    className={style.pomodoroPie}
-                    series={[{
-                        data : [
-                            {id : 0, value : studyT, label : "Durata studio: " + studyT},
-                            {id : 1, value : breakT, label : "Durata pausa: " + breakT}
-                        ],
-                    },
-                    ]}
-                    ></PieChart>
-                {/* </button> */}
+                    <Pie data={data} options={options} />
             </div>
             <div className={style.buttons}>
                 {/* <button className={`${style.openB} ${style.button}`} onClick={()=>loadPomodoro(id, title, studyT, breakT, cycles)}>Open</button> */}

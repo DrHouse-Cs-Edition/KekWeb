@@ -21,7 +21,6 @@ class TimeMachine extends HTMLElement {
           align-items: center;
           gap: 10px;
           padding: 10px;
-          z-index: 1000;
           font-family: sans-serif;
           z-index: 10002; /* maggiore della navbar */
         }
@@ -50,7 +49,7 @@ class TimeMachine extends HTMLElement {
             flex-wrap: wrap; /* manda a capo gli elementi */
           }
           .tm-bar button {
-            flex: 1;              /* i bottoni si allargano */
+            flex: 1; /* i bottoni si allargano */
           }
         }
       </style>
@@ -68,20 +67,13 @@ class TimeMachine extends HTMLElement {
 
   //connectedCallback() {
     // this.getDate();
-    this.shadowRoot.addEventListener("click", (e) => {
-      console.log("click catturato sul shadowRoot:", e.target);
-      if (e.target.id === "submit") {
-        console.log("submit click");
-        this.submit();
-      } else if (e.target.id === "reset") {
-        console.log("reset click");
-        this.reset();
-      };
-    }, true); // usa capture phase
+    this.shadowRoot.getElementById("submit").addEventListener("click", () => this.submitTM());
+
+    this.shadowRoot.getElementById("reset").onclick = () => this.reset();
     // setInterval(() => {console.log("date click"); this.getDate();}, 10000); // ogni 10000 ms = 10 s
   };
 
-  async submit() {
+  async submitTM() {
     const days = this.shadowRoot.getElementById("days").value || 0;
     const hours = this.shadowRoot.getElementById("hours").value || 0;
     const minutes = this.shadowRoot.getElementById("minutes").value || 0;
@@ -98,7 +90,7 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
         const localDate = this.dateFormat(new Date(json.date));
-        //this.shadowRoot.getElementById("tm-time").innerText = localDate;
+        this.shadowRoot.getElementById("tm-time").innerText = localDate;
         console.log("submit done");
       }
       else{

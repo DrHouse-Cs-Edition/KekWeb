@@ -46,7 +46,8 @@
 }
 
 .usedButton{
-    background: #ea9a83;
+    /*background: #ea9a83;*/
+    background: #232b4d;
     color: white;
     border: 1px solid #0000;
     border-radius: 1.5rem;

@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
+import Navbar from "./components/Navbar/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Calendar from "./pages/Calendar.jsx";
 import Note from "./pages/Note.jsx";
@@ -11,6 +11,7 @@ import User from "./pages/User.jsx";
 import style from "./App.module.css";
 import bgDesktop from './assets/bg_desktop.png';
 import bgMobile from './assets/bg_mobile.png';
+import "./components/TimeMachine/TimeMachine.js"; // importo time-machine
 
 function App() {
   const {token, setToken} = UseToken();
@@ -34,7 +35,7 @@ function App() {
             <Route path="/utente" element={<User />} />
           </Routes>
         </div>
-        <time-machine />
+        <time-machine></time-machine>
         </>
         }
     </div>
