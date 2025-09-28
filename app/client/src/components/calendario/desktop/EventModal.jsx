@@ -153,7 +153,23 @@ const ModalBody = ({
     let name = e.target.name;
     let value = e.target.value;
     console.log("Data cambiata:", name, "=", value);
-    setNewEvent(prev => ({ ...prev, [name]: new Date(value) }));
+    
+    // Controllo se il valore è vuoto o non valido
+    if (!value || value === "") {
+      console.log("Data vuota, uso data corrente");
+      setNewEvent(prev => ({ ...prev, [name]: new Date() }));
+      return;
+    }
+    
+    // Controllo se la data è valida
+    const dateValue = new Date(value);
+    if (isNaN(dateValue.getTime())) {
+      console.log("Data non valida, uso data corrente");
+      setNewEvent(prev => ({ ...prev, [name]: new Date() }));
+      return;
+    }
+    
+    setNewEvent(prev => ({ ...prev, [name]: dateValue }));
   };
 
   return (
@@ -233,7 +249,9 @@ const ModalBody = ({
               name="activityDate"
               label="Data Attività"
               type="date"
-              value={format(newEvent.activityDate || new Date(), "yyyy-MM-dd")}
+              value={newEvent.activityDate && !isNaN(new Date(newEvent.activityDate).getTime()) 
+                ? format(new Date(newEvent.activityDate), "yyyy-MM-dd") 
+                : format(new Date(), "yyyy-MM-dd")}
               onChange={handleDateChange}
             />
           ) : (
@@ -244,7 +262,9 @@ const ModalBody = ({
                 name="start"
                 label="Data Inizio"
                 type="datetime-local"
-                value={format(newEvent.start, "yyyy-MM-dd'T'HH:mm", { locale: it })}
+                value={newEvent.start && !isNaN(new Date(newEvent.start).getTime()) 
+                  ? format(new Date(newEvent.start), "yyyy-MM-dd'T'HH:mm", { locale: it })
+                  : format(new Date(), "yyyy-MM-dd'T'HH:mm", { locale: it })}
                 onChange={handleDateChange}
               />
               <FormField
@@ -252,7 +272,9 @@ const ModalBody = ({
                 name="end"
                 label="Data Fine"
                 type="datetime-local"
-                value={format(newEvent.end, "yyyy-MM-dd'T'HH:mm", { locale: it })}
+                value={newEvent.end && !isNaN(new Date(newEvent.end).getTime()) 
+                  ? format(new Date(newEvent.end), "yyyy-MM-dd'T'HH:mm", { locale: it })
+                  : format(new Date(), "yyyy-MM-dd'T'HH:mm", { locale: it })}
                 onChange={handleDateChange}
               />
             </>
@@ -268,8 +290,8 @@ const ModalBody = ({
             onChange={handleInputChange}
           />
 
-          {/* Ricorrenza (solo per eventi normali e attività) */}
-          {(newEvent.type === "event" || newEvent.type === "activity") && (
+          {/* Ricorrenza (solo per eventi normali, NON per attività) */}
+          {newEvent.type === "event" && (
             <div className={styles.formGroup}>
               <label htmlFor="recurrence">Ricorrenza</label>
               <select 
@@ -304,6 +326,7 @@ const ModalBody = ({
           <AlarmSettings 
             alarm={newEvent.alarm}
             setNewEvent={setNewEvent}
+            eventType={newEvent.type} // Passa il tipo di evento
           />
         </>
       )}
@@ -324,7 +347,7 @@ const FormField = ({ id, name, label, type, value, onChange, disabled = false, .
 );
 
 // Componente per gestire le impostazioni dell'allarme
-const AlarmSettings = ({ alarm, setNewEvent }) => {
+const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
   // Quando cambio un'impostazione dell'allarme
   const handleAlarmChange = (field, value) => {
     console.log("Cambio allarme:", field, "=", value);
@@ -337,9 +360,9 @@ const AlarmSettings = ({ alarm, setNewEvent }) => {
     }));
   };
 
-  // Controllo se l'allarme è abilitato
-  let isAlarmEnabled = alarm.earlyness > 0 || alarm.repeat_times > 0;
-  console.log("Allarme abilitato:", isAlarmEnabled);
+  // Per le attività, controllo solo il campo enabled
+  const isActivityType = eventType === "activity";
+  const isAlarmEnabled = isActivityType ? alarm.enabled : (alarm.earlyness > 0 || alarm.repeat_times > 0);
 
   return (
     <div className={styles.notificationGroup}>
@@ -350,23 +373,29 @@ const AlarmSettings = ({ alarm, setNewEvent }) => {
           id="enable-alarm"
           checked={isAlarmEnabled}
           onChange={(e) => {
-            if (e.target.checked) {
-              console.log("Abilito allarme con valori default");
-              handleAlarmChange('earlyness', 15);
-              handleAlarmChange('repeat_times', 1);
+            if (isActivityType) {
+              // Per le attività, cambia solo il campo enabled
+              handleAlarmChange('enabled', e.target.checked);
             } else {
-              console.log("Disabilito allarme");
-              handleAlarmChange('earlyness', 0);
-              handleAlarmChange('repeat_times', 0);
-              handleAlarmChange('repeat_every', 0);
+              // Per eventi e pomodoro, mantieni la logica esistente
+              if (e.target.checked) {
+                console.log("Abilito allarme con valori default");
+                handleAlarmChange('earlyness', 15);
+                handleAlarmChange('repeat_times', 1);
+              } else {
+                console.log("Disabilito allarme");
+                handleAlarmChange('earlyness', 0);
+                handleAlarmChange('repeat_times', 0);
+                handleAlarmChange('repeat_every', 0);
+              }
             }
           }}
         />
-        <label htmlFor="enable-alarm">Abilita Allarme</label>
+        <label htmlFor="enable-alarm">Abilita Notifiche</label>
       </div>
       
-      {/* Impostazioni dettagliate solo se l'allarme è abilitato */}
-      {isAlarmEnabled && (
+      {/* Impostazioni dettagliate solo per eventi e pomodoro (NON per attività) */}
+      {!isActivityType && isAlarmEnabled && (
         <div className={styles.notificationSubSettings}>
           {/* Quando suonare l'allarme */}
           <div className={styles.formGroup}>
