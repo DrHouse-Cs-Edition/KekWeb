@@ -16,6 +16,7 @@ function Note() {
   const [noteCategories, setNoteCategories] = useState([]);
   //const [noteLastModified,...]
   //const [noteCreatedAt,...]
+  const [saved, setSaved] = useState(true); // se la nota è stata appena salvata
 
   marked.setOptions({
     breakkggs: true,  // converte `\n` in `<br>` IN TEORIA
@@ -93,6 +94,7 @@ function Note() {
         const json = await response.json();
         if (json.success){
           // alert("Nota salvata");
+          setSaved(true);
         }
         else
           alert(json.message);
@@ -148,6 +150,7 @@ function Note() {
 
   useEffect(() => {
     resizeTextarea();
+    setSaved(false);
   }, [noteText]); // anche al aricamento pagina (perche handleLoad cambia noteText)
 
   useEffect(() => { // intercetto Ctrl + s
@@ -191,7 +194,7 @@ function Note() {
 
           <button className= {Style.button} onClick={handleDelete}>Elimina</button>
           <button className= {Style.button} onClick={handleCopy}>Copia su appunti</button>
-          <button className= {Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Salva modifiche</button>
+          <button className= {saved? Style.usedButton : Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Salva modifiche</button>
         </div>
     </>
   );

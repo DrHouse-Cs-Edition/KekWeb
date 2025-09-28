@@ -38,9 +38,11 @@ async function registerUser(data) {
                 console.log("registration failed");
                 alert(json.message);
             }
+            else{
+                alert("Utente creato correttamente");
+            }
             console.log("response to create user was ", json);
             return json;
-
         })
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
@@ -59,7 +61,6 @@ function Registration({updateToken}){
             let response = await registerUser(data);
             updateToken(response);
             setUsername(data.username);
-            window.alert("Utente creato correttamente");
         }catch(e){
             console.log("error in login form: ", e);
         }

@@ -22,7 +22,7 @@ function App() {
       <img className={`${style.background_image} ${style.mobile_bg}`} src={bgMobile} alt="Mobile background" />
       {!token ?
           (<Signup updateToken = {setToken}/>) : 
-        <> 
+        <>
         <Navbar />
         <div className={style.content}>
           <Routes>

@@ -2,20 +2,16 @@ const path = require ('path');
 const Users = require ("../mongoSchemas/UserSchemas.js");
 const jwt = require("jsonwebtoken");
 const tokenSchema = require("../mongoSchemas/RTokenSchema.js")
-// const tokenSchema = require("../mongoSchemas/RTokenSchema.js")
 require("dotenv").config();
 
-const findUser = (username)=>{
-    return Users.find({username : username}, {username : 1})
-}
+const JWT_KEY = "004b7831a2f90448b614e40de30e2b3c"; // 32 caratteri
 
 exports.login = async function (req, res){
     let {username, password} = req.body;
     try{ 
         const result = await Users.find({username : username, password : password}, {username : 1, password : 1})
         if(result.length){
-            const token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_KEY);
-            // const R_token = jwt.sign({username : username, id: result[0]._id}, process.env.JWT_REFRESH);
+            const token = jwt.sign({username : username, id: result[0]._id}, JWT_KEY);
 
             tokenSchema.create({username, token : token});
 
@@ -23,11 +19,10 @@ exports.login = async function (req, res){
                 httpOnly: true,
                 sameSite: "strict",
             });
-            res.status(200).json({ // ***************************************************************** nel caso è DA ELIMINARE (e modificare client di conseguenza)
-                message : "login successfulll",
+            res.status(200).json({
+                message : "login successful",
                 success: true,
                 token: token
-                // refreshToken : token 
             })
         }else{
             res.status(401).json({
@@ -67,47 +62,47 @@ exports.registration = async function (req, res){
 exports.authToken = function (req, res, next){ // middleware
     const token = req?.cookies.accessToken;
     if (!token){
-        return res.status(401).json({ message: "Manca cookie token" });
+        return res.status(401).json({ message: "Effettua il login!" });
     }
 
-    jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
+    jwt.verify(token, JWT_KEY, (err, decoded) => {
         if(err)
             return res.status(403).json({
                 success: false,
-                message: "Invalid token"
+                message: "Sessione scaduta o token invalido"
             });
         // salvare nome utente e id per API
         req.user = decoded.id; // Aggiunge username alla req passata dopo middleware
-        }   
-    )
+        }
+    );
     next(); 
 }
 
 exports.logout = function (req, res){
-
     const token = req?.cookies.accessToken;
     if (!token)
         return res.send().json({ message: "Connessione già scaduta" });
 
-    jwt.verify(token, process.env.JWT_KEY, (err, decoded) =>{ // deduco l'utente che cerca di fare il logout (decoded.username)
+    jwt.verify(token, JWT_KEY, (err, decoded) =>{ // deduco l'utente che cerca di fare il logout (decoded.username)
         tokenSchema.deleteOne({username : decoded.username})
         .then(result => {
             if(result.length === 0)
                 res.status(403).json({
-                success: false,
-                message: "no token for the username found"
+                    success: false,
+                    message: "no token for the username found"
                 })
-            // faccio eliminare i cookies al client
-            res.clearCookie("accessToken");
-            res.clearCookie("refreshToken");
-            
-            res.status(200).json({
-                success: true,
-                message: "You have been logged out"
-            })
+            else{
+                // faccio eliminare i cookies al client
+                res.clearCookie("accessToken");
+                res.clearCookie("refreshToken");
+                
+                res.status(200).json({
+                    success: true,
+                    message: "You have been logged out"
+                })
+            }
         })
     });
-    
 }
 
 exports.userData = function (req, res){

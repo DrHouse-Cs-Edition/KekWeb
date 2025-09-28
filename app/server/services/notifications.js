@@ -30,8 +30,8 @@ async function sendEmail(utente, evento, alertTime) {// MAIL V 2.0
   const mailOptions = {
       from: 'selfieapp17@gmail.com',
       to: utente.email,
-      subject: `Promemoria: ${evento.titolo}`,
-      text: `Ricordati del tuo evento: ${evento.descrizione? evento.descrizione : ""}\norario di notifica:${alertTime}`
+      subject: `Promemoria: ${evento.title}`,
+      text: `Ricordati del tuo evento${evento.description? (": " + evento.description) : ""}\norario di notifica:${alertTime}`
   };
   
   try{
@@ -121,17 +121,17 @@ function updateAlarmAndGetNotificationTimes(event, now){
   console.log("upd alarm")
   let notificationTimes = ``;
 
-  // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei llop, e no solo 1)
   do{
     notificationTimes = notificationTimes + ` ${event.nextAlarm.toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit' })} |`;
     event.repeated = event.repeated + 1;
     event.nextAlarm = addMinutes(event.nextAlarm, event.alarm.repeat_every);
     console.log("one notification time update!");
+  // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei loop, e no solo 1)
   }while( event.repeated < event.alarm.repeat_times // se devo ancora ripeterlo
     && addMinutes(event.nextAlarm, event.alarm.repeat_every) < now) // e la prossima sveglia è nel passato)
 
   // se ho finito con le ripetizioni
-  if(event.repeated == event.alarm.repeat_times){
+  if(event.repeated >= event.alarm.repeat_times){
     event.nextAlarm = null;
     if (event.recurrenceRule){
       const rule = rrulestr(event.recurrenceRule);
@@ -153,7 +153,7 @@ async function notifications(now){
 
   const today= new Date(now.getFullYear(), now.getMonth(), now.getDate()); // cancella orario -> mezzanotte
   // Cerca eventi da notificare
-  const eventi = await Event.find({ //})
+  const eventi = await Event.find({
     nextAlarm: { $lte: now, $gte: today }, //tutte notifiche di oggi di cui è giunto/superato momento
   });
 
@@ -240,14 +240,16 @@ async function timeTravelNotificationsReset(now){
   // resetto Alarm suonati dopo viaggio nel tempo
   const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
-    const alarmDate = subMinutes( event.start, event.alarm.earlyness);
-    if( alarmDate!=event.nextAlarm ){ // solo eventi che necessitano aggiornamento sul DB
-      operations.push({
-        updateOne: {
-          filter: { _id: event._id },
-          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-        }
-      });
+    if(event.alarm && event.alarm.repeat_times > 0){ // se l'allarme originariamente suonava
+      const alarmDate = subMinutes( event.start, event.alarm.earlyness);
+      if( alarmDate < now && alarmDate!=event.nextAlarm){ // se deve ancora arrivare momento alarm (&& solo se necessita aggiornamento sul DB)
+        operations.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+        });
+      }
     }
   })
 
@@ -256,6 +258,22 @@ async function timeTravelNotificationsReset(now){
     { nextAlarm:{ $lt: now } }, // filter
     { $set: {nextAlarm: null} } // update
   );
+
+  //sposto indietro Attività e Pomodori
+  // NOTA non posso spostare pomodori perche non conosco data originale
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const toMove = await Event.find({ type: {$in: ["activity", "pomodoro"]}, start: {$gt: today}, completed: {$ne: true} }) // attivita non completate successive ad adesso
+  toMove.forEach( (event) => {
+    if( event.activityDate && event.activityDate < event.start ){ // se data originaria era piu indietro di quella attualmente salvata
+      const newDate = (today > event.activityDate)? today : event.activityDate; // lo sposto a data attuale o originale, in base a quella più futura
+      operations.push({
+        updateOne: {
+          filter: { _id: event._id },
+          update: { $set: { start: newDate, end: addDays(newDate,1) } }
+        }
+      });
+    }
+  })
 
   console.log(res.matchedCount, res.modifiedCount);
 

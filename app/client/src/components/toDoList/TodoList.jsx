@@ -44,7 +44,11 @@ const TodoList = () => {
       // Solo se ha una data di scadenza, calcola l'urgenza in base ai giorni
       if (activity.activityDate) {
         let activityDate = new Date(activity.activityDate);
-        let daysDiff = Math.ceil((currentDate - activityDate) / (1000 * 60 * 60 * 24));
+        // Normalizza le date a mezzanotte per il confronto
+        let normalizedActivityDate = new Date(activityDate.getFullYear(), activityDate.getMonth(), activityDate.getDate());
+        let normalizedCurrentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        
+        let daysDiff = Math.ceil((normalizedCurrentDate - normalizedActivityDate) / (1000 * 60 * 60 * 24));
         
         if (daysDiff > 0) {
           calculatedUrgency = Math.min(10, calculatedUrgency + daysDiff);

@@ -35,7 +35,8 @@ const MobileCalendarApp = () => {
     alarm: {
       earlyness: 15,
       repeat_times: 1,
-      repeat_every: 0
+      repeat_every: 0,
+      enabled: false // Aggiunto campo enabled per le attività
     }
   }); // I dati dell'evento che sto creando/modificando
 
@@ -176,21 +177,33 @@ const MobileCalendarApp = () => {
     const eventsForDay = [];
     
     events.forEach(event => {
-      if (!event.extendedProps || !event.extendedProps.recurrenceRule) {
-        // Eventi non ricorrenti - gestione normale
-        let eventDate = event.start ? new Date(event.start) : null;
+      if (!event.extendedProps || !event.extendedProps.recurrenceRule || event.extendedProps.type === "activity") {
+        // Eventi non ricorrenti e TUTTE le attività (ignora ricorrenza per le attività)
+        let eventStartDate, eventEndDate;
         
-        // Altrimenti controllo se è la stessa data
-        if (eventDate && eventDate.toDateString() === date.toDateString()) {
+        if (event.extendedProps?.type === "activity") {
+          eventStartDate = new Date(event.extendedProps.activityDate || event.start);
+          eventEndDate = new Date(event.extendedProps.activityDate || event.start); // Le attività durano un giorno
+        } else {
+          eventStartDate = new Date(event.start);
+          eventEndDate = new Date(event.end);
+        }
+        
+        // Normalizza le date per confronto (rimuovi ore/minuti/secondi)
+        const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const startDate = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+        const endDate = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+        
+        // Controlla se la data target è compresa tra inizio e fine evento (inclusi)
+        if (targetDate >= startDate && targetDate <= endDate) {
           eventsForDay.push(event);
         }
       } else {
-        // Eventi ricorrenti - gestione con UTC (copiata dal desktop)
+        // Eventi ricorrenti - solo per eventi e pomodoro, NON per attività
         try {
           const rrule = RRule.fromString(event.extendedProps.recurrenceRule);
           
           // FIX: Usa la stessa logica UTC del salvataggio
-          // Crea la data target in UTC a mezzogiorno
           let targetDateUTC = new Date(Date.UTC(
             date.getFullYear(), 
             date.getMonth(), 
@@ -198,7 +211,6 @@ const MobileCalendarApp = () => {
             12, 0, 0, 0
           ));
           
-          // Controlla solo questo giorno specifico in UTC
           let startOfDayUTC = new Date(Date.UTC(
             date.getFullYear(), 
             date.getMonth(), 
@@ -213,7 +225,6 @@ const MobileCalendarApp = () => {
             23, 59, 59, 999
           ));
           
-          // Ottieni tutte le occorrenze per questo giorno
           const occurrences = rrule.between(startOfDayUTC, endOfDayUTC, true);
           
           // Debug per vedere cosa sta succedendo
@@ -226,53 +237,46 @@ const MobileCalendarApp = () => {
           }
           
           if (occurrences.length > 0) {
-            // Crea l'evento virtuale per questa occorrenza (stesso formato del desktop)
-            const virtualEvent = {
-              ...event,
-              isRecurringInstance: true,
-              originalId: event.id,
-            };
-            
-            if (event.extendedProps.type === "activity") {
-              // Per le attività, usa la data locale
-              virtualEvent.start = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate()
-              );
-              virtualEvent.end = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate()
-              );
-              virtualEvent.extendedProps.activityDate = virtualEvent.start;
-            } else {
-              // Per gli eventi, mantieni l'ora originale ma usa la data corrente
+            // Per ogni occorrenza, controlla se l'evento si estende su più giorni
+            occurrences.forEach(occurrence => {
               const originalStart = new Date(event.start);
               const originalEnd = new Date(event.end);
               
-              virtualEvent.start = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate(),
+              // Calcola la durata originale dell'evento
+              const eventDuration = originalEnd.getTime() - originalStart.getTime();
+              
+              // Crea le date di inizio e fine per questa occorrenza
+              const occurrenceStart = new Date(
+                occurrence.getFullYear(), 
+                occurrence.getMonth(), 
+                occurrence.getDate(),
                 originalStart.getHours(), 
                 originalStart.getMinutes()
               );
               
-              virtualEvent.end = new Date(
-                date.getFullYear(), 
-                date.getMonth(), 
-                date.getDate(),
-                originalEnd.getHours(), 
-                originalEnd.getMinutes()
-              );
-            }
-            
-            eventsForDay.push(virtualEvent);
+              const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
+              
+              // Normalizza le date per confronto
+              const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+              const startDate = new Date(occurrenceStart.getFullYear(), occurrenceStart.getMonth(), occurrenceStart.getDate());
+              const endDate = new Date(occurrenceEnd.getFullYear(), occurrenceEnd.getMonth(), occurrenceEnd.getDate());
+              
+              // Controlla se la data target è compresa nell'evento ricorrente
+              if (targetDate >= startDate && targetDate <= endDate) {
+                const virtualEvent = {
+                  ...event,
+                  isRecurringInstance: true,
+                  originalId: event.id,
+                  start: occurrenceStart,
+                  end: occurrenceEnd
+                };
+                
+                eventsForDay.push(virtualEvent);
+              }
+            });
           }
         } catch (error) {
           console.error("Error processing recurring event in mobile:", error);
-          console.error("Evento problematico:", event);
         }
       }
     });
@@ -437,9 +441,9 @@ const MobileCalendarApp = () => {
   const handleEventClick = (eventData) => {
     console.log("Mobile - Evento cliccato:", eventData.title);
     
-    // Estraggo la ricorrenza se c'è (stessa logica del desktop)
+    // Estraggo la ricorrenza se c'è (solo per eventi e pomodoro, NON per attività)
     let recurrenceValue = "";
-    if (eventData.extendedProps && eventData.extendedProps.recurrenceRule) {
+    if (eventData.extendedProps && eventData.extendedProps.recurrenceRule && eventData.extendedProps.type !== "activity") {
       let freqMatch = eventData.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
       if (freqMatch && freqMatch[1]) {
         recurrenceValue = freqMatch[1].toLowerCase();
@@ -447,8 +451,13 @@ const MobileCalendarApp = () => {
       }
     }
 
-    let start = eventData.start || new Date();
-    let end = eventData.end || new Date(start.getTime() + 3600000);
+    // Validazione delle date
+    let start = eventData.start && !isNaN(new Date(eventData.start).getTime()) 
+      ? new Date(eventData.start) 
+      : new Date();
+    let end = eventData.end && !isNaN(new Date(eventData.end).getTime()) 
+      ? new Date(eventData.end) 
+      : new Date(start.getTime() + 3600000);
 
     // Preparo i dati per il modal
     let eventForModal = {
@@ -456,25 +465,32 @@ const MobileCalendarApp = () => {
       title: eventData.title || "",
       type: eventData.extendedProps?.type || "event",
       location: eventData.extendedProps?.location || "",
-      recurrenceRule: recurrenceValue, // Usa la ricorrenza estratta
+      recurrenceRule: eventData.extendedProps?.type === "activity" ? "" : recurrenceValue, // Nessuna ricorrenza per le attività
       description: eventData.extendedProps?.description || "",
       alarm: eventData.extendedProps?.alarm || {
         earlyness: 15,
         repeat_times: 1,
-        repeat_every: 0
+        repeat_every: 0,
+        enabled: false
       }
     };
 
-    // Aggiungo le proprietà specifiche per ogni tipo (stessa logica del desktop)
+    // Aggiungo le proprietà specifiche per ogni tipo
     if (eventForModal.type === "activity") {
       // Per le attività ricorrenti, usa la data dell'occorrenza cliccata
       if (eventData.isRecurringInstance) {
         eventForModal.activityDate = start; // Usa la data dell'occorrenza specifica
       } else {
-        eventForModal.activityDate = eventData.extendedProps?.activityDate
+        // Validazione della data dell'attività
+        const activityDateValue = eventData.extendedProps?.activityDate && !isNaN(new Date(eventData.extendedProps.activityDate).getTime())
           ? new Date(eventData.extendedProps.activityDate)
           : start;
+        eventForModal.activityDate = activityDateValue;
       }
+      // Per le attività, semplifica l'alarm a solo enabled/disabled
+      eventForModal.alarm = {
+        enabled: eventData.extendedProps?.alarm ? eventData.extendedProps.alarm.enabled || false : false
+      };
       console.log("Mobile - Modifico attività per il", eventForModal.activityDate.toDateString());
     } else if (eventForModal.type === "pomodoro") {
       eventForModal.pomodoro = eventData.extendedProps?.pomodoro || {
@@ -509,15 +525,36 @@ const MobileCalendarApp = () => {
       return;
     }
 
+    // Validazione date per evitare errori
+    if (newEvent.type !== "activity") {
+      if (!newEvent.start || isNaN(new Date(newEvent.start).getTime())) {
+        alert("Data di inizio non valida!");
+        return;
+      }
+      if (!newEvent.end || isNaN(new Date(newEvent.end).getTime())) {
+        alert("Data di fine non valida!");
+        return;
+      }
+      if (new Date(newEvent.start) >= new Date(newEvent.end)) {
+        alert("La data di fine deve essere successiva alla data di inizio!");
+        return;
+      }
+    } else {
+      if (!newEvent.activityDate || isNaN(new Date(newEvent.activityDate).getTime())) {
+        alert("Data dell'attività non valida!");
+        return;
+      }
+    }
+
     // Scelgo URL e metodo in base se sto creando o modificando
     let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
     let method = isEditing ? "PUT" : "POST";
 
-    // Gestisco la ricorrenza con la stessa logica del desktop
+    // Gestisco la ricorrenza SOLO per eventi e pomodoro, NON per le attività
     let rruleString = null;
-    if ((newEvent.type === "event" || newEvent.type === "activity") && newEvent.recurrenceRule) {
+    if (newEvent.type !== "activity" && newEvent.recurrenceRule) {
       try {
         console.log("Creo ricorrenza mobile per:", newEvent.recurrenceRule);
         
@@ -532,19 +569,19 @@ const MobileCalendarApp = () => {
         let freq = frequencyMap[newEvent.recurrenceRule];
         
         if (freq !== undefined) {
-          let startDate = newEvent.type === "activity" 
-            ? (newEvent.activityDate || new Date()) 
-            : (newEvent.start || new Date());
+          let startDate = newEvent.start || new Date();
           
-          // FIX: Crea sempre la data in UTC per evitare problemi di timezone (stesso del desktop)
-          let year = startDate.getFullYear();
-          let month = startDate.getMonth();
-          let day = startDate.getDate();
-          let hour = newEvent.type === "activity" ? 12 : startDate.getHours(); // Usa mezzogiorno per le attività
-          let minute = newEvent.type === "activity" ? 0 : startDate.getMinutes();
+          // Validazione della data per RRule
+          if (isNaN(new Date(startDate).getTime())) {
+            alert("Data non valida per la ricorrenza!");
+            return;
+          }
           
-          // Crea la data direttamente in UTC
-          let rruleDate = new Date(Date.UTC(year, month, day, hour, minute, 0, 0));
+          // Crea la data senza problemi di timezone
+          let rruleDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+          
+          // Per gli eventi, mantieni l'ora originale
+          rruleDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
           
           let rruleOptions = {
             freq: freq,
@@ -553,7 +590,7 @@ const MobileCalendarApp = () => {
           
           // Per le ricorrenze settimanali, specifica il giorno (stesso del desktop)
           if (newEvent.recurrenceRule === 'weekly') {
-            let jsDay = new Date(year, month, day).getDay(); // Usa data locale per determinare il giorno
+            let jsDay = rruleDate.getDay(); // Giorno in formato JavaScript
             let rruleDay;
             
             switch(jsDay) {
@@ -573,7 +610,7 @@ const MobileCalendarApp = () => {
           
           let rruleObj = new RRule(rruleOptions);
           rruleString = rruleObj.toString();
-          console.log("Mobile - RRule creata (UTC):", rruleString);
+          console.log("Mobile - RRule creata:", rruleString);
           
         } else {
           console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
@@ -587,7 +624,7 @@ const MobileCalendarApp = () => {
       }
     }
 
-    // Preparo i dati per il server (resto uguale)
+    // Preparo i dati per il server
     let eventData = {
       title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
       description: newEvent.description || "",
@@ -597,26 +634,49 @@ const MobileCalendarApp = () => {
     };
 
     // Aggiungo i campi specifici per ogni tipo
-    if (newEvent.type === "activity") {
-      eventData.activityDate = (newEvent.activityDate || new Date()).toISOString();
-      eventData.recurrenceRule = rruleString; // Usa la nuova logica
-      console.log("Mobile - Dati attività:", eventData.activityDate, eventData.recurrenceRule);
-    } else if (newEvent.type === "pomodoro") {
-      eventData.pomodoro = newEvent.pomodoro.title || "";
-      eventData.start = (newEvent.start || new Date()).toISOString();
-      eventData.end = (newEvent.end || new Date(Date.now() + 25 * 60000)).toISOString();
-      console.log("Mobile - Dati pomodoro:", eventData.pomodoro);
-    } else {
-      eventData.start = (newEvent.start || new Date()).toISOString();
-      eventData.end = (newEvent.end || new Date(Date.now() + 3600000)).toISOString();
-      eventData.recurrenceRule = rruleString; // Usa la nuova logica
-      console.log("Mobile - Dati evento:", eventData.start, "-", eventData.end);
+    switch(newEvent.type) {
+      case "activity":
+        let activityDate = newEvent.activityDate || new Date();
+        // Validazione finale della data dell'attività
+        if (isNaN(new Date(activityDate).getTime())) {
+          alert("Data dell'attività non valida!");
+          return;
+        }
+        eventData.activityDate = new Date(activityDate).toISOString();
+        // NON inviare recurrenceRule per le attività
+        break;
+      case "pomodoro":
+        eventData.pomodoro = newEvent.pomodoro.title || "";
+        let pomodoroStart = newEvent.start || new Date();
+        let pomodoroEnd = newEvent.end || new Date(Date.now() + 25 * 60000);
+        // Validazione date pomodoro
+        if (isNaN(new Date(pomodoroStart).getTime()) || isNaN(new Date(pomodoroEnd).getTime())) {
+          alert("Date del pomodoro non valide!");
+          return;
+        }
+        eventData.start = new Date(pomodoroStart).toISOString();
+        eventData.end = new Date(pomodoroEnd).toISOString();
+        eventData.recurrenceRule = rruleString;
+        break;
+      case "event":
+      default:
+        let eventStart = newEvent.start || new Date();
+        let eventEnd = newEvent.end || new Date(Date.now() + 3600000);
+        // Validazione date evento
+        if (isNaN(new Date(eventStart).getTime()) || isNaN(new Date(eventEnd).getTime())) {
+          alert("Date dell'evento non valide!");
+          return;
+        }
+        eventData.start = new Date(eventStart).toISOString();
+        eventData.end = new Date(eventEnd).toISOString();
+        eventData.recurrenceRule = rruleString;
+        break;
     }
 
     if (isEditing) eventData._id = newEvent.id;
     console.log("Mobile - Invio dati al server:", eventData);
 
-    // Invio la richiesta al server (resto uguale)
+    // Invio la richiesta al server
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -696,7 +756,8 @@ const MobileCalendarApp = () => {
       alarm: {
         earlyness: 15,
         repeat_times: 1,
-        repeat_every: 0
+        repeat_every: 0,
+        enabled: false // Aggiunto campo enabled
       }
     });
     setIsEditing(false);

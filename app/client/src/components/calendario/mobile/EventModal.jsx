@@ -43,14 +43,68 @@ const EventModal = ({
 
   // Funzione per gestire il cambio della data di inizio
   const handleStartChange = (e) => {
-    let newStart = new Date(e.target.value);
+    let value = e.target.value;
+    
+    // Controllo se il valore è vuoto o non valido
+    if (!value || value === "") {
+      console.log("Data inizio vuota, uso data corrente");
+      setSelectedEvent(prev => ({ ...prev, start: new Date() }));
+      return;
+    }
+    
+    // Controllo se la data è valida
+    let newStart = new Date(value);
+    if (isNaN(newStart.getTime())) {
+      console.log("Data inizio non valida, uso data corrente");
+      setSelectedEvent(prev => ({ ...prev, start: new Date() }));
+      return;
+    }
+    
     setSelectedEvent(prev => ({ ...prev, start: newStart }));
   };
 
   // Funzione per gestire il cambio della data di fine
   const handleEndChange = (e) => {
-    let newEnd = new Date(e.target.value);
+    let value = e.target.value;
+    
+    // Controllo se il valore è vuoto o non valido
+    if (!value || value === "") {
+      console.log("Data fine vuota, uso data corrente + 1 ora");
+      setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
+      return;
+    }
+    
+    // Controllo se la data è valida
+    let newEnd = new Date(value);
+    if (isNaN(newEnd.getTime())) {
+      console.log("Data fine non valida, uso data corrente + 1 ora");
+      setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
+      return;
+    }
+    
     setSelectedEvent(prev => ({ ...prev, end: newEnd }));
+  };
+
+  // Funzione per gestire il cambio della data dell'attività
+  const handleActivityDateChange = (e) => {
+    let value = e.target.value;
+    
+    // Controllo se il valore è vuoto o non valido
+    if (!value || value === "") {
+      console.log("Data attività vuota, uso data corrente");
+      setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
+      return;
+    }
+    
+    // Controllo se la data è valida
+    let newActivityDate = new Date(value);
+    if (isNaN(newActivityDate.getTime())) {
+      console.log("Data attività non valida, uso data corrente");
+      setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
+      return;
+    }
+    
+    setSelectedEvent(prev => ({ ...prev, activityDate: newActivityDate }));
   };
 
   // Funzione per gestire il cambio della location
@@ -60,33 +114,46 @@ const EventModal = ({
 
   // Funzione per gestire il cambio della descrizione
   const handleDescriptionChange = (e) => {
-    setSelectedEvent(prev => ({ ...prev, desc: e.target.value }));
+    setSelectedEvent(prev => ({ ...prev, description: e.target.value }));
   };
 
   // Funzione per abilitare/disabilitare l'allarme
   const toggleAlarm = (e) => {
     let isChecked = e.target.checked;
-    if (isChecked) {
-      // Attivo l'allarme con valori predefiniti
+    
+    // Per le attività, gestisci solo il campo enabled
+    if (selectedEvent?.type === "activity") {
       setSelectedEvent(prev => ({
         ...prev,
         alarm: {
           ...prev.alarm,
-          earlyness: 15,
-          repeat_times: 1
+          enabled: isChecked
         }
       }));
     } else {
-      // Disattivo l'allarme
-      setSelectedEvent(prev => ({
-        ...prev,
-        alarm: {
-          ...prev.alarm,
-          earlyness: 0,
-          repeat_times: 0,
-          repeat_every: 0
-        }
-      }));
+      // Per eventi e pomodoro, mantieni la logica esistente
+      if (isChecked) {
+        // Attivo l'allarme con valori predefiniti
+        setSelectedEvent(prev => ({
+          ...prev,
+          alarm: {
+            ...prev.alarm,
+            earlyness: 15,
+            repeat_times: 1
+          }
+        }));
+      } else {
+        // Disattivo l'allarme
+        setSelectedEvent(prev => ({
+          ...prev,
+          alarm: {
+            ...prev.alarm,
+            earlyness: 0,
+            repeat_times: 0,
+            repeat_every: 0
+          }
+        }));
+      }
     }
   };
 
@@ -128,11 +195,18 @@ const EventModal = ({
 
   // Funzione per formattare la data per l'input datetime-local
   const formatDateForInput = (date) => {
-    if (!date) return '';
+    if (!date || isNaN(new Date(date).getTime())) return '';
     let d = new Date(date);
     // Correggo il fuso orario
     let correctedDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return correctedDate.toISOString().slice(0, 16);
+  };
+
+  // Funzione per formattare la data per l'input date
+  const formatDateOnlyForInput = (date) => {
+    if (!date || isNaN(new Date(date).getTime())) return '';
+    let d = new Date(date);
+    return d.toISOString().slice(0, 10);
   };
 
   const FormField = ({ id, name, label, type, value, onChange, ...rest }) => (
@@ -147,39 +221,10 @@ const EventModal = ({
   );
 
   // Controllo se l'allarme è attivo
-  let isAlarmEnabled = (selectedEvent?.alarm?.earlyness > 0) || (selectedEvent?.alarm?.repeat_times > 0);
+  let isAlarmEnabled = selectedEvent?.type === "activity" 
+    ? selectedEvent?.alarm?.enabled 
+    : (selectedEvent?.alarm?.earlyness > 0) || (selectedEvent?.alarm?.repeat_times > 0);
   let shouldShowRepeatEvery = selectedEvent?.alarm?.repeat_times > 1;
-
-  // Add this function before the handleRecurringEvent function
-  const calculateEndDate = (eventData, clickedDate) => {
-    if (!eventData.start || !eventData.end) {
-      // If no original dates, default to 1 hour duration
-      return new Date(new Date(clickedDate).getTime() + 60 * 60 * 1000);
-    }
-    
-    // Calculate the original duration
-    const originalStart = new Date(eventData.start);
-    const originalEnd = new Date(eventData.end);
-    const duration = originalEnd.getTime() - originalStart.getTime();
-    
-    // Apply the same duration to the clicked date
-    return new Date(new Date(clickedDate).getTime() + duration);
-  };
-
-  // Funzione per gestire eventi ricorrenti
-  const handleRecurringEvent = (eventData, clickedDate) => {
-    if (eventData.recurrenceRule && clickedDate) {
-      // Se questo è un evento ricorrente e abbiamo cliccato su un'occorrenza specifica
-      return {
-        ...eventData,
-        start: clickedDate, // Usa la data dell'occorrenza cliccata
-        end: calculateEndDate(eventData, clickedDate),
-        isRecurringInstance: true,
-        originalEventId: eventData._id
-      };
-    }
-    return eventData;
-  };
 
   // Aggiungi questa funzione per gestire il cambio di ricorrenza
   const handleRecurrenceChange = (e) => {
@@ -241,31 +286,47 @@ const EventModal = ({
                 />
               </div>
 
-              {/* Date di inizio e fine */}
-              <div className={styles.dateTimeGrid}>
+              {/* Date di inizio e fine - diverse per attività vs eventi */}
+              {selectedEvent?.type === "activity" ? (
+                // Attività: solo la data senza ora
                 <div>
                   <label className={styles.label}>
-                    Inizio
+                    Data Attività
                   </label>
                   <input
-                    type="datetime-local"
-                    value={formatDateForInput(selectedEvent?.start)}
-                    onChange={handleStartChange}
+                    type="date"
+                    value={formatDateOnlyForInput(selectedEvent?.activityDate)}
+                    onChange={handleActivityDateChange}
                     className={styles.textInput}
                   />
                 </div>
-                <div>
-                  <label className={styles.label}>
-                    Fine
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={formatDateForInput(selectedEvent?.end)}
-                    onChange={handleEndChange}
-                    className={styles.textInput}
-                  />
+              ) : (
+                // Eventi normali: data e ora di inizio e fine
+                <div className={styles.dateTimeGrid}>
+                  <div>
+                    <label className={styles.label}>
+                      Inizio
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={formatDateForInput(selectedEvent?.start)}
+                      onChange={handleStartChange}
+                      className={styles.textInput}
+                    />
+                  </div>
+                  <div>
+                    <label className={styles.label}>
+                      Fine
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={formatDateForInput(selectedEvent?.end)}
+                      onChange={handleEndChange}
+                      className={styles.textInput}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Location */}
               <div>
@@ -287,7 +348,7 @@ const EventModal = ({
                   Descrizione
                 </label>
                 <textarea
-                  value={selectedEvent?.desc || ''}
+                  value={selectedEvent?.description || ''}
                   onChange={handleDescriptionChange}
                   className={styles.textareaInput}
                   rows="3"
@@ -295,8 +356,8 @@ const EventModal = ({
                 />
               </div>
 
-              {/* RICORRENZA - NUOVO CAMPO */}
-              {(selectedEvent?.type === "event" || selectedEvent?.type === "activity") && (
+              {/* RICORRENZA - solo per eventi normali, NON per attività */}
+              {selectedEvent?.type === "event" && (
                 <div>
                   <label className={styles.label}>
                     Ricorrenza
@@ -324,13 +385,51 @@ const EventModal = ({
                 <p>Seleziona un template pomodoro per creare la sessione di studio.</p>
               </div>
               
-              {/* Qui puoi aggiungere i campi specifici per pomodoro se necessario */}
-              {/* Come la selezione del template pomodoro dalla lista esistente */}
+              <SelectPomodoros newEvent={selectedEvent} setNewEvent={setSelectedEvent} />
+              
+              {selectedEvent.pomodoro?.studyTime && (
+                <FormField
+                  id="studyTime"
+                  name="studyTime"
+                  label="Tempo di Studio (min)"
+                  type="number"
+                  value={selectedEvent.pomodoro.studyTime || 0}
+                  onChange={handleInputChange}
+                  disabled={true}
+                />
+              )}
+              {selectedEvent.pomodoro?.breakTime && (
+                <FormField
+                  id="breakTime"
+                  name="breakTime"
+                  label="Tempo di Pausa (min)"
+                  type="number"
+                  value={selectedEvent.pomodoro.breakTime || 0}
+                  onChange={handleInputChange}
+                  disabled={true}
+                />
+              )}
+              {selectedEvent.pomodoro?.cycles && (
+                <FormField
+                  id="cycles"
+                  name="cycles"
+                  label="Numero di Cicli"
+                  type="number"
+                  value={selectedEvent.pomodoro.cycles || 0}
+                  onChange={handleInputChange}
+                  disabled={true}
+                  min="1"
+                />
+              )}
+              
+              <Link to={"/pomodoro"} state={selectedEvent?.pomodoro} className={styles.linkButton}>
+                Vai al Pomodoro
+              </Link>
             </div>
           )}
 
           {/* Impostazioni allarme (solo se non è un pomodoro) */}
-          {selectedEvent?.type !== "pomodoro" ? (
+          {selectedEvent?.type !== "pomodoro" && (
             <div className={styles.alarmGroup}>
               <div className={styles.alarmCheckbox}>
                 <input
@@ -344,8 +443,8 @@ const EventModal = ({
                 </label>
               </div>
 
-              {/* Mostro le impostazioni dell'allarme solo se è attivato */}
-              {isAlarmEnabled && (
+              {/* Mostro le impostazioni dell'allarme solo se è attivato e NON per le attività */}
+              {isAlarmEnabled && selectedEvent?.type !== "activity" && (
                 <div className={styles.alarmSettings}>
                   <div>
                     <label className={styles.label}>
@@ -402,40 +501,6 @@ const EventModal = ({
                   )}
                 </div>
               )}
-            </div>
-          ) : (
-            <div>
-              <SelectPomodoros newEvent = {selectedEvent} setNewEvent = {setSelectedEvent}></SelectPomodoros>
-                <FormField
-                  id="studyTime"
-                  name="studyTime"
-                  label="studyTime"
-                  type="number"
-                  value={selectedEvent.pomodoro.studyTime || 0}
-                  onChange={handleInputChange}
-                  required
-                />
-                <FormField
-                  id="breakTime"
-                  name="breakTime"
-                  label="breakTime"
-                  type="number"
-                  value={selectedEvent.pomodoro.breakTime || 0}
-                  onChange={handleInputChange}
-                  required
-                />
-                <FormField
-                  id="cycles"
-                  name="cycles"
-                  label="cycles"
-                  type="number"
-                  value={selectedEvent.pomodoro.cycles || 0}
-                  onChange={handleInputChange}
-                  min="1"
-                  required
-                />
-        
-                <Link to={"/pomodoro"} state={selectedEvent?.pomodoro} className={styles.linkButton}>Visit Pomodoro</Link>
             </div>
           )}
         </div>

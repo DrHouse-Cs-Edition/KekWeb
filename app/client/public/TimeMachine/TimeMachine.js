@@ -81,7 +81,7 @@ class TimeMachine extends HTMLElement {
       const json = await res.json();
       if (json.success) {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
-        const localDate = this.dateformat(new Date(json.date));
+        const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
       }
     } catch (err) {
