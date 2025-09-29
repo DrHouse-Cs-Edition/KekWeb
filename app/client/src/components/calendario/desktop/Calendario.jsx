@@ -234,13 +234,13 @@ export default function CalendarApp() {
       },
       activityDate: date,
       start: date,
-      end: new Date(date.getTime() + 60 * 60 * 1000), // +1 ora
+      end: new Date(date.getTime() + 60 * 60 * 1000),
       location: "",
       recurrenceRule: "",
       description: "",
       alarm: {
-        earlyness: 15,
-        repeat_times: 1,
+        earlyness: 0,
+        repeat_times: 0,
         repeat_every: 0,
         enabled: false
       }
@@ -287,10 +287,11 @@ export default function CalendarApp() {
       recurrenceRule: event.type === "activity" ? "" : recurrence,
       description: event.description || "",
       alarm: {
-        earlyness: event.alarm?.earlyness || 15,
-        repeat_times: event.alarm?.repeat_times || 1,
+        earlyness: event.alarm?.earlyness || 0,
+        repeat_times: event.alarm?.repeat_times || 0,
         repeat_every: event.alarm?.repeat_every || 0,
-        enabled: Boolean(event.alarm?.enabled)
+        // Consider enabled if any alarm value > 0
+        enabled: (event.alarm?.earlyness > 0) || (event.alarm?.repeat_times > 0)
       }
     };
     
@@ -305,7 +306,10 @@ export default function CalendarApp() {
         eventData.activityDate = activityDateValue;
         // Per le attività, solo enabled/disabled
         eventData.alarm = {
-          enabled: event.alarm ? event.alarm.enabled || false : false
+          earlyness: event.alarm?.earlyness || 0,
+          repeat_times: event.alarm?.repeat_times || 0,
+          repeat_every: event.alarm?.repeat_every || 0,
+          enabled: (event.alarm?.earlyness > 0) || (event.alarm?.repeat_times > 0)
         };
         break;
       case "pomodoro":

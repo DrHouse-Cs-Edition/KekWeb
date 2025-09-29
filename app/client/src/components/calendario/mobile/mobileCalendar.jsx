@@ -415,8 +415,8 @@ const MobileCalendarApp = () => {
       recurrenceRule: "",
       description: "",
       alarm: {
-        earlyness: 15,
-        repeat_times: 1,
+        earlyness: 0,
+        repeat_times: 0,
         repeat_every: 0,
         enabled: false
       }
@@ -451,11 +451,12 @@ const MobileCalendarApp = () => {
       location: eventData.extendedProps?.location || "",
       recurrenceRule: eventData.extendedProps?.type === "activity" ? "" : recurrenceValue,
       description: eventData.extendedProps?.description || "",
-      alarm: eventData.extendedProps?.alarm || {
-        earlyness: 15,
-        repeat_times: 1,
-        repeat_every: 0,
-        enabled: false
+      alarm: {
+        earlyness: eventData.extendedProps?.alarm?.earlyness || 0,
+        repeat_times: eventData.extendedProps?.alarm?.repeat_times || 0,
+        repeat_every: eventData.extendedProps?.alarm?.repeat_every || 0,
+        // Considera enabled se qualche valore dell'allerta è > 0
+        enabled: (eventData.extendedProps?.alarm?.earlyness > 0) || (eventData.extendedProps?.alarm?.repeat_times > 0)
       }
     };
 
@@ -470,7 +471,10 @@ const MobileCalendarApp = () => {
         eventForModal.activityDate = activityDateValue;
       }
       eventForModal.alarm = {
-        enabled: eventData.extendedProps?.alarm ? eventData.extendedProps.alarm.enabled || false : false
+        earlyness: eventData.extendedProps?.alarm?.earlyness || 0,
+        repeat_times: eventData.extendedProps?.alarm?.repeat_times || 0,
+        repeat_every: eventData.extendedProps?.alarm?.repeat_every || 0,
+        enabled: (eventData.extendedProps?.alarm?.earlyness > 0) || (eventData.extendedProps?.alarm?.repeat_times > 0)
       };
     } else if (eventForModal.type === "pomodoro") {
       eventForModal.pomodoro = eventData.extendedProps?.pomodoro || {

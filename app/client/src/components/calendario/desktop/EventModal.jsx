@@ -326,13 +326,29 @@ const FormField = ({ id, name, label, type, value, onChange, disabled = false, .
 // Componente per gestire le impostazioni dell'allarme
 const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
   const handleAlarmToggle = (enabled) => {
-    setNewEvent(prev => ({
-      ...prev,
-      alarm: {
-        ...prev.alarm,
-        enabled: enabled
-      }
-    }));
+    if (enabled) {
+      // Enable alarm with default values
+      setNewEvent(prev => ({
+        ...prev,
+        alarm: {
+          earlyness: 15,
+          repeat_times: 1,
+          repeat_every: 0,
+          enabled: true
+        }
+      }));
+    } else {
+      // Disable alarm by setting all values to 0
+      setNewEvent(prev => ({
+        ...prev,
+        alarm: {
+          earlyness: 0,
+          repeat_times: 0,
+          repeat_every: 0,
+          enabled: false
+        }
+      }));
+    }
   };
 
   const handleAlarmChange = (field, value) => {
@@ -345,7 +361,8 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
     }));
   };
 
-  const isAlarmEnabled = alarm?.enabled === true || alarm?.enabled === "true";
+  // Check if alarm is enabled (earlyness > 0 OR enabled === true)
+  const isAlarmEnabled = alarm?.enabled === true || (alarm?.earlyness > 0);
 
   return (
     <>
