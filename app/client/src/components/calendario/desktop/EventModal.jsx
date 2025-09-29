@@ -556,7 +556,7 @@ useEffect(()=>{
       : newEvent.pomodoro?.title || "" // If it's an object or null/undefined
     } >
       <option value="" className={styles.initialOption}>
-        select a pomodoro
+        Seleziona un pomodoro
       </option>
       {pomodoroOptions.map(el =>(
         <option value={el.title} key={el.title} {...newEvent?.pomodoro?.title === el.title ? "selected" : ""}>
