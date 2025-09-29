@@ -629,7 +629,16 @@ const MobileCalendarApp = () => {
         }
         eventData.start = new Date(pomodoroStart).toISOString();
         eventData.end = new Date(pomodoroEnd).toISOString();
+        eventData.activityDate = new Date(pomodoroStart).toISOString();
         eventData.recurrenceRule = rruleString;
+        // Salva anche il pomodoro object completo per compatibilità
+        eventData.pomodoroData = {
+          _id: newEvent.pomodoro._id,
+          title: newEvent.pomodoro.title,
+          studyTime: newEvent.pomodoro.studyTime,
+          breakTime: newEvent.pomodoro.breakTime,
+          cycles: newEvent.pomodoro.cycles
+        };
         break;
       case "event":
       default:
