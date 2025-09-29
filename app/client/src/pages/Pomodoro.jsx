@@ -151,17 +151,18 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
                                 if(cyclesLeft <= 1 ){ //set to 1 because of latency from useState
                                     clearTimeout(pomodoroInterval); //immediate clear of Cycles
                                     setRunTimer(0);
+                                    alert("Pomodoro Terminato!")
                                     newPomodoro();
                                 }else{
                                     setSeconds(0);
                                     setMinutes(Math.trunc(StudyTime%60));
-                                    alert("ugh, back to studying huh?");
+                                    alert("ugh, si ritorna allo studio huh?");
                                     setCyclesLeft(x);
                                 }
                             } else{ //study timer ended, initializing break timer
                                 setSeconds(0);
                                 setMinutes(Math.trunc(BreakTime%60));
-                                alert("Time for a break!");
+                                alert("Era ora, una bella pausa!");
                             }
                             updateCurTimer (curTimer => curTimer ^ 1);
                             }else
