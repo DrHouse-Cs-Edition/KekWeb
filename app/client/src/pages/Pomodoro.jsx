@@ -82,7 +82,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
       passTimeData(studyT, breakT, cycles);
       setPomodoroId(id);
       setPomodoroTitle(title);
-      console.log("data recieved: ", id, title, studyT, breakT, cycles);
     }
 
     function serverSideUpdateCycles(x){
@@ -104,7 +103,6 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
     //Funtction used to render data recieved from another page, by checking the location state
     useEffect( ()=>{
-        console.log("location is: ", location);
         if(location?.state){
             // switch (location.state.source){
             //     case  "":
@@ -243,7 +241,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         .then(()=>{
             alert("pomodoro aggiornato")
         })
-        .catch(error => {console.log(" Pomodoro.onSubmit: error is " + error);
+        .catch(error => {
             alert("errore nell'aggiornamento del pomdoro")
         });
         return;
@@ -267,14 +265,14 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
             alert("pomodoro creato");
         })
         .then(window.location.reload())
-        .catch(error => {console.log(" Timer.onSubmit: error is " + error)
+        .catch(error => {
             alert("errore nella creazione del pomodoro" + error)
         });
     }
     
     //*FUNCTION CALLAED WHENE THE USER ATTEMPTED A POMODORO SAVE BUT WAS UNSUCCESFULL
     const onError = ()=>{
-        console.log("error in saving the pomodoro detected");
+        alert("error in saving the pomodoro detected");
     }
 
     //* primo div era Pomodoro

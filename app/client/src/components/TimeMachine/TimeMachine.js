@@ -70,7 +70,6 @@ class TimeMachine extends HTMLElement {
     this.shadowRoot.getElementById("submit").addEventListener("click", () => this.submitTM());
 
     this.shadowRoot.getElementById("reset").onclick = () => this.reset();
-    // setInterval(() => {console.log("date click"); this.getDate();}, 10000); // ogni 10000 ms = 10 s
   };
 
   async submitTM() {
@@ -91,7 +90,6 @@ class TimeMachine extends HTMLElement {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("submit done");
       }
       else{
         console.log("sucess submit = false");
@@ -112,7 +110,7 @@ class TimeMachine extends HTMLElement {
         alert("Data resettata al valore normale");
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("reset done");
+
       }
       else{
         console.log("sucess reset = false");
@@ -123,12 +121,7 @@ class TimeMachine extends HTMLElement {
   }
 
   async getDate(){
-    /*
-    const newSubmitNode = this.shadowRoot.getElementById("submit");
-    console.log("submitNode attuale:", newSubmitNode);
-    console.log(submitNode === newSubmitNode);*/
     const submitBtn = this.shadowRoot.getElementById("submit");
-    console.log("submit disabled?", submitBtn.disabled);
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
         method: "GET",
@@ -139,7 +132,6 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("date set");
       }
       else{
         console.log("sucess getDate = false");

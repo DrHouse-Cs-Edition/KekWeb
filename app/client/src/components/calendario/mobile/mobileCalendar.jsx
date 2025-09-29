@@ -72,7 +72,6 @@ const MobileCalendarApp = () => {
 
   // Funzione per caricare tutti gli eventi dal server
   const loadAllEvents = () => {
-    console.log("Carico tutti gli eventi dal server...");
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
       credentials: "include", // Per i cookie di autenticazione
@@ -80,11 +79,9 @@ const MobileCalendarApp = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          console.log("Eventi ricevuti dal server:", data.list.length);
           
           // Trasformo gli eventi per il calendario mobile
           let eventsForMobile = data.list.map((event) => {
-            console.log("Elaboro evento:", event.title, "tipo:", event.type);
             
             let eventObj = {
               id: event._id,
@@ -113,28 +110,24 @@ const MobileCalendarApp = () => {
               eventObj.allDay = true;
               eventObj.backgroundColor = "#4285F4";
               eventObj.color = "#4285F4";
-              console.log("Attività creata per il", actDate.toDateString());
             } else if (event.type === "pomodoro") {
               // I pomodoro durano 25 minuti e sono rossi
               eventObj.start = event.start ? new Date(event.start) : serverDate;
               eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 25 * 60000);
               eventObj.backgroundColor = "#EA4335";
               eventObj.color = "#EA4335";
-              console.log("Pomodoro creato:", eventObj.start, "-", eventObj.end);
             } else {
               // Gli eventi normali hanno durata personalizzata e sono blu scuri
               eventObj.start = event.start ? new Date(event.start) : serverDate;
               eventObj.end = event.end ? new Date(event.end) : new Date(eventObj.start.getTime() + 3600000); // Default 1 ora
               eventObj.backgroundColor = "#3174ad";
               eventObj.color = "#3174ad";
-              console.log("Evento normale creato:", eventObj.start, "-", eventObj.end);
             }
 
             return eventObj;
           });
           
           setEvents(eventsForMobile);
-          console.log("Eventi pronti per il calendario:", eventsForMobile.length);
         } else {
           console.log("Nessun evento trovato");
         }
@@ -227,15 +220,6 @@ const MobileCalendarApp = () => {
           
           const occurrences = rrule.between(startOfDayUTC, endOfDayUTC, true);
           
-          // Debug per vedere cosa sta succedendo
-          if (event.title === "prova") {
-            console.log(`Controllo evento mobile "${event.title}" per ${date.toDateString()}:`);
-            console.log("- Data target UTC:", targetDateUTC.toISOString());
-            console.log("- Range UTC:", startOfDayUTC.toISOString(), "->", endOfDayUTC.toISOString());
-            console.log("- Occorrenze trovate:", occurrences.length);
-            console.log("- RRule originale:", event.extendedProps.recurrenceRule);
-          }
-          
           if (occurrences.length > 0) {
             // Per ogni occorrenza, controlla se l'evento si estende su più giorni
             occurrences.forEach(occurrence => {
@@ -292,7 +276,6 @@ const MobileCalendarApp = () => {
 
   // Navigazione basata sulla modalità di visualizzazione
   const navigateDate = (direction) => {
-    console.log("Navigo di", direction > 0 ? "avanti" : "indietro", "in modalità", viewMode);
     
     setCurrentDate(prev => {
       let newDate = new Date(prev);
@@ -403,13 +386,11 @@ const MobileCalendarApp = () => {
 
   // Quando clicco su una data nel calendario
   const handleDateSelect = (date) => {
-    console.log("Data selezionata:", date.toDateString());
     setSelectedDate(date); // Aggiorno la data selezionata
   };
 
   // Quando clicco sul bottone + per aggiungere un evento
   const handleNewEventButtonClick = () => {
-    console.log("Creo nuovo evento per il", selectedDate.toDateString());
     setIsEditing(false); // Non sto modificando, sto creando
     setNewEvent({ 
       id: uuidv4(), // Genero un ID casuale
@@ -439,7 +420,6 @@ const MobileCalendarApp = () => {
 
   // Quando clicco su un evento esistente per modificarlo
   const handleEventClick = (eventData) => {
-    console.log("Mobile - Evento cliccato:", eventData.title);
     
     // Estraggo la ricorrenza se c'è (solo per eventi e pomodoro, NON per attività)
     let recurrenceValue = "";
@@ -447,7 +427,6 @@ const MobileCalendarApp = () => {
       let freqMatch = eventData.extendedProps.recurrenceRule.match(/FREQ=([A-Z]+)/);
       if (freqMatch && freqMatch[1]) {
         recurrenceValue = freqMatch[1].toLowerCase();
-        console.log("Mobile - Ricorrenza trovata:", recurrenceValue);
       }
     }
 
@@ -491,7 +470,6 @@ const MobileCalendarApp = () => {
       eventForModal.alarm = {
         enabled: eventData.extendedProps?.alarm ? eventData.extendedProps.alarm.enabled || false : false
       };
-      console.log("Mobile - Modifico attività per il", eventForModal.activityDate.toDateString());
     } else if (eventForModal.type === "pomodoro") {
       eventForModal.pomodoro = eventData.extendedProps?.pomodoro || {
           title: "",
@@ -502,12 +480,10 @@ const MobileCalendarApp = () => {
       // Per i pomodori ricorrenti, usa l'orario dell'occorrenza cliccata
       eventForModal.start = start; // Usa l'orario dell'occorrenza specifica
       eventForModal.end = end;     // Usa l'orario di fine calcolato per questa occorrenza
-      console.log("Mobile - Modifico pomodoro:", eventForModal.start, "-", eventForModal.end);
     } else {
       // Per gli eventi normali, usa l'orario dell'occorrenza cliccata
       eventForModal.start = start; // Sarà la data/ora dell'occorrenza specifica
       eventForModal.end = end;     // Sarà la fine calcolata per questa occorrenza
-      console.log("Mobile - Modifico evento normale:", start, "-", end);
     }
 
     setIsEditing(true); // Sto modificando
@@ -517,7 +493,6 @@ const MobileCalendarApp = () => {
 
   // Salvo l'evento (nuovo o modificato)
   const handleSaveEvent = () => {
-    console.log("Salvo evento mobile:", newEvent.title, "tipo:", newEvent.type);
     
     // Controllo che ci sia un titolo (tranne per i pomodoro)
     if (!newEvent.title && newEvent.type !== "pomodoro") {
@@ -556,7 +531,6 @@ const MobileCalendarApp = () => {
     let rruleString = null;
     if (newEvent.type !== "activity" && newEvent.recurrenceRule) {
       try {
-        console.log("Creo ricorrenza mobile per:", newEvent.recurrenceRule);
         
         // Mappo le opzioni del dropdown (stesso del desktop)
         let frequencyMap = {
@@ -605,12 +579,10 @@ const MobileCalendarApp = () => {
             }
             
             rruleOptions.byweekday = [rruleDay];
-            console.log("Mobile - Giorno della settimana fissato:", jsDay, "->", rruleDay);
           }
           
           let rruleObj = new RRule(rruleOptions);
           rruleString = rruleObj.toString();
-          console.log("Mobile - RRule creata:", rruleString);
           
         } else {
           console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
@@ -674,7 +646,6 @@ const MobileCalendarApp = () => {
     }
 
     if (isEditing) eventData._id = newEvent.id;
-    console.log("Mobile - Invio dati al server:", eventData);
 
     // Invio la richiesta al server
     fetch(url, {
@@ -685,9 +656,7 @@ const MobileCalendarApp = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Mobile - Risposta server:", data);
         if (data.success) {
-          console.log("Mobile - Evento salvato con successo!");
           loadAllEvents(); // Ricarico tutti gli eventi
           setShowModal(false);
           resetForm();
@@ -708,17 +677,13 @@ const MobileCalendarApp = () => {
       return;
     }
     
-    console.log("Elimino evento:", newEvent.id);
-    
     fetch(`http://localhost:5000/api/events/remove/${newEvent.id}`, {
       method: "DELETE",
       credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Risposta eliminazione:", data);
         if (data.success) {
-          console.log("Evento eliminato!");
           loadAllEvents();
           setShowModal(false);
           resetForm();
@@ -735,7 +700,6 @@ const MobileCalendarApp = () => {
 
   // Resetto il form ai valori iniziali
   const resetForm = () => {
-    console.log("Resetto il form");
     setNewEvent({
       id: "",
       title: "",
@@ -782,7 +746,6 @@ const MobileCalendarApp = () => {
       day.setDate(startDate.getDate() + i);
       days.push(day);
     }
-    console.log("Giorni calcolati per il calendario:", days.length);
     return days;
   };
 

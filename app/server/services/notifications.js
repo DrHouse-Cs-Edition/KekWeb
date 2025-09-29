@@ -18,7 +18,7 @@ webpush.setVapidDetails(
 // gestione notifiche (2.0) disattivate per testing
 
 async function sendEmail(utente, evento, alertTime) {// MAIL V 2.0
-  console.log("PROVO MAIL");
+
   const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -36,7 +36,6 @@ async function sendEmail(utente, evento, alertTime) {// MAIL V 2.0
   
   try{
     await transporter.sendMail(mailOptions);
-    console.log("mail inviata? mail:" + utente.email)
   }
   catch(e){
     console.log("ERRORE!: "+e);
@@ -51,22 +50,20 @@ async function sendPush(evento, alertTime){
   const subscription = await Subscription.find( {user: evento.user} ).lean();
 
   subscription.forEach( async (sub) => {
-      console.log("subscription found!");
       try{
         await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload);
       }
       catch(err){ // se c'è errore (iscrizione client eliminata -> la elimino da DB)
-        console.log(err.statusCode);
         if (err.statusCode === 400 || err.statusCode === 403 || err.statusCode === 410 || err.statusCode === 404) { // se permesso scaduto
           try{
             await Subscription.deleteOne({_id: sub._id});
           }
           catch(e){
-            console.log(e.message);
+            console.err(e.message);
           };
         }
         else
-          console.log("Errore push:", err);
+          console.err("Errore push:", err);
       }
   });
 }
@@ -74,11 +71,9 @@ async function sendPush(evento, alertTime){
 async function notify(utente, evento, alertTime){
   const localDate = new Date(evento.nextAlarm);
   if(utente.notifications == "push"){
-      console.log("notifica push?");
       sendPush(evento, alertTime);
     }
   else if (utente.notifications == "email" && utente.email){
-    console.log("notifica mail?");
     sendEmail(utente, evento, alertTime);
   }
   // else if(utente.notifications == "disabled") { do nothing }
@@ -86,18 +81,14 @@ async function notify(utente, evento, alertTime){
 
 function getNextAlarm(event, now){
   let nextAlarm = null;
-
-  console.log("NOW: " + now);
   if(event.alarm && event.alarm.repeat_times > 0){
     // evento con rrule
     if (event.recurrenceRule){
-      console.log("RRULE")
       const rule = rrulestr(event.recurrenceRule);
       if (rule){ // possibile controllo se ricorrenza è finita?
         let next = rule.after(now);
         while (subMinutes(next, event.alarm.earlyness) < now){ // se abbiamo superato orario notifica -> vado avanti
           next = rule.after(next);
-          console.log("HA");
         }
         nextAlarm = subMinutes(next, event.alarm.earlyness);
       }
@@ -111,21 +102,18 @@ function getNextAlarm(event, now){
         nextAlarm = null; // per chiarezza, ma dovrebbe essere già null
     }
   }
-
-  console.log("NEXTALARM " + nextAlarm);
   return nextAlarm;
 }
 
 // aggiorna nextAlarm
 function updateAlarmAndGetNotificationTimes(event, now){
-  console.log("upd alarm")
   let notificationTimes = ``;
 
   do{
     notificationTimes = notificationTimes + ` ${event.nextAlarm.toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit' })} |`;
     event.repeated = event.repeated + 1;
     event.nextAlarm = addMinutes(event.nextAlarm, event.alarm.repeat_every);
-    console.log("one notification time update!");
+
   // per TM: se ho superato più ripetizioni, le unisco in un'unico messaggio (in tal caso fa dei loop, e no solo 1)
   }while( event.repeated < event.alarm.repeat_times // se devo ancora ripeterlo
     && addMinutes(event.nextAlarm, event.alarm.repeat_every) < now) // e la prossima sveglia è nel passato)
@@ -137,13 +125,13 @@ function updateAlarmAndGetNotificationTimes(event, now){
       const rule = rrulestr(event.recurrenceRule);
       if (rule){ // possibile controllo se ricorrenza è finita?
         const next = rule.after(now);
-        console.log("Da next")
+
         event.nextAlarm = subMinutes(next, event.alarm.earlyness);
         event.repeated = 0;
       }
     }
   }
-  console.log("next alarm: " + event.nextAlarm + "\n")
+
   return (notificationTimes);
 }
 
@@ -160,7 +148,6 @@ async function notifications(now){
   eventi.forEach(async (evento) => { // Invia notifiche
     
     const utente = await User.findById(evento.user).lean();
-    console.log("notifica individuata, evento:" + evento.title);
 
     // Segna come notificato o cambia data prossima notificas
     const alertTimes = updateAlarmAndGetNotificationTimes(evento,now); // aggiorna con prossima data alarm (e num repetizioni) + se uso TM mi da messaggio su tutte le volte che avrebbe dovuto suonare a quest'ora
@@ -181,11 +168,9 @@ async function timeTravelNotificationsUpdate(now){
   eventiRrule.forEach((event) => {
     const rule = rrulestr(event.recurrenceRule);
     if (rule){
-      console.log("rrule");
       const next = rule.after(now);
       // calcolo quando sarebbe prossima notifica con nuova data
       const alarmDate = subMinutes(next, event.alarm.earlyness);
-      console.log(alarmDate);
       operations.push({
         updateOne: {
           filter: { _id: event._id },
@@ -274,8 +259,6 @@ async function timeTravelNotificationsReset(now){
       });
     }
   })
-
-  console.log(res.matchedCount, res.modifiedCount);
 
   // invio tutte le operazioni in una sola volta
   if(operations.length > 0 )

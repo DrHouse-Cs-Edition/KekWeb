@@ -35,19 +35,16 @@ async function registerUser(data) {
         }).then(res => res.json())
         .then(json => {
             if(!json.success){
-                console.log("registration failed");
                 alert(json.message);
             }
             else{
                 alert("Utente creato correttamente");
             }
-            console.log("response to create user was ", json);
             return json;
         })
         .catch(error => console.error("error in registration: ", error));
     }catch(e){
         alert("Error when recording new user");
-        console.log("registration fetch error: ", e);
     }
 }
 
@@ -62,7 +59,7 @@ function Registration({updateToken}){
             updateToken(response);
             setUsername(data.username);
         }catch(e){
-            console.log("error in login form: ", e);
+            console.log("Errore nel form di login: ", e);
         }
     }
 
