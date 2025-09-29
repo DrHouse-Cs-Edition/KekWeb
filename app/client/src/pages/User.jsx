@@ -337,15 +337,15 @@ const User = ()=>{
 
     return(
     <div className={style.userBody}>
-        <h1 className={style.welcome}> Welcome to your home page {username} </h1>
+        <h1 className={style.welcome}> Benvenuto nella tua pagina utente {username} </h1>
         {
             !showForm ? userPage() : FullForm()
         }
 
         {!showForm ? 
-            <button onClick={()=>{setShowForm(1)}} className={style.Button}>Modify your data</button>
+            <button onClick={()=>{setShowForm(1)}} className={style.Button}>Modifica</button>
         :
-            <button onClick={()=>{setShowForm(0)}} className={style.Button}>Back to your home page</button>
+            <button onClick={()=>{setShowForm(0)}} className={style.Button}>Ritorna alla pagina utente</button>
         }
 
         <button onClick={logout} className={style.Button_logout}>Logout</button>

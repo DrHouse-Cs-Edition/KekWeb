@@ -52,7 +52,7 @@ const LoginPage = ({updateToken})=>{
                 password = null;
                 setUsername(username);
         }catch(e){
-            alert("login failed: check your credentials"); 
+            alert("accesso fallito: controlla le credenziali"); 
             // updateToken(null); ditched cause the presence of a token implies a logged in account
         }
     }
@@ -66,20 +66,20 @@ const LoginPage = ({updateToken})=>{
                     <Input label = {"username"}
                     type = "string"
                     id = "username"
-                    placeholder={"insert username"}
-                    validationMessage={"please enter your username"}
+                    placeholder={"inserisci username"}
+                    validationMessage={"per favore inserisci lo username"}
                     maxLenght={32}
                     ></Input>
 
                     <Input label = {"password"}
                     type= {showPassword ? "text" : "password"}
                     id={"password"}
-                    placeholder={"please insert your password"}
-                    validationMessage={"please enter your password"}
+                    placeholder={"Per favore inserisci la password"}
+                    validationMessage={"Per favore inserisci la password"}
                     minLenght={8}
                     ></Input>
                 <div className={style.buttonsDiv}>
-                    <button id="showPassowrdButton" className={style.loginButtons} type="button" onClick={alternateShowPassword }> {showPassword ? "Hide Password" :"Show Password"}</button>
+                    <button id="showPassowrdButton" className={style.loginButtons} type="button" onClick={alternateShowPassword }> {showPassword ? "Nascondi Password" :"Mostra password"}</button>
                     <button id="loginSend" type="submit" className={style.loginButtons} onClick={formMethods.handleSubmit(onSubmit)}>Login</button>
                 </div>
                     
