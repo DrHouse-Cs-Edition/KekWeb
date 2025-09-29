@@ -166,7 +166,7 @@ async function timeTravelNotificationsUpdate(now){
   // aggiorno orario di notifica per eventi con rrule
   const eventiRrule = await Event.find({ alarm: { $ne: null }, recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    if(alarm.repeat_times > 0){ // se richiede notifica
+    if(event.alarm  && event.alarm.repeat_times > 0){ // se richiede notifica
       const rule = rrulestr(event.recurrenceRule);
       if (rule){
         // calcolo quando sarebbe prossima notifica con nuova data (NOTA: PER TM non controllo che orario non sia ancora passato -> puo essere ne passato)
@@ -188,7 +188,7 @@ async function timeTravelNotificationsUpdate(now){
   // riattivo Alarm che dovrebbero suonare (se faccio viaggio nel passato)
   const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
-    if(alarm.repeat_times > 0){ // se richiede notifica
+    if(event.alarm && event.alarm.repeat_times > 0){ // se richiede notifica
       const alarmDate = subMinutes( event.start, event.alarm.earlyness);
       if( alarmDate >= now && alarmDate!=event.nextAlarm ){
         operations.push({
@@ -213,7 +213,7 @@ async function timeTravelNotificationsReset(now){
   // aggiorno orario di notifica per eventi con rrule
   const eventiRrule = await Event.find({ recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    if(alarm.repeat_times > 0){ // se richiede notifica
+    if(event.alarm  && event.alarm.repeat_times > 0){ // se richiede notifica
       const rule = rrulestr(event.recurrenceRule);
       if (rule){
         // calcolo prossima notifica

@@ -236,20 +236,14 @@ const User = ()=>{
         if ('serviceWorker' in navigator && 'PushManager' in window) { // serviceWorker = registra lo script di background | PushManager = crea il "canale" per inviare notifiche
             try{
                 // 0. controllo non ci sia già subscription
-                const reg = await navigator.serviceWorker.ready;
-                console.log("A 1/2");
-                const sub = await reg.pushManager.getSubscription();
-                if(sub){
-                    if(alertIfEnabled)
-                        alert("notifiche push già abilitate su questo dispositivo");
-                }
-                else{ // continua
+
+                { // continua
 
                     // 1. Richiesta permesso all'utente
                     const permission = await Notification.requestPermission();
                     if (permission !== 'granted') {
                         alert('Permesso negato!');
-                    return;
+                        return;
                     }
 
                     // 2. Registrazione Service Worker
