@@ -17,7 +17,7 @@ const TodoList = () => {
   });
   const [serverDate, setServerDate] = useState(new Date());
 
-  // Function to get server date from time machine API
+  // Ottiene la data dal server tramite API time machine
   const fetchServerDate = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
@@ -29,12 +29,12 @@ const TodoList = () => {
         return new Date(json.date);
       }
     } catch (error) {
-      console.error('Error fetching server date:', error);
+      console.error('Errore nel caricamento data server:', error);
     }
     return new Date();
   };
 
-  // Function to process and sort todos
+  // Elabora e ordina i todos in base all'urgenza e alle date
   const processAndSortTodos = (activities, currentDate) => {
     let processedTodos = activities.map(activity => {
       let calculatedUrgency = activity.urgencyLevel || 0;
@@ -88,7 +88,7 @@ const TodoList = () => {
     });
   };
 
-  // Function to load todos from backend
+  // Carica i todos dal backend
   const fetchTodos = async (useTimeMachine = false) => {
     try {
       let currentDate = serverDate;
@@ -120,12 +120,12 @@ const TodoList = () => {
     }
   };
 
-  // Initial load only
+  // Caricamento iniziale
   useEffect(() => {
     fetchTodos(true);
   }, []);
 
-  // Format date function
+  // Formatta la data per la visualizzazione
   const formatDate = (date) => {
     if (!date) return '';
     let activityDate = new Date(date);
@@ -152,7 +152,7 @@ const TodoList = () => {
     });
   };
 
-  // Toggle complete function
+  // Gestisce il toggle del completamento
   const toggleComplete = async (todoId, completed) => {
     if (!completed) {
       if (!window.confirm("Sei sicuro di voler segnare questa attività come completata?")) {
@@ -192,7 +192,7 @@ const TodoList = () => {
     }
   };
 
-  // Get urgency color - modificato per gestire attività senza data
+  // Determina il colore dell'urgenza
   const getUrgencyColor = (urgency, isOverdue, hasDate) => {
     // Se non ha data di scadenza, sempre verde
     if (!hasDate) return '#059669';
@@ -205,7 +205,7 @@ const TodoList = () => {
     return '#059669';
   };
 
-  // Get urgency badge - modificato per gestire attività senza data
+  // Determina il badge dell'urgenza
   const getUrgencyBadge = (urgency, isOverdue, hasDate) => {
     if (!hasDate) return { text: 'NESSUNA SCADENZA', color: '#059669' };
     
@@ -216,7 +216,7 @@ const TodoList = () => {
     return { text: 'NORMALE', color: '#059669' };
   };
 
-  // Handle edit click
+  // Gestisce il click per modificare un todo
   const handleEditClick = (todo) => {
     setEditingTodo({
       id: todo._id,
@@ -228,7 +228,7 @@ const TodoList = () => {
     setSelectedTodo(null);
   };
 
-  // Save edit
+  // Salva le modifiche al todo
   const handleSaveEdit = async () => {
     if (!editingTodo.title.trim()) {
       alert('Inserisci un titolo!');
@@ -266,7 +266,7 @@ const TodoList = () => {
     }
   };
 
-  // Handle add new todo
+  // Gestisce il click per aggiungere un nuovo todo
   const handleAddClick = () => {
     setNewTodo({
       title: '',
@@ -276,7 +276,7 @@ const TodoList = () => {
     setShowAddModal(true);
   };
 
-  // Save new todo
+  // Salva il nuovo todo
   const handleSaveNewTodo = async () => {
     if (!newTodo.title.trim()) {
       alert('Inserisci un titolo!');
