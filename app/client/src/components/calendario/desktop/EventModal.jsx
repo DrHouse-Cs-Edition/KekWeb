@@ -20,14 +20,12 @@ const EventModal = function EventModal({
 
   // Quando cambia l'evento, aggiorno anche la ricorrenza
   useEffect(() => {
-    console.log("Aggiorno ricorrenza:", newEvent.recurrenceRule);
     setRecurrence(newEvent.recurrenceRule || "");
   }, [newEvent.recurrenceRule]);
 
   // Quando cambio la ricorrenza nel dropdown
   const handleRecurrenceChange = (e) => {
     let value = e.target.value;
-    console.log("Nuova ricorrenza selezionata:", value);
     setRecurrence(value); // Aggiorno lo stato locale
     setNewEvent(prev => ({ ...prev, recurrenceRule: value })); // E anche l'evento
   };
@@ -52,7 +50,6 @@ const EventModal = function EventModal({
   useEffect(() => {
     const handleEscapeKey = (e) => {
       if (e.key === 'Escape') {
-        console.log("Chiudo modal con Escape");
         setShowModal(false);
         resetForm();
       }
@@ -66,7 +63,6 @@ const EventModal = function EventModal({
   // Chiudo il modal se clicco fuori
   const handleOutsideClick = (e) => {
     if (e.target.className === 'modal-overlay') {
-      console.log("Chiudo modal cliccando fuori");
       setShowModal(false);
       resetForm();
     }
@@ -123,7 +119,6 @@ const ModalHeader = ({ isEditing, setShowModal, resetForm }) => (
     </h3>
     <button
       onClick={() => {
-        console.log("Chiudo modal dal bottone X");
         setShowModal(false);
         resetForm();
       }}
@@ -144,7 +139,6 @@ const ModalBody = ({
   const handleInputChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
-    console.log("Campo cambiato:", name, "=", value);
     setNewEvent(prev => ({ ...prev, [name]: value }));
   };
 
@@ -152,11 +146,9 @@ const ModalBody = ({
   const handleDateChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
-    console.log("Data cambiata:", name, "=", value);
     
     // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
-      console.log("Data vuota, uso data corrente");
       setNewEvent(prev => ({ ...prev, [name]: new Date() }));
       return;
     }
@@ -164,7 +156,6 @@ const ModalBody = ({
     // Controllo se la data è valida
     const dateValue = new Date(value);
     if (isNaN(dateValue.getTime())) {
-      console.log("Data non valida, uso data corrente");
       setNewEvent(prev => ({ ...prev, [name]: new Date() }));
       return;
     }
@@ -350,7 +341,6 @@ const FormField = ({ id, name, label, type, value, onChange, disabled = false, .
 const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
   // Quando cambio un'impostazione dell'allarme
   const handleAlarmChange = (field, value) => {
-    console.log("Cambio allarme:", field, "=", value);
     setNewEvent(prev => ({
       ...prev,
       alarm: {
@@ -379,11 +369,9 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
             } else {
               // Per eventi e pomodoro, mantieni la logica esistente
               if (e.target.checked) {
-                console.log("Abilito allarme con valori default");
                 handleAlarmChange('earlyness', 15);
                 handleAlarmChange('repeat_times', 1);
               } else {
-                console.log("Disabilito allarme");
                 handleAlarmChange('earlyness', 0);
                 handleAlarmChange('repeat_times', 0);
                 handleAlarmChange('repeat_every', 0);
@@ -468,7 +456,6 @@ const ModalFooter = ({
         type="button" 
         className={styles.deleteBtn} 
         onClick={() => {
-          console.log("Clicco su elimina");
           handleDeleteEvent();
         }} 
         disabled={isLoading}
@@ -482,7 +469,6 @@ const ModalFooter = ({
       type="button" 
       className={styles.cancelBtn} 
       onClick={() => { 
-        console.log("Clicco su annulla");
         setShowModal(false); 
         resetForm(); 
       }} 
@@ -496,7 +482,6 @@ const ModalFooter = ({
       type="button" 
       className={styles.saveBtn} 
       onClick={() => {
-        console.log("Clicco su salva");
         handleSaveEvent();
       }} 
       disabled={isLoading}
@@ -523,7 +508,6 @@ const [currentPomodoro, setCurrentPomodoro] = useState(null);
 const selectRef = useRef();
 
 const FetchPomodoros = useCallback(()=>{
-console.log("desktop calendar pomodoro fetch");
 fetch("api/Pomodoro/getP", {
   method:"GET",
   mode:"cors",
@@ -538,7 +522,6 @@ fetch("api/Pomodoro/getP", {
       setPomodoroOptions(data.body)
       if(newEvent.pomodoro)
       {
-        console.log("newEvent.pomodoro reached")
         const initialPomodoro = data.body.find(p => p.title === newEvent.pomodoro);
         if(initialPomodoro)
           setNewEvent( prev => ({ ...prev, pomodoro: initialPomodoro }));
@@ -554,14 +537,12 @@ fetch("api/Pomodoro/getP", {
     // Trova l'oggetto pomodoro corrispondente all'ID selezionato
     const foundPomodoro = pomodoroOptions.find(p => p.title === selectedTitle);
     // setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
-    console.log("Selected Pomodoro Object:", foundPomodoro);
     setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
 
   }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
 
 useEffect(()=>{
   FetchPomodoros();
-  console.log("recievend new event pomodoro: ", newEvent.pomodoro);
 },[]);
 
   return(

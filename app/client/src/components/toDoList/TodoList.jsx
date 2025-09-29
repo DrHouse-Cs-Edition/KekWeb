@@ -256,7 +256,6 @@ const TodoList = () => {
         await fetchTodos(false);
         setShowEditModal(false);
         setEditingTodo(null);
-        console.log('Todo aggiornato con successo');
       } else {
         console.error('Errore:', result.message);
         alert('Errore nel salvare le modifiche');
@@ -285,8 +284,6 @@ const TodoList = () => {
     }
 
     try {
-      console.log('Sending new todo:', newTodo);
-
       const requestBody = {
         title: newTodo.title,
         description: newTodo.description || '',
@@ -301,8 +298,6 @@ const TodoList = () => {
         requestBody.activityDate = activityDateTime.toISOString();
       }
 
-      console.log('Request body:', requestBody);
-
       const response = await fetch('http://localhost:5000/api/events/save', {
         method: 'POST',
         credentials: 'include',
@@ -311,21 +306,15 @@ const TodoList = () => {
         },
         body: JSON.stringify(requestBody),
       });
-
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-      console.log('Server response:', result);
-
       if (result.success) {
         await fetchTodos(false);
         setShowAddModal(false);
         setNewTodo({ title: '', description: '', activityDate: '' });
-        console.log('Nuova attività creata con successo');
       } else {
         console.error('Server error:', result.message);
         alert('Errore nel creare la nuova attività: ' + (result.message || 'Errore sconosciuto'));

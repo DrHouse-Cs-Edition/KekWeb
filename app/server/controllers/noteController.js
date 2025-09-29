@@ -22,7 +22,7 @@ const saveNote = async (request,response)=>{ // app.metodo('url_aggiuntivo') ges
         });
     }
     catch(e){
-        console.log(e.message);
+
         response.json({
             success: false,
             message: "Errore durante il salvataggio sul DB: "+e,
@@ -50,7 +50,7 @@ const updateNote = async (request,response)=>{
         });
     }
     catch(e){
-        console.log(e.message);
+
         response.json({
             success: false,
             message: "Errore durante il salvataggio sul DB: "+e,
@@ -71,7 +71,6 @@ const removeNote = async (request,response)=>{
         });
     }
     catch(e){
-        console.log(e.message);
         response.json({
             success: false,
             message: "Errore durante la rimozione dal DB: "+e,
@@ -157,7 +156,7 @@ const allNote = async (request,response)=>{
             });
         }
     } catch (e) {
-        console.log(e.message);
+
         response.json({
             success: false,
             message: "Errore durante il caricamento dal DB: "+e,

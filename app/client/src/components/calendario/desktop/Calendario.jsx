@@ -48,7 +48,6 @@ export default function CalendarApp() {
       if (json.success) {
         const currentServerDate = new Date(json.date);
         setServerDate(currentServerDate);
-        console.log("Server date updated:", currentServerDate);
         return currentServerDate;
       }
     } catch (error) {
@@ -84,14 +83,12 @@ export default function CalendarApp() {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          console.log("Eventi caricati dal server:", data.list);
           setEvents(data.list);
         } else {
-          console.log("Nessun evento trovato");
+        ("Nessun evento trovato");
         }
       })
       .catch((err) => {
-        console.error("Errore nel caricamento eventi:", err);
         alert("Errore nel caricamento degli eventi");
       });
   };
@@ -201,7 +198,6 @@ export default function CalendarApp() {
 
   // Funzione per gestire il click su una data (creare evento)
   const handleDateClick = (date) => {
-    console.log("Data cliccata:", date);
     
     setIsEditing(false);
     setNewEvent({
@@ -218,7 +214,6 @@ export default function CalendarApp() {
 
   // Funzione per gestire il click su un evento (modificare)
   const handleEventClick = (event, clickedDate = null) => {
-    console.log("Evento cliccato:", event.title);
     
     // Estraggo la ricorrenza se c'è (solo per eventi e pomodoro, NON per attività)
     let recurrence = "";
@@ -485,7 +480,6 @@ export default function CalendarApp() {
 
   // Funzione per salvare l'evento (nuovo o modificato)
   const handleSaveEvent = () => {
-    console.log("Salvo evento:", newEvent.title, "tipo:", newEvent.type);
     
     // Controllo che ci sia un titolo (tranne per i pomodoro)
     if (!newEvent.title && newEvent.type !== "pomodoro") {
@@ -524,7 +518,6 @@ export default function CalendarApp() {
     let rruleString = null;
     if (newEvent.type !== "activity" && newEvent.recurrenceRule) {
       try {
-        console.log("Creo ricorrenza per:", newEvent.recurrenceRule);
         
         // Mappo le opzioni del dropdown
         let frequencyMap = {
@@ -575,19 +568,16 @@ export default function CalendarApp() {
             }
             
             rruleOptions.byweekday = [rruleDay];
-            console.log("Giorno JS:", jsDay, "Giorno RRule:", rruleDay, "Data:", rruleDate.toString());
           }
           
           let rruleObj = new RRule(rruleOptions);
           rruleString = rruleObj.toString();
-          console.log("RRule creata:", rruleString);
           
           // Debug: verifica le prime occorrenze
           const testOccurrences = rruleObj.between(
             new Date(rruleDate.getTime() - 7 * 24 * 60 * 60 * 1000), // 1 settimana prima
             new Date(rruleDate.getTime() + 14 * 24 * 60 * 60 * 1000)  // 2 settimane dopo
           );
-          console.log("Prime occorrenze generate:", testOccurrences.map(d => d.toString()));
           
         } else {
           console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
@@ -652,7 +642,6 @@ export default function CalendarApp() {
     }
     
     if (isEditing) eventData._id = newEvent.id;
-    console.log("Dati da inviare al server:", eventData);
 
     // Invio al server
     fetch(url, {
@@ -663,9 +652,7 @@ export default function CalendarApp() {
     })
       .then((response) => response.json())
       .then((result) => {
-        console.log("Risposta server:", result);
         if (result.success) {
-          console.log("Evento salvato con successo!");
           loadAllEvents(); // Ricarico la lista
           setShowModal(false); // Chiudo il modal
           resetForm(); // Pulisco il form
@@ -686,17 +673,13 @@ export default function CalendarApp() {
       return;
     }
     
-    console.log("Elimino evento:", newEvent.id);
-    
     fetch(`http://localhost:5000/api/events/remove/${newEvent.id}`, {
       method: "DELETE",
       credentials: "include",
     })
       .then((response) => response.json())
       .then((result) => {
-        console.log("Risposta eliminazione:", result);
         if (result.success) {
-          console.log("Evento eliminato!");
           loadAllEvents(); // Ricarico la lista
           setShowModal(false); // Chiudo il modal
           resetForm(); // Pulisco il form
@@ -713,7 +696,6 @@ export default function CalendarApp() {
 
   // Funzione per resettare il form
   const resetForm = () => {
-    console.log("Resetto il form");
     setNewEvent({
       id: "",
       title: "",

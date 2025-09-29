@@ -133,7 +133,6 @@ exports.userData = function (req, res){
 exports.updateData = function (req, res){
     //TODO funzione da implementare
     const body = req.body;
-    console.log("user has updated data to ", body)
     if(u){
         Users.updateOne({username : body.username}, { $set : body} ).then(result => {
             res.status(200).json({
@@ -163,7 +162,6 @@ exports.updateDataV2 = function (req, res){
             u.surname = surname;
             u.picture = picture;
             u.pictureTile = pictureTile;
-            // console.log("user body \n", u);
             u.save().then(result => {
                 res.status(200).json({
                     success : true,

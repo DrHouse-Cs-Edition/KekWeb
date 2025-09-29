@@ -85,7 +85,6 @@ class TimeMachine extends HTMLElement {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("submit done");
       }
       else{
         console.log("sucess submit = false");
@@ -106,7 +105,7 @@ class TimeMachine extends HTMLElement {
         alert("Data resettata al valore normale");
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("reset done");
+
       }
       else{
         console.log("sucess reset = false");
@@ -127,7 +126,6 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("date set");
       }
       else{
         console.log("Non siamo riusciti a ottenere la data dal server per la TM");

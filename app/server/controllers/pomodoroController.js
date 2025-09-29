@@ -51,16 +51,12 @@ exports.getP = async function (req, res){
 
 exports.renameP = async function (req, res){
     const body = req.body;
-    console.log("renaming server side to ", body.title, " and id ", body.id);
     Pomodoro.findByIdAndUpdate(body.id,{
         title: body.title,
         studyTime: body.studyTime,
         breakTime: body.breakTime,
         cycles : body.cycles
     }, {new: false})
-    .then( (e)=>{
-        console.log(e);
-    })
     res.json({
         success: true,
         message: "Pomodoro aggiornato"
@@ -68,8 +64,7 @@ exports.renameP = async function (req, res){
 }
 
 exports.deleteP = async function (req,res) {
-    console.log("deleting id ", req.params.id);
-    Pomodoro.deleteOne({_id : req.params.id}).then(result => console.log(result))
+    Pomodoro.deleteOne({_id : req.params.id})
     res.json({
         success: true,
         message: "Pomodoro eliminato"
@@ -84,7 +79,6 @@ exports.subCycles = async function (req, res){
         if(p.cycles == 1)
         {
             let foundEvent =  await Event.deleteMany({"pomodoro" : p.title});
-            console.log("found ", foundEvent);
             Pomodoro.findByIdAndDelete(id)
             .then(res.json({ success: true, message: "Pomodoro eliminato"}))
         }else if (p.cycles > 1){
@@ -93,8 +87,6 @@ exports.subCycles = async function (req, res){
             .then((updatedP) => {
             res.status(200).json(updatedP);
           })
-        }else{
-            console.log("error in subCycles");
         }
     })
 }
@@ -113,7 +105,6 @@ exports.updateP = function (req, res ){
                 studyTime ? p.studyTime=studyTime : "";
                 breakTime ? p.breakTime=breakTime : "";
                 cycles ? p.cycles=cycles : "";
-                console.log(p);
                 p.save() // Save the updated document
                 .then(
                     res.status(200).json({

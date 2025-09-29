@@ -36,7 +36,6 @@ function NoteDisplayer() { // {} servono per destructuring delle prop
           text: textPreview,
           date: new Date(json.lastModified),
         });
-        console.log(json.id)
         setFoundNote(true);
       } else {
         // nessuna nota trovata (o errore)

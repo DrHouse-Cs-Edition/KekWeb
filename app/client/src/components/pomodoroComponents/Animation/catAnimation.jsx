@@ -7,7 +7,7 @@ const CatAnimation = ({run, resetFlag})=>{
     const animationRef = useRef(null);
 
     useEffect(function resetAnimation(){
-        console.log("animationRef ", animationRef.current)
+
         if(animationRef.current && animationRef.current.style){
             animationRef.current.style.animationName = "none";
         setTimeout(()=>{

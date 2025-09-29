@@ -21,7 +21,6 @@ const EventModal = ({
   const handleInputChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
-    console.log("Campo cambiato:", name, "=", value);
     setSelectedEvent(prev => ({ ...prev, [name]: value }));
   };
 
@@ -47,7 +46,6 @@ const EventModal = ({
     
     // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
-      console.log("Data inizio vuota, uso data corrente");
       setSelectedEvent(prev => ({ ...prev, start: new Date() }));
       return;
     }
@@ -55,7 +53,6 @@ const EventModal = ({
     // Controllo se la data è valida
     let newStart = new Date(value);
     if (isNaN(newStart.getTime())) {
-      console.log("Data inizio non valida, uso data corrente");
       setSelectedEvent(prev => ({ ...prev, start: new Date() }));
       return;
     }
@@ -69,7 +66,6 @@ const EventModal = ({
     
     // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
-      console.log("Data fine vuota, uso data corrente + 1 ora");
       setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
       return;
     }
@@ -77,7 +73,6 @@ const EventModal = ({
     // Controllo se la data è valida
     let newEnd = new Date(value);
     if (isNaN(newEnd.getTime())) {
-      console.log("Data fine non valida, uso data corrente + 1 ora");
       setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
       return;
     }
@@ -91,7 +86,6 @@ const EventModal = ({
     
     // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
-      console.log("Data attività vuota, uso data corrente");
       setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
       return;
     }
@@ -99,7 +93,6 @@ const EventModal = ({
     // Controllo se la data è valida
     let newActivityDate = new Date(value);
     if (isNaN(newActivityDate.getTime())) {
-      console.log("Data attività non valida, uso data corrente");
       setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
       return;
     }
@@ -229,7 +222,6 @@ const EventModal = ({
   // Aggiungi questa funzione per gestire il cambio di ricorrenza
   const handleRecurrenceChange = (e) => {
     let value = e.target.value;
-    console.log("Nuova ricorrenza selezionata:", value);
     setSelectedEvent(prev => ({ ...prev, recurrenceRule: value }));
   };
 

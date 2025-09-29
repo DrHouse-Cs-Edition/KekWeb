@@ -20,12 +20,6 @@ connectDB().then( () =>{
         if(timeShift != 0)
             now = addMinutes(now, timeShift);
 
-        // debugging (controlla che si attivi ogni minuto)
-        if(now.getMinutes()%2 === 0)
-            console.log("tick");
-        else
-            console.log("tack");
-
         // controllo di mezzanotte
         if (now.getHours() === 0 && now.getMinutes() === 0) {
             eventController.movePomodorosAndActivities(now);
@@ -92,7 +86,6 @@ connectDB().then( () =>{
         newToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         // se cambia la data attivo funzione che normalmente attivo a mezzanotte
         if(newToday > today){
-            console.log("CHANGE DAY!");
             await eventController.movePomodorosAndActivities(newToday); 
         }
 
@@ -102,13 +95,13 @@ connectDB().then( () =>{
             date: now.toString(),
             success: true
         });
-        console.log("travel");
+
     })
 
     app.get("/api/timeMachine/date", (req, res) => { // restituisce data del server
         const now = addMinutes(new Date(), timeShift);
         res.json({date: now.toString(), success: true});
-        console.log("date");
+
     })
 
     app.put("/api/timeMachine/reset", (req, res) => { // resetta data server alla normalità
@@ -119,7 +112,7 @@ connectDB().then( () =>{
             date: now.toString(),
             success: true
         });
-        console.log("reset");
+
     })
 
     app.get('*', (req, res) => { // richiesta pagine -> reindirizza richiesta a index (che ha i percorsi delle pagine)

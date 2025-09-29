@@ -22,7 +22,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
     })
 
     const onError = (e) =>{
-        console.log("an error has been detected=> ", e);
+        alert("Error with the form")
     }
 
         return (
