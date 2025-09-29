@@ -38,9 +38,9 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     type = "number"
                     id = "studyTimeField"
                     defaultValue={"45"}
-                    validationMessage={"Inserisci una durata tra i 30 ed i 45 minuti"}
-                    min = {30}
-                    max = {45}
+                    validationMessage={"Inserisci una durata tra i 15 ed i 60 minuti"}
+                    min = {15}
+                    max = {60}
                     isRequired = {0}
                     >
                     </Input>
@@ -50,8 +50,8 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
                     type = "number"
                     id = "breakTimeField"
                     defaultValue={"15"}
-                    validationMessage={"Inserisci una durata tra i 5 ed i 15 minuti"}
-                    max = {15}
+                    validationMessage={"Inserisci una durata tra i 5 ed i 30 minuti"}
+                    max = {30}
                     min = {5}
                     isRequired = {0}
                     >
@@ -84,7 +84,7 @@ function TTform( {passTimeData}, isNewPomodoro){
     const [breakTime, setBreakTime] = useState(5);  //min = 5, max = 15
     const hasComputed = useRef(0);
     const tt = useRef(0);       //tt
-    const tmpStudy = useRef(30), tmpBreak = useRef(5);
+    const tmpStudy = useRef(15), tmpBreak = useRef(5);
 
     /**
      * Function return the number of cycles that can be run with the current settings, trunc to the nearest val
@@ -105,13 +105,13 @@ function TTform( {passTimeData}, isNewPomodoro){
         tt.current = tt.current - (tt.current % 5);                             //normalize total time to a multiple of 5 minutes
         
         while( tt.current % (tmpStudy.current + tmpBreak.current) !== 0 ){      //until we can safely provide a valid option
-            if( tmpStudy.current === 45 && tmpBreak.current === 15 ){           //if max vals have been reached, return default option
-                tmpStudy.current = 30 ; 
+            if( tmpStudy.current === 60 && tmpBreak.current === 30 ){           //if max vals have been reached, return default option
+                tmpStudy.current = 15 ; 
                 tmpBreak.current = 5;
                 break;
-            }else if( tmpStudy.current === 45 ){                                //max study reached, increment break and start over with study
+            }else if( tmpStudy.current === 60 ){                                //max study reached, increment break and start over with study
                 tmpBreak.current += 5;
-                tmpStudy.current = 30;
+                tmpStudy.current = 15;
             }else {                                                             //increment study time 
                 tmpStudy.current += 5;
             }
@@ -135,13 +135,13 @@ function TTform( {passTimeData}, isNewPomodoro){
         }
         
         do{   //until we can safely provide a valid option
-            if( tmpStudy.current === 45 && tmpBreak.current === 15 ){    //if max vals have been reached, return default option
-                tmpStudy.current = 30 ; 
+            if( tmpStudy.current === 60 && tmpBreak.current === 30 ){    //if max vals have been reached, return default option
+                tmpStudy.current = 15 ; 
                 tmpBreak.current = 5; 
                 break;
-            }else if( tmpStudy.current === 45 ){
+            }else if( tmpStudy.current === 60 ){
                 tmpBreak.current += 5;
-                tmpStudy.current = 30;     
+                tmpStudy.current = 15;     
             }else {      
                 tmpStudy.current += 5;  
             }
@@ -185,7 +185,7 @@ function TTform( {passTimeData}, isNewPomodoro){
                         id = "studyTimeField"
                         defaultValue={"120"}
                         validationMessage={"Inserire un valore valido (60 to 1440)"}
-                        min = {60}
+                        min = {30}
                         max = {1440}
                         isRequired = {isNewPomodoro}
                         >

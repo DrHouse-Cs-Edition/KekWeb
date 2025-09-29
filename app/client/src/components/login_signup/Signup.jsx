@@ -9,13 +9,13 @@ function Signup({setting = 0, updateToken}){
     const loginForm= 
     <div className="">
         <LoginPage updateToken={updateToken}></LoginPage>
-        <button onClick={() => setType(1)} className={style.Button}>Register a new user</button>
+        <button onClick={() => setType(1)} className={style.Button}>Crea un nuovo utente</button>
     </div>
 
     const registrationForm =
     <div className="">
         <Registration updateToken={updateToken}></Registration>
-        <button onClick={() => setType(0)} className={style.Button}>Try to log in</button>
+        <button onClick={() => setType(0)} className={style.Button}>Accedi</button>
     </div>
         
 
