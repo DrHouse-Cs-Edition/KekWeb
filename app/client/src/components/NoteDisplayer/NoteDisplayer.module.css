@@ -46,6 +46,6 @@
 }
  
 .link{
-    color: green;
+    color: var(--dusk-text);
     font-style: italic;
 }
