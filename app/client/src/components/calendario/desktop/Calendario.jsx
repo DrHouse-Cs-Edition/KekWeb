@@ -5,12 +5,12 @@ import EventModal from "./EventModal";
 import styles from "./Calendario.module.css";
 
 export default function CalendarApp() {
-  // Stati per gestire il calendario
+  // Stati principali del calendario
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [serverDate, setServerDate] = useState(new Date());
-  const [currentDate, setCurrentDate] = useState(new Date()); // Data che sto visualizzando
+  const [currentDate, setCurrentDate] = useState(new Date()); // Data visualizzata
   const [viewMode, setViewMode] = useState('month'); // 'month', 'week', 'day'
   const [newEvent, setNewEvent] = useState({
     id: "",
@@ -33,11 +33,11 @@ export default function CalendarApp() {
       earlyness: 15,
       repeat_times: 1,
       repeat_every: 0,
-      enabled: false // Aggiunto campo enabled
+      enabled: false
     }
   });
 
-  // Function to get server date from time machine API
+  // Ottiene la data dal server
   const fetchServerDate = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
@@ -51,12 +51,12 @@ export default function CalendarApp() {
         return currentServerDate;
       }
     } catch (error) {
-      console.error('Error fetching server date:', error);
+      console.error('Errore nel caricamento data server:', error);
     }
     return new Date();
   };
 
-  // Load server date and events when component mounts
+  // Carica data server ed eventi all'avvio
   useEffect(() => {
     const initializeCalendar = async () => {
       await fetchServerDate();
@@ -65,7 +65,7 @@ export default function CalendarApp() {
     initializeCalendar();
   }, []);
 
-  // Add periodic update of server date
+  // Aggiorna periodicamente la data del server
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchServerDate();
@@ -74,7 +74,7 @@ export default function CalendarApp() {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Funzione per caricare tutti gli eventi dal server
+  // Carica tutti gli eventi dal server
   const loadAllEvents = () => {
     fetch("http://localhost:5000/api/events/all", {
       method: "GET",
@@ -91,88 +91,100 @@ export default function CalendarApp() {
       });
   };
 
-  // Funzione per ottenere gli eventi di una specifica data
+  // Ottiene tutti gli eventi per una data specifica
   const getEventsForDate = (date) => {
     const eventsForDay = [];
     
     events.forEach(event => {
       if (!event.recurrenceRule || event.type === "activity") {
-        // Eventi non ricorrenti e TUTTE le attività (ignora ricorrenza per le attività)
+        // Eventi non ricorrenti e attività
         let eventStartDate, eventEndDate;
         
         if (event.type === "activity") {
           eventStartDate = new Date(event.activityDate);
-          eventEndDate = new Date(event.activityDate); // Le attività durano un giorno
+          eventEndDate = new Date(event.activityDate);
+          
+          const eventDateOnly = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+          const targetDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          
+          if (eventDateOnly.getTime() === targetDateOnly.getTime()) {
+            eventsForDay.push(event);
+          }
         } else {
           eventStartDate = new Date(event.start);
           eventEndDate = new Date(event.end);
-        }
-        
-        // Normalizza le date per confronto (rimuovi ore/minuti/secondi)
-        const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const startDate = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
-        const endDate = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
-        
-        // Controlla se la data target è compresa tra inizio e fine evento (inclusi)
-        if (targetDate >= startDate && targetDate <= endDate) {
-          eventsForDay.push(event);
+          
+          const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          const startDate = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+          const endDate = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+          
+          if (targetDate >= startDate && targetDate <= endDate) {
+            eventsForDay.push(event);
+          }
         }
       } else {
-        // Eventi ricorrenti - solo per eventi e pomodoro, NON per attività
+        // Eventi ricorrenti (escluse attività)
         try {
-          const rrule = RRule.fromString(event.recurrenceRule);
+          // Estrai i dettagli della ricorrenza originale
+          const originalStart = new Date(event.start);
           
-          // FIX: Usa la stessa logica UTC del salvataggio
-          let targetDateUTC = new Date(Date.UTC(
-            date.getFullYear(), 
-            date.getMonth(), 
-            date.getDate(), 
-            12, 0, 0, 0
-          ));
-          
-          let startOfDayUTC = new Date(Date.UTC(
-            date.getFullYear(), 
-            date.getMonth(), 
-            date.getDate(), 
-            0, 0, 0, 0
-          ));
-          
-          let endOfDayUTC = new Date(Date.UTC(
-            date.getFullYear(), 
-            date.getMonth(), 
-            date.getDate(), 
-            23, 59, 59, 999
-          ));
-          
-          const occurrences = rrule.between(startOfDayUTC, endOfDayUTC, true);
-          
-          if (occurrences.length > 0) {
-            // Per ogni occorrenza, controlla se l'evento si estende su più giorni
-            occurrences.forEach(occurrence => {
-              const originalStart = new Date(event.start);
+          // Per eventi mensili, dobbiamo calcolare manualmente se è un'occorrenza valida
+          if (event.recurrenceRule.includes('FREQ=MONTHLY')) {
+            // Per ricorrenza mensile, controlla se il giorno del mese corrisponde
+            const originalDay = originalStart.getDate();
+            const targetDay = date.getDate();
+            
+            // Se i giorni corrispondono e la data target è >= alla data originale
+            if (targetDay === originalDay && date >= new Date(originalStart.getFullYear(), originalStart.getMonth(), originalStart.getDate())) {
               const originalEnd = new Date(event.end);
-              
-              // Calcola la durata originale dell'evento
               const eventDuration = originalEnd.getTime() - originalStart.getTime();
               
-              // Crea le date di inizio e fine per questa occorrenza
               const occurrenceStart = new Date(
-                occurrence.getFullYear(), 
-                occurrence.getMonth(), 
-                occurrence.getDate(),
-                originalStart.getHours(), 
-                originalStart.getMinutes()
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                originalStart.getHours(),
+                originalStart.getMinutes(),
+                originalStart.getSeconds()
               );
               
               const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
               
-              // Normalizza le date per confronto
-              const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-              const startDate = new Date(occurrenceStart.getFullYear(), occurrenceStart.getMonth(), occurrenceStart.getDate());
-              const endDate = new Date(occurrenceEnd.getFullYear(), occurrenceEnd.getMonth(), occurrenceEnd.getDate());
+              const virtualEvent = {
+                ...event,
+                isRecurringInstance: true,
+                originalId: event._id,
+                start: occurrenceStart.toISOString(),
+                end: occurrenceEnd.toISOString()
+              };
               
-              // Controlla se la data target è compresa nell'evento ricorrente
-              if (targetDate >= startDate && targetDate <= endDate) {
+              eventsForDay.push(virtualEvent);
+            }
+          } else {
+            // Per altri tipi di ricorrenza (daily, weekly, yearly) usa RRule normale
+            const rrule = RRule.fromString(event.recurrenceRule);
+            
+            const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+            const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+            
+            const occurrences = rrule.between(startOfDay, endOfDay, true);
+            
+            if (occurrences.length > 0) {
+              const originalEnd = new Date(event.end);
+              const eventDuration = originalEnd.getTime() - originalStart.getTime();
+              
+              occurrences.forEach(occurrence => {
+                const occurrenceStart = new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  originalStart.getHours(),
+                  originalStart.getMinutes(),
+                  originalStart.getSeconds()
+                );
+                
+                const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
+                
                 const virtualEvent = {
                   ...event,
                   isRecurringInstance: true,
@@ -182,11 +194,11 @@ export default function CalendarApp() {
                 };
                 
                 eventsForDay.push(virtualEvent);
-              }
-            });
+              });
+            }
           }
         } catch (error) {
-          console.error("Error processing recurring event:", error);
+          console.error("Errore nell'elaborazione evento ricorrente:", error, event);
         }
       }
     });
@@ -194,26 +206,39 @@ export default function CalendarApp() {
     return eventsForDay;
   };
 
-  // Funzione per gestire il click su una data (creare evento)
+  // Gestisce il click su una data per creare un nuovo evento
   const handleDateClick = (date) => {
-    
     setIsEditing(false);
     setNewEvent({
-      ...newEvent,
       id: uuidv4(),
+      title: "",
+      type: "event",
+      pomodoro: {
+        _id: "",
+        title: "",
+        studyTime: null,
+        breakTime: null,
+        cycles: null,
+      },
+      activityDate: date,
       start: date,
       end: new Date(date.getTime() + 60 * 60 * 1000), // +1 ora
-      activityDate: date,
-      type: "event",
+      location: "",
       recurrenceRule: "",
+      description: "",
+      alarm: {
+        earlyness: 15,
+        repeat_times: 1,
+        repeat_every: 0,
+        enabled: false
+      }
     });
     setShowModal(true);
   };
 
-  // Funzione per gestire il click su un evento (modificare)
+  // Gestisce il click su un evento esistente per modificarlo
   const handleEventClick = (event, clickedDate = null) => {
-    
-    // Estraggo la ricorrenza se c'è (solo per eventi e pomodoro, NON per attività)
+    // Estrae la ricorrenza se presente
     let recurrence = "";
     if (event.recurrenceRule && event.type !== "activity") {
       let freqMatch = event.recurrenceRule.match(/FREQ=([A-Z]+)/);
@@ -222,11 +247,10 @@ export default function CalendarApp() {
       }
     }
 
-    // For recurring instances, use the clicked date; otherwise use original date
+    // Per istanze ricorrenti usa la data cliccata, altrimenti quella originale
     let startDate, endDate;
     
     if (event.isRecurringInstance && clickedDate && event.type !== "activity") {
-      // This is a recurring instance (non-activity)
       const originalStart = new Date(event.start);
       const originalEnd = new Date(event.end);
       startDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
@@ -234,7 +258,7 @@ export default function CalendarApp() {
       endDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
                         originalEnd.getHours(), originalEnd.getMinutes());
     } else {
-      // Regular event or activity - validazione delle date
+      // Evento normale o attività - validazione date
       startDate = event.start && !isNaN(new Date(event.start).getTime()) 
         ? new Date(event.start) 
         : new Date();
@@ -248,24 +272,23 @@ export default function CalendarApp() {
       title: event.title || "",
       type: event.type || "event",
       location: event.location || "",
-      recurrenceRule: event.type === "activity" ? "" : recurrence, // Nessuna ricorrenza per le attività
+      recurrenceRule: event.type === "activity" ? "" : recurrence,
       description: event.description || "",
-      alarm: event.alarm || {
-        earlyness: 15,
-        repeat_times: 1,
-        repeat_every: 0,
-        enabled: false
+      alarm: {
+        earlyness: event.alarm?.earlyness || 15,
+        repeat_times: event.alarm?.repeat_times || 1,
+        repeat_every: event.alarm?.repeat_every || 0,
+        enabled: Boolean(event.alarm?.enabled)
       }
     };
     
     switch(eventData.type) {
       case "activity":
-        // Validazione della data dell'attività
         const activityDateValue = event.activityDate && !isNaN(new Date(event.activityDate).getTime()) 
           ? new Date(event.activityDate) 
           : startDate;
         eventData.activityDate = activityDateValue;
-        // Per le attività, semplifica l'alarm a solo enabled/disabled
+        // Per le attività, solo enabled/disabled
         eventData.alarm = {
           enabled: event.alarm ? event.alarm.enabled || false : false
         };
@@ -292,7 +315,7 @@ export default function CalendarApp() {
     setShowModal(true);
   };
 
-  // Navigazione basata sulla modalità di visualizzazione
+  // Navigazione calendario
   const goToPrevious = () => {
     switch(viewMode) {
       case 'month':
@@ -325,7 +348,7 @@ export default function CalendarApp() {
     setCurrentDate(new Date(serverDate));
   };
 
-  // Genera il titolo basato sulla modalità
+  // Genera il titolo basato sulla modalità di visualizzazione
   const getViewTitle = () => {
     const year = currentDate.getFullYear();
     const month = monthNames[currentDate.getMonth()];
@@ -348,11 +371,11 @@ export default function CalendarApp() {
     }
   };
 
-  // Helper per ottenere l'inizio della settimana (lunedì)
+  // Ottiene l'inizio della settimana (lunedì)
   const getWeekStart = (date) => {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Lunedì come primo giorno
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
   };
 
@@ -370,17 +393,26 @@ export default function CalendarApp() {
     }
   };
 
-  // Vista mensile (esistente)
+  // Vista mensile
   const generateMonthDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
     const firstDay = new Date(year, month, 1);
+    
+    // Calcola il primo giorno da mostrare nel calendario
+    // Se il primo del mese è domenica (0), dobbiamo tornare indietro di 6 giorni
+    // Se è lunedì (1), non torniamo indietro
+    // Se è martedì (2), torniamo indietro di 1 giorno, ecc.
+    let dayOfWeek = firstDay.getDay();
+    // Converti domenica (0) a 7 per il calcolo
+    if (dayOfWeek === 0) dayOfWeek = 7;
+    
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1);
+    startDate.setDate(firstDay.getDate() - (dayOfWeek - 1));
     
     const days = [];
-    const totalDays = 42;
+    const totalDays = 42; // 6 settimane x 7 giorni
     
     for (let i = 0; i < totalDays; i++) {
       const date = new Date(startDate);
@@ -449,7 +481,7 @@ export default function CalendarApp() {
     }];
   };
 
-  // Genera le ore per la vista giornaliera
+  // Genera le fasce orarie per la vista giornaliera
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -461,11 +493,11 @@ export default function CalendarApp() {
     return slots;
   };
 
-  // Ottieni eventi per ora specifica
+  // Ottiene eventi per ora specifica
   const getEventsForHour = (date, hour) => {
     const dayEvents = getEventsForDate(date);
     return dayEvents.filter(event => {
-      if (event.type === 'activity') return hour === 12; // Mostra attività a mezzogiorno
+      if (event.type === 'activity') return hour === 12; // Attività a mezzogiorno
       
       const eventStart = new Date(event.start);
       const eventHour = eventStart.getHours();
@@ -476,16 +508,15 @@ export default function CalendarApp() {
     });
   };
 
-  // Funzione per salvare l'evento (nuovo o modificato)
+  // Salva un evento (nuovo o modificato)
   const handleSaveEvent = () => {
-    
-    // Controllo che ci sia un titolo (tranne per i pomodoro)
+    // Validazione titolo
     if (!newEvent.title && newEvent.type !== "pomodoro") {
       alert("Inserisci un titolo!");
       return;
     }
 
-    // Validazione date per evitare errori
+    // Validazione date
     if (newEvent.type !== "activity") {
       if (!newEvent.start || isNaN(new Date(newEvent.start).getTime())) {
         alert("Data di inizio non valida!");
@@ -506,18 +537,16 @@ export default function CalendarApp() {
       }
     }
 
-    // Scelgo URL e metodo in base se sto creando o modificando
+    // Determina URL e metodo
     let url = isEditing
       ? `http://localhost:5000/api/events/update/${newEvent.id}`
       : "http://localhost:5000/api/events/save";
     let method = isEditing ? "PUT" : "POST";
 
-    // Gestisco la ricorrenza SOLO per eventi e pomodoro, NON per le attività
+    // Gestisce ricorrenza (solo per eventi e pomodoro, NON attività)
     let rruleString = null;
     if (newEvent.type !== "activity" && newEvent.recurrenceRule) {
       try {
-        
-        // Mappo le opzioni del dropdown
         let frequencyMap = {
           'daily': RRule.DAILY,
           'weekly': RRule.WEEKLY,
@@ -530,52 +559,60 @@ export default function CalendarApp() {
         if (freq !== undefined) {
           let startDate = newEvent.start || new Date();
           
-          // Validazione della data per RRule
           if (isNaN(new Date(startDate).getTime())) {
             alert("Data non valida per la ricorrenza!");
             return;
           }
           
-          // Crea la data senza problemi di timezone
           let rruleDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-          
-          // Per gli eventi, mantieni l'ora originale
           rruleDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
           
-          // FIX: Per le ricorrenze settimanali, specifica il giorno della settimana
           let rruleOptions = {
             freq: freq,
             dtstart: rruleDate
           };
           
-          // Se è settimanale, aggiungi il giorno specifico
+          // Per ricorrenze settimanali, specifica il giorno
           if (newEvent.recurrenceRule === 'weekly') {
-            let jsDay = rruleDate.getDay(); // Giorno in formato JavaScript
+            let jsDay = rruleDate.getDay();
             let rruleDay;
             
-            // Converti da JavaScript day a RRule day
             switch(jsDay) {
-              case 0: rruleDay = RRule.SU; break; // Domenica
-              case 1: rruleDay = RRule.MO; break; // Lunedì
-              case 2: rruleDay = RRule.TU; break; // Martedì
-              case 3: rruleDay = RRule.WE; break; // Mercoledì
-              case 4: rruleDay = RRule.TH; break; // Giovedì
-              case 5: rruleDay = RRule.FR; break; // Venerdì
-              case 6: rruleDay = RRule.SA; break; // Sabato
+              case 0: rruleDay = RRule.SU; break;
+              case 1: rruleDay = RRule.MO; break;
+              case 2: rruleDay = RRule.TU; break;
+              case 3: rruleDay = RRule.WE; break;
+              case 4: rruleDay = RRule.TH; break;
+              case 5: rruleDay = RRule.FR; break;
+              case 6: rruleDay = RRule.SA; break;
               default: rruleDay = RRule.MO; break;
             }
             
             rruleOptions.byweekday = [rruleDay];
+          } else if (newEvent.recurrenceRule === 'monthly') {
+            let jsDay = rruleDate.getDay();
+            let rruleDay;
+            
+            switch(jsDay) {
+              case 0: rruleDay = RRule.SU; break;
+              case 1: rruleDay = RRule.MO; break;
+              case 2: rruleDay = RRule.TU; break;
+              case 3: rruleDay = RRule.WE; break;
+              case 4: rruleDay = RRule.TH; break;
+              case 5: rruleDay = RRule.FR; break;
+              case 6: rruleDay = RRule.SA; break;
+              default: rruleDay = RRule.MO; break;
+            }
+            
+            rruleOptions = {
+              freq: freq,
+              dtstart: rruleDate,
+              bymonthday: rruleDate.getDate() // Forza il giorno del mese
+            };
           }
           
           let rruleObj = new RRule(rruleOptions);
           rruleString = rruleObj.toString();
-          
-          // Debug: verifica le prime occorrenze
-          const testOccurrences = rruleObj.between(
-            new Date(rruleDate.getTime() - 7 * 24 * 60 * 60 * 1000), // 1 settimana prima
-            new Date(rruleDate.getTime() + 14 * 24 * 60 * 60 * 1000)  // 2 settimane dopo
-          );
           
         } else {
           console.error("Ricorrenza non valida:", newEvent.recurrenceRule);
@@ -589,7 +626,7 @@ export default function CalendarApp() {
       }
     }
 
-    // Preparo i dati per il server
+    // Prepara dati per il server
     let eventData = {
       title: newEvent.title || (newEvent.type === "pomodoro" ? "Sessione Pomodoro" : ""),
       description: newEvent.description || "",
@@ -599,23 +636,22 @@ export default function CalendarApp() {
       alarm: newEvent.alarm
     };
     
-    // Add type-specific properties
+    // Aggiungi proprietà specifiche per tipo
     switch(newEvent.type) {
       case "activity":
         let activityDate = newEvent.activityDate || new Date();
-        // Validazione finale della data dell'attività
         if (isNaN(new Date(activityDate).getTime())) {
           alert("Data dell'attività non valida!");
           return;
         }
-        eventData.activityDate = new Date(activityDate).toISOString();
-        // NON inviare recurrenceRule per le attività
+        // Per le attività, salva solo la data senza orario per evitare problemi di fuso orario
+        const activityDateOnly = new Date(activityDate.getFullYear(), activityDate.getMonth(), activityDate.getDate(), 12, 0, 0);
+        eventData.activityDate = activityDateOnly.toISOString();
         break;
       case "pomodoro":
         eventData.pomodoro = newEvent.pomodoro.title || "";
         let pomodoroStart = newEvent.start || new Date();
         let pomodoroEnd = newEvent.end || new Date(Date.now() + 25 * 60000);
-        // Validazione date pomodoro
         if (isNaN(new Date(pomodoroStart).getTime()) || isNaN(new Date(pomodoroEnd).getTime())) {
           alert("Date del pomodoro non valide!");
           return;
@@ -628,7 +664,6 @@ export default function CalendarApp() {
       default:
         let eventStart = newEvent.start || new Date();
         let eventEnd = newEvent.end || new Date(Date.now() + 3600000);
-        // Validazione date evento
         if (isNaN(new Date(eventStart).getTime()) || isNaN(new Date(eventEnd).getTime())) {
           alert("Date dell'evento non valide!");
           return;
@@ -651,9 +686,9 @@ export default function CalendarApp() {
       .then((response) => response.json())
       .then((result) => {
         if (result.success) {
-          loadAllEvents(); // Ricarico la lista
-          setShowModal(false); // Chiudo il modal
-          resetForm(); // Pulisco il form
+          loadAllEvents();
+          setShowModal(false);
+          resetForm();
         } else {
           console.error("Errore dal server:", result.message);
           alert(result.message);
@@ -665,7 +700,7 @@ export default function CalendarApp() {
       });
   };
 
-  // Funzione per eliminare un evento
+  // Elimina un evento
   const handleDeleteEvent = () => {
     if (!window.confirm("Sei sicuro di voler eliminare questo evento?")) {
       return;
@@ -678,9 +713,9 @@ export default function CalendarApp() {
       .then((response) => response.json())
       .then((result) => {
         if (result.success) {
-          loadAllEvents(); // Ricarico la lista
-          setShowModal(false); // Chiudo il modal
-          resetForm(); // Pulisco il form
+          loadAllEvents();
+          setShowModal(false);
+          resetForm();
         } else {
           console.error("Errore eliminazione:", result.message);
           alert(result.message);
@@ -692,7 +727,7 @@ export default function CalendarApp() {
       });
   };
 
-  // Funzione per resettare il form
+  // Resetta il form ai valori iniziali
   const resetForm = () => {
     setNewEvent({
       id: "",
@@ -706,8 +741,8 @@ export default function CalendarApp() {
         cycles: null,
       },
       activityDate: null,
-      start: serverDate, // Use server date instead of new Date()
-      end: serverDate,   // Use server date instead of new Date()
+      start: serverDate,
+      end: serverDate,
       location: "",
       recurrenceRule: "",
       description: "",
@@ -715,7 +750,7 @@ export default function CalendarApp() {
         earlyness: 15,
         repeat_times: 1,
         repeat_every: 0,
-        enabled: false // Aggiunto campo enabled
+        enabled: false
       }
     });
     setIsEditing(false);

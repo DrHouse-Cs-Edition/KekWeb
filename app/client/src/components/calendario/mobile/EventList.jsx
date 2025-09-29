@@ -10,32 +10,31 @@ const EventList = ({
   title,
   maxEvents = 5 
 }) => {
-  // Formatto l'orario in modo carino (tipo 3:30 PM)
+  // Formatta l'orario per la visualizzazione
   const formatTime = (date) => {
     if (!date) return '';
-    return date.toLocaleTimeString('en-US', {
+    return date.toLocaleTimeString('it-IT', {
       hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      minute: '2-digit'
     });
   };
 
-  // Formatto la data per il titolo (tipo "Monday, December 25")
+  // Formatta la data per il titolo
   const formatDate = (date) => {
     if (!date) return '';
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('it-IT', {
       weekday: 'long',
       month: 'long',
       day: 'numeric'
     });
   };
 
-  // Controllo se la data è oggi
+  // Controlla se la data è oggi
   const isToday = (date) => {
     return date.toDateString() === serverDate.toDateString();
   };
 
-  // Ordino gli eventi per orario
+  // Ordina gli eventi per orario
   const sortedEvents = events.sort((a, b) => new Date(a.start) - new Date(b.start));
 
   return (
