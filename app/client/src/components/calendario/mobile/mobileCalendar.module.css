@@ -2,6 +2,7 @@
   min-height: 100vh;
   backdrop-filter: blur(3px);
   color: var(--dusk-text); /* Default text color */
+  padding-bottom: 50px;
 }
 
 .header {
@@ -705,7 +706,7 @@
 /* Floating Action Button (FAB) */
 .fabContainer {
   position: fixed;
-  bottom: -20px;
+  bottom: 20px;
   right: 20px;
   z-index: 1000;
 }
