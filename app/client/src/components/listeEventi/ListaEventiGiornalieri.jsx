@@ -25,7 +25,7 @@ const ListaEventiGiornalieri = () => {
         return new Date(json.date);
       }
     } catch (error) {
-      console.error('Error fetching server date:', error);
+      console.error('Errore nel caricamento data server:', error);
     }
     return new Date();
   };
@@ -42,6 +42,7 @@ const ListaEventiGiornalieri = () => {
       const json = await response.json();
       
       if (json.success) {
+        // Filtra solo gli eventi di oggi del tipo 'event'
         const todaysEvents = json.list.filter(event => {
           if (event.type !== 'event') return false;
           
@@ -55,7 +56,7 @@ const ListaEventiGiornalieri = () => {
         setError('Nessun evento trovato');
       }
     } catch (err) {
-      console.error('Error fetching events:', err);
+      console.error('Errore nel caricamento eventi:', err);
       setError('Impossibile caricare gli eventi');
     } finally {
       setLoading(false);
@@ -83,6 +84,17 @@ const ListaEventiGiornalieri = () => {
       day: 'numeric'
     });
   };
+
+  // Determina la visualizzazione dell'orario per l'evento
+  function getTimeDisplay(event) {
+    if (event.start && event.end) {
+      return `${formatTime(event.start)} - ${formatTime(event.end)}`;
+    }
+    if (event.start) {
+      return formatTime(event.start);
+    }
+    return 'Tutto il giorno';
+  }
 
   if (loading) {
     return (
@@ -168,7 +180,7 @@ const ListaEventiGiornalieri = () => {
         </div>
       )}
 
-      {/* Event Details Modal */}
+      {/* Modal dettagli evento */}
       {selectedEvent && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -235,16 +247,6 @@ const ListaEventiGiornalieri = () => {
       )}
     </div>
   );
-
-  function getTimeDisplay(event) {
-    if (event.start && event.end) {
-      return `${formatTime(event.start)} - ${formatTime(event.end)}`;
-    }
-    if (event.start) {
-      return formatTime(event.start);
-    }
-    return 'Tutto il giorno';
-  }
 };
 
 export default ListaEventiGiornalieri;

@@ -74,7 +74,7 @@ const updateEvent = async (request, response) => {
         recurrenceRule: eventInput.recurrenceRule,
         urgencyLevel: eventInput.urgencyLevel,
         completed: eventInput.completed,
-        // alarm MANCANTE
+        alarm: eventInput.alarm
       });
       
       response.json({

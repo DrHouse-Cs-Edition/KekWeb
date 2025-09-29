@@ -7,13 +7,12 @@ import { Link } from "react-router-dom";
 const EventModal = ({
   showEventModal,
   setShowEventModal,
-  selectedEvent,  //newEvent del desktop
-  setSelectedEvent, //setNewEvent del desktop
+  selectedEvent,  // newEvent del desktop
+  setSelectedEvent, // setNewEvent del desktop
   isEditing,
   handleSave,
   handleDelete,
 }) => {
-  // Se il modal non è aperto, non mostro niente
   if (!showEventModal) {
     return null;
   }
@@ -24,33 +23,27 @@ const EventModal = ({
     setSelectedEvent(prev => ({ ...prev, [name]: value }));
   };
 
-  // Funzione per gestire la chiusura del modal
   const closeModal = () => {
     setShowEventModal(false);
   };
 
-  // Funzione per gestire il cambio del tipo di evento
   const handleTypeChange = (e) => {
     let newType = e.target.value;
     setSelectedEvent(prev => ({ ...prev, type: newType }));
   };
 
-  // Funzione per gestire il cambio del titolo
   const handleTitleChange = (e) => {
     setSelectedEvent(prev => ({ ...prev, title: e.target.value }));
   };
 
-  // Funzione per gestire il cambio della data di inizio
   const handleStartChange = (e) => {
     let value = e.target.value;
     
-    // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
       setSelectedEvent(prev => ({ ...prev, start: new Date() }));
       return;
     }
     
-    // Controllo se la data è valida
     let newStart = new Date(value);
     if (isNaN(newStart.getTime())) {
       setSelectedEvent(prev => ({ ...prev, start: new Date() }));
@@ -60,17 +53,14 @@ const EventModal = ({
     setSelectedEvent(prev => ({ ...prev, start: newStart }));
   };
 
-  // Funzione per gestire il cambio della data di fine
   const handleEndChange = (e) => {
     let value = e.target.value;
     
-    // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
       setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
       return;
     }
     
-    // Controllo se la data è valida
     let newEnd = new Date(value);
     if (isNaN(newEnd.getTime())) {
       setSelectedEvent(prev => ({ ...prev, end: new Date(Date.now() + 3600000) }));
@@ -80,17 +70,14 @@ const EventModal = ({
     setSelectedEvent(prev => ({ ...prev, end: newEnd }));
   };
 
-  // Funzione per gestire il cambio della data dell'attività
   const handleActivityDateChange = (e) => {
     let value = e.target.value;
     
-    // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
       setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
       return;
     }
     
-    // Controllo se la data è valida
     let newActivityDate = new Date(value);
     if (isNaN(newActivityDate.getTime())) {
       setSelectedEvent(prev => ({ ...prev, activityDate: new Date() }));
@@ -100,102 +87,68 @@ const EventModal = ({
     setSelectedEvent(prev => ({ ...prev, activityDate: newActivityDate }));
   };
 
-  // Funzione per gestire il cambio della location
   const handleLocationChange = (e) => {
     setSelectedEvent(prev => ({ ...prev, location: e.target.value }));
   };
 
-  // Funzione per gestire il cambio della descrizione
   const handleDescriptionChange = (e) => {
     setSelectedEvent(prev => ({ ...prev, description: e.target.value }));
   };
 
-  // Funzione per abilitare/disabilitare l'allarme
+  // Gestisce l'attivazione/disattivazione dell'allarme
   const toggleAlarm = (e) => {
-    let isChecked = e.target.checked;
-    
-    // Per le attività, gestisci solo il campo enabled
-    if (selectedEvent?.type === "activity") {
-      setSelectedEvent(prev => ({
-        ...prev,
-        alarm: {
-          ...prev.alarm,
-          enabled: isChecked
-        }
-      }));
-    } else {
-      // Per eventi e pomodoro, mantieni la logica esistente
-      if (isChecked) {
-        // Attivo l'allarme con valori predefiniti
-        setSelectedEvent(prev => ({
-          ...prev,
-          alarm: {
-            ...prev.alarm,
-            earlyness: 15,
-            repeat_times: 1
-          }
-        }));
-      } else {
-        // Disattivo l'allarme
-        setSelectedEvent(prev => ({
-          ...prev,
-          alarm: {
-            ...prev.alarm,
-            earlyness: 0,
-            repeat_times: 0,
-            repeat_every: 0
-          }
-        }));
+    const enabled = e.target.checked;
+    setSelectedEvent(prev => ({
+      ...prev,
+      alarm: {
+        ...prev.alarm,
+        enabled: enabled
       }
-    }
+    }));
   };
 
-  // Funzione per cambiare quando suonare l'allarme
   const handleEarlynessChange = (e) => {
-    let minutes = parseInt(e.target.value);
+    const value = parseInt(e.target.value) || 15;
     setSelectedEvent(prev => ({
       ...prev,
       alarm: {
         ...prev.alarm,
-        earlyness: minutes
+        earlyness: value
       }
     }));
   };
 
-  // Funzione per cambiare quante volte ripetere l'allarme
   const handleRepeatTimesChange = (e) => {
-    let times = parseInt(e.target.value);
+    const value = parseInt(e.target.value) || 1;
     setSelectedEvent(prev => ({
       ...prev,
       alarm: {
         ...prev.alarm,
-        repeat_times: times
+        repeat_times: value
       }
     }));
   };
 
-  // Funzione per cambiare ogni quanto ripetere l'allarme
   const handleRepeatEveryChange = (e) => {
-    let minutes = parseInt(e.target.value);
+    const value = parseInt(e.target.value) || 0;
     setSelectedEvent(prev => ({
       ...prev,
       alarm: {
         ...prev.alarm,
-        repeat_every: minutes
+        repeat_every: value
       }
     }));
   };
 
-  // Funzione per formattare la data per l'input datetime-local
+  // Formatta la data per l'input datetime-local
   const formatDateForInput = (date) => {
     if (!date || isNaN(new Date(date).getTime())) return '';
     let d = new Date(date);
-    // Correggo il fuso orario
     let correctedDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return correctedDate.toISOString().slice(0, 16);
   };
 
-  // Funzione per formattare la data per l'input date
+  // Formatta la data per l'input date
   const formatDateOnlyForInput = (date) => {
     if (!date || isNaN(new Date(date).getTime())) return '';
     let d = new Date(date);
@@ -213,13 +166,9 @@ const EventModal = ({
     </div>
   );
 
-  // Controllo se l'allarme è attivo
-  let isAlarmEnabled = selectedEvent?.type === "activity" 
-    ? selectedEvent?.alarm?.enabled 
-    : (selectedEvent?.alarm?.earlyness > 0) || (selectedEvent?.alarm?.repeat_times > 0);
+  let isAlarmEnabled = selectedEvent?.alarm?.enabled === true;
   let shouldShowRepeatEvery = selectedEvent?.alarm?.repeat_times > 1;
 
-  // Aggiungi questa funzione per gestire il cambio di ricorrenza
   const handleRecurrenceChange = (e) => {
     let value = e.target.value;
     setSelectedEvent(prev => ({ ...prev, recurrenceRule: value }));
@@ -243,7 +192,6 @@ const EventModal = ({
           </div>
         </div>
 
-        {/* Corpo del modal */}
         <div className={styles.modalBody}>
           {/* Tipo di evento */}
           <div>
@@ -261,10 +209,9 @@ const EventModal = ({
             </select>
           </div>
 
-          {/* Campi condizionali - nascosti per pomodoro */}
+          {/* Campi nascosti per pomodoro */}
           {selectedEvent?.type !== "pomodoro" && (
             <>
-              {/* Titolo */}
               <div>
                 <label className={styles.label}>
                   Titolo
@@ -278,9 +225,8 @@ const EventModal = ({
                 />
               </div>
 
-              {/* Date di inizio e fine - diverse per attività vs eventi */}
+              {/* Date diverse per attività vs eventi */}
               {selectedEvent?.type === "activity" ? (
-                // Attività: solo la data senza ora
                 <div>
                   <label className={styles.label}>
                     Data Attività
@@ -293,7 +239,6 @@ const EventModal = ({
                   />
                 </div>
               ) : (
-                // Eventi normali: data e ora di inizio e fine
                 <div className={styles.dateTimeGrid}>
                   <div>
                     <label className={styles.label}>
@@ -320,7 +265,6 @@ const EventModal = ({
                 </div>
               )}
 
-              {/* Location */}
               <div>
                 <label className={styles.label}>
                   Luogo
@@ -334,7 +278,6 @@ const EventModal = ({
                 />
               </div>
 
-              {/* Descrizione */}
               <div>
                 <label className={styles.label}>
                   Descrizione
@@ -348,7 +291,7 @@ const EventModal = ({
                 />
               </div>
 
-              {/* RICORRENZA - solo per eventi normali, NON per attività */}
+              {/* Ricorrenza solo per eventi normali */}
               {selectedEvent?.type === "event" && (
                 <div>
                   <label className={styles.label}>
@@ -370,7 +313,7 @@ const EventModal = ({
             </>
           )}
 
-          {/* Campi specifici per pomodoro */}
+          {/* Sezione pomodoro */}
           {selectedEvent?.type === "pomodoro" && (
             <div className={styles.pomodoroSection}>
               <div className={styles.pomodoroMessage}>
@@ -420,7 +363,7 @@ const EventModal = ({
             </div>
           )}
 
-          {/* Impostazioni allarme (solo se non è un pomodoro) */}
+          {/* Impostazioni allarme */}
           {selectedEvent?.type !== "pomodoro" && (
             <div className={styles.alarmGroup}>
               <div className={styles.alarmCheckbox}>
@@ -435,8 +378,8 @@ const EventModal = ({
                 </label>
               </div>
 
-              {/* Mostro le impostazioni dell'allarme solo se è attivato e NON per le attività */}
-              {isAlarmEnabled && selectedEvent?.type !== "activity" && (
+              {/* Impostazioni avanzate dell'allarme */}
+              {isAlarmEnabled && (
                 <div className={styles.alarmSettings}>
                   <div>
                     <label className={styles.label}>
@@ -472,7 +415,7 @@ const EventModal = ({
                     </select>
                   </div>
 
-                  {/* Mostro questo campo solo se voglio ripetere più di una volta */}
+                  {/* Campo mostrato solo per ripetizioni multiple */}
                   {shouldShowRepeatEvery && (
                     <div>
                       <label className={styles.label}>
@@ -497,9 +440,8 @@ const EventModal = ({
           )}
         </div>
 
-        {/* Footer del modal con i bottoni */}
+        {/* Footer con bottoni azione */}
         <div className={styles.modalFooter}>
-          {/* Bottone di eliminazione (solo se sto modificando) */}
           {isEditing && (
             <button
               onClick={handleDelete}
@@ -509,7 +451,6 @@ const EventModal = ({
             </button>
           )}
           
-          {/* Bottone di annullamento */}
           <button
             onClick={closeModal}
             className={`${styles.button} ${styles.cancelButton}`}
@@ -517,7 +458,6 @@ const EventModal = ({
             Annulla
           </button>
           
-          {/* Bottone di salvataggio */}
           <button
             onClick={handleSave}
             className={`${styles.button} ${styles.saveButton}`}

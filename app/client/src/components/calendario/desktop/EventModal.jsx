@@ -1,20 +1,19 @@
 import styles from "./EventModal.module.css";
-
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useState, useEffect, useCallback, memo, useRef } from "react";
-import { Link } from "react-router-dom"; // Solo questo da react-router-dom
+import { Link } from "react-router-dom";
 
 // Modal per creare o modificare eventi
 const EventModal = function EventModal({
-  isEditing, // Se sto modificando o creando
-  newEvent, // I dati dell'evento
-  setNewEvent, // Per cambiare i dati dell'evento
-  handleSaveEvent, // Funzione per salvare
-  handleDeleteEvent, // Funzione per eliminare
-  setShowModal, // Per chiudere il modal
-  resetForm, // Per pulire il form
-  isLoading // Se sta caricando
+  isEditing,
+  newEvent,
+  setNewEvent,
+  handleSaveEvent,
+  handleDeleteEvent,
+  setShowModal,
+  resetForm,
+  isLoading
 }) {
   const [recurrence, setRecurrence] = useState(newEvent.recurrenceRule || "");
 
@@ -26,27 +25,24 @@ const EventModal = function EventModal({
   // Quando cambio la ricorrenza nel dropdown
   const handleRecurrenceChange = (e) => {
     let value = e.target.value;
-    setRecurrence(value); // Aggiorno lo stato locale
-    setNewEvent(prev => ({ ...prev, recurrenceRule: value })); // E anche l'evento
+    setRecurrence(value);
+    setNewEvent(prev => ({ ...prev, recurrenceRule: value }));
   };
 
-  // Add the missing calculateEndDate function
+  // Calcola la data di fine mantenendo la durata originale
   const calculateEndDate = (eventData, clickedDate) => {
     if (!eventData.start || !eventData.end) {
-      // If no original dates, default to 1 hour duration
       return new Date(new Date(clickedDate).getTime() + 60 * 60 * 1000);
     }
     
-    // Calculate the original duration
     const originalStart = new Date(eventData.start);
     const originalEnd = new Date(eventData.end);
     const duration = originalEnd.getTime() - originalStart.getTime();
     
-    // Apply the same duration to the clicked date
     return new Date(new Date(clickedDate).getTime() + duration);
   };
 
-  // Per chiudere il modal con il tasto Escape
+  // Chiude il modal con il tasto Escape
   useEffect(() => {
     const handleEscapeKey = (e) => {
       if (e.key === 'Escape') {
@@ -56,11 +52,10 @@ const EventModal = function EventModal({
     };
     
     window.addEventListener('keydown', handleEscapeKey);
-    // Cleanup per evitare memory leak
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [setShowModal, resetForm]);
 
-  // Chiudo il modal se clicco fuori
+  // Chiude il modal se clicco fuori
   const handleOutsideClick = (e) => {
     if (e.target.className === 'modal-overlay') {
       setShowModal(false);
@@ -71,10 +66,9 @@ const EventModal = function EventModal({
   // Gestore per gli eventi ricorrenti
   const handleRecurringEvent = (eventData, clickedDate) => {
     if (eventData.recurrenceRule && clickedDate) {
-      // Se questo è un evento ricorrente e abbiamo cliccato su una occorrenza specifica
       return {
         ...eventData,
-        start: clickedDate, // Usa la data dell'occorrenza cliccata
+        start: clickedDate,
         end: calculateEndDate(eventData, clickedDate),
         isRecurringInstance: true,
         originalEventId: eventData._id
@@ -86,10 +80,8 @@ const EventModal = function EventModal({
   return (
     <div className={styles.modalOverlay} onClick={handleOutsideClick}>
       <div className={styles.modal}>
-        {/* Header del modal */}
         <ModalHeader isEditing={isEditing} setShowModal={setShowModal} resetForm={resetForm} />
         
-        {/* Corpo del modal con tutti i campi */}
         <ModalBody 
           newEvent={newEvent} 
           setNewEvent={setNewEvent} 
@@ -97,7 +89,6 @@ const EventModal = function EventModal({
           handleRecurrenceChange={handleRecurrenceChange} 
         />
         
-        {/* Footer con i bottoni */}
         <ModalFooter 
           isEditing={isEditing} 
           handleSaveEvent={handleSaveEvent} 
@@ -111,7 +102,7 @@ const EventModal = function EventModal({
   );
 };
 
-// Header del modal con titolo e X per chiudere
+// Header del modal con titolo e pulsante chiusura
 const ModalHeader = ({ isEditing, setShowModal, resetForm }) => (
   <div className={styles.modalHeader}>
     <h3>
@@ -135,25 +126,23 @@ const ModalBody = ({
   recurrence,
   handleRecurrenceChange,
 }) => {
-  // Quando cambio un campo di testo normale
+  // Gestisce i cambi dei campi di testo
   const handleInputChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
     setNewEvent(prev => ({ ...prev, [name]: value }));
   };
 
-  // Quando cambio una data
+  // Gestisce i cambi delle date
   const handleDateChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
     
-    // Controllo se il valore è vuoto o non valido
     if (!value || value === "") {
       setNewEvent(prev => ({ ...prev, [name]: new Date() }));
       return;
     }
     
-    // Controllo se la data è valida
     const dateValue = new Date(value);
     if (isNaN(dateValue.getTime())) {
       setNewEvent(prev => ({ ...prev, [name]: new Date() }));
@@ -180,14 +169,14 @@ const ModalBody = ({
         </select>
       </div>
 
-      {/* Campi diversi in base al tipo */}
+      {/* Campi diversi per tipo pomodoro */}
       {newEvent.type === "pomodoro" ? (
         <>
-        <SelectPomodoros newEvent = {newEvent} setNewEvent = {setNewEvent}></SelectPomodoros>
+        <SelectPomodoros newEvent={newEvent} setNewEvent={setNewEvent} />
         {newEvent.pomodoro.studyTime && <FormField
           id="studyTime"
           name="studyTime"
-          label="studyTime"
+          label="Tempo Studio (min)"
           type="number"
           value={newEvent.pomodoro.studyTime || 0}
           onChange={handleInputChange}
@@ -197,7 +186,7 @@ const ModalBody = ({
         {newEvent.pomodoro.breakTime && <FormField
           id="breakTime"
           name="breakTime"
-          label="breakTime"
+          label="Tempo Pausa (min)"
           type="number"
           value={newEvent.pomodoro.breakTime || 0}
           onChange={handleInputChange}
@@ -207,7 +196,7 @@ const ModalBody = ({
         {newEvent.pomodoro.cycles && <FormField
           id="cycles"
           name="cycles"
-          label="cycles"
+          label="Cicli"
           type="number"
           value={newEvent.pomodoro.cycles || 0}
           onChange={handleInputChange}
@@ -215,13 +204,14 @@ const ModalBody = ({
           min="1"
           required
         />}
-        <br></br>
-        <Link to={"/pomodoro"} state={newEvent?.pomodoro} className={styles.linkButton}>Visit Pomodoro</Link>     
+        <br />
+        <Link to={"/pomodoro"} state={newEvent?.pomodoro} className={styles.linkButton}>
+          Vai a Pomodoro
+        </Link>     
         </> 
       ) : (
         // Per eventi normali e attività
         <>
-          {/* Titolo obbligatorio */}
           <FormField
             id="event-title"
             name="title"
@@ -234,7 +224,6 @@ const ModalBody = ({
 
           {/* Date diverse per attività vs eventi */}
           {newEvent.type === "activity" ? (
-            // Attività: solo la data senza ora
             <FormField
               id="activity-date"
               name="activityDate"
@@ -246,7 +235,6 @@ const ModalBody = ({
               onChange={handleDateChange}
             />
           ) : (
-            // Eventi normali: data e ora di inizio e fine
             <>
               <FormField
                 id="start-date"
@@ -271,7 +259,6 @@ const ModalBody = ({
             </>
           )}
 
-          {/* Luogo */}
           <FormField
             id="event-location"
             name="location"
@@ -281,7 +268,7 @@ const ModalBody = ({
             onChange={handleInputChange}
           />
 
-          {/* Ricorrenza (solo per eventi normali, NON per attività) */}
+          {/* Ricorrenza solo per eventi normali */}
           {newEvent.type === "event" && (
             <div className={styles.formGroup}>
               <label htmlFor="recurrence">Ricorrenza</label>
@@ -301,7 +288,7 @@ const ModalBody = ({
         </>
       )}
 
-      {/* Descrizione e allarme (non per i pomodoro) */}
+      {/* Descrizione e allarme per eventi normali e attività */}
       {newEvent.type !== "pomodoro" && (
         <>
           <FormField
@@ -313,11 +300,10 @@ const ModalBody = ({
             onChange={handleInputChange}
           />
           
-          {/* Impostazioni allarme */}
           <AlarmSettings 
             alarm={newEvent.alarm}
             setNewEvent={setNewEvent}
-            eventType={newEvent.type} // Passa il tipo di evento
+            eventType={newEvent.type}
           />
         </>
       )}
@@ -339,59 +325,49 @@ const FormField = ({ id, name, label, type, value, onChange, disabled = false, .
 
 // Componente per gestire le impostazioni dell'allarme
 const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
-  // Quando cambio un'impostazione dell'allarme
+  const handleAlarmToggle = (enabled) => {
+    setNewEvent(prev => ({
+      ...prev,
+      alarm: {
+        ...prev.alarm,
+        enabled: enabled
+      }
+    }));
+  };
+
   const handleAlarmChange = (field, value) => {
     setNewEvent(prev => ({
       ...prev,
       alarm: {
         ...prev.alarm,
-        [field]: value
+        [field]: parseInt(value) || 0
       }
     }));
   };
 
-  // Per le attività, controllo solo il campo enabled
-  const isActivityType = eventType === "activity";
-  const isAlarmEnabled = isActivityType ? alarm.enabled : (alarm.earlyness > 0 || alarm.repeat_times > 0);
+  const isAlarmEnabled = alarm?.enabled === true || alarm?.enabled === "true";
 
   return (
     <div className={styles.notificationGroup}>
-      {/* Checkbox per abilitare/disabilitare allarme */}
       <div className={styles.notificationCheckbox}>
         <input
           type="checkbox"
           id="enable-alarm"
           checked={isAlarmEnabled}
-          onChange={(e) => {
-            if (isActivityType) {
-              // Per le attività, cambia solo il campo enabled
-              handleAlarmChange('enabled', e.target.checked);
-            } else {
-              // Per eventi e pomodoro, mantieni la logica esistente
-              if (e.target.checked) {
-                handleAlarmChange('earlyness', 15);
-                handleAlarmChange('repeat_times', 1);
-              } else {
-                handleAlarmChange('earlyness', 0);
-                handleAlarmChange('repeat_times', 0);
-                handleAlarmChange('repeat_every', 0);
-              }
-            }
-          }}
+          onChange={(e) => handleAlarmToggle(e.target.checked)}
         />
         <label htmlFor="enable-alarm">Abilita Notifiche</label>
       </div>
       
-      {/* Impostazioni dettagliate solo per eventi e pomodoro (NON per attività) */}
-      {!isActivityType && isAlarmEnabled && (
+      {/* Impostazioni avanzate solo se allarme abilitato e non è un'attività */}
+      {isAlarmEnabled && eventType !== "activity" && (
         <div className={styles.notificationSubSettings}>
-          {/* Quando suonare l'allarme */}
           <div className={styles.formGroup}>
             <label htmlFor="alarm-earlyness">Avvisami (minuti prima)</label>
             <select
               id="alarm-earlyness"
-              value={alarm.earlyness}
-              onChange={(e) => handleAlarmChange('earlyness', parseInt(e.target.value))}
+              value={alarm?.earlyness || 15}
+              onChange={(e) => handleAlarmChange('earlyness', e.target.value)}
             >
               <option value="0">All'orario dell'evento</option>
               <option value="5">5 minuti prima</option>
@@ -402,13 +378,12 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
             </select>
           </div>
 
-          {/* Quante volte ripetere */}
           <div className={styles.formGroup}>
             <label htmlFor="alarm-repeat-times">Ripeti allarme (volte)</label>
             <select
               id="alarm-repeat-times"
-              value={alarm.repeat_times}
-              onChange={(e) => handleAlarmChange('repeat_times', parseInt(e.target.value))}
+              value={alarm?.repeat_times || 1}
+              onChange={(e) => handleAlarmChange('repeat_times', e.target.value)}
             >
               <option value="1">Una volta</option>
               <option value="2">2 volte</option>
@@ -417,14 +392,13 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
             </select>
           </div>
 
-          {/* Ogni quanto ripetere (solo se > 1 volta) */}
-          {alarm.repeat_times > 1 && (
+          {(alarm?.repeat_times || 1) > 1 && (
             <div className={styles.formGroup}>
               <label htmlFor="alarm-repeat-every">Ripeti ogni (minuti)</label>
               <select
                 id="alarm-repeat-every"
-                value={alarm.repeat_every}
-                onChange={(e) => handleAlarmChange('repeat_every', parseInt(e.target.value))}
+                value={alarm?.repeat_every || 1}
+                onChange={(e) => handleAlarmChange('repeat_every', e.target.value)}
               >
                 <option value="1">1 minuto</option>
                 <option value="2">2 minuti</option>
@@ -440,7 +414,7 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
   );
 };
 
-// Footer del modal con i bottoni di azione
+// Footer del modal con i pulsanti di azione
 const ModalFooter = ({
   isEditing,
   handleSaveEvent,
@@ -450,7 +424,6 @@ const ModalFooter = ({
   isLoading
 }) => (
   <div className={styles.modalFooter}>
-    {/* Bottone elimina (solo se sto modificando) */}
     {isEditing && (
       <button 
         type="button" 
@@ -464,7 +437,6 @@ const ModalFooter = ({
       </button>
     )}
     
-    {/* Bottone annulla */}
     <button 
       type="button" 
       className={styles.cancelBtn} 
@@ -477,7 +449,6 @@ const ModalFooter = ({
       Annulla
     </button>
     
-    {/* Bottone salva */}
     <button 
       type="button" 
       className={styles.saveBtn} 
@@ -494,77 +465,71 @@ const ModalFooter = ({
 export default EventModal;
 
 /**
- * 
- * @param {newEvent, setNewEvent}  
- * @returns componente per la scelta del pomodoro
- * 
- * Il componente ritorna un select per la selezione di un pomodoro
- * imposta il campo "pomodoro" del newEvent come l'oggetto pomodoro selezionato
+ * Componente per la selezione dei pomodori
+ * @param {Object} newEvent - Evento corrente
+ * @param {Function} setNewEvent - Funzione per aggiornare l'evento
+ * @returns Select per la scelta del pomodoro
  */
-const SelectPomodoros = ( {newEvent, setNewEvent} )=>{
+const SelectPomodoros = ({ newEvent, setNewEvent }) => {
+  const [pomodoroOptions, setPomodoroOptions] = useState([]);
+  const selectRef = useRef();
 
-const [pomodoroOptions, setPomodoroOptions] = useState([]);
-const [currentPomodoro, setCurrentPomodoro] = useState(null);
-const selectRef = useRef();
-
-const FetchPomodoros = useCallback(()=>{
-fetch("api/Pomodoro/getP", {
-  method:"GET",
-  mode:"cors",
-  headers:{
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-  }
-  })
-  .then(res => res.json()
-  ).then(
-    (data) =>{
-      setPomodoroOptions(data.body)
-      if(newEvent.pomodoro)
-      {
+  // Carica la lista dei pomodori dal server
+  const FetchPomodoros = useCallback(() => {
+    fetch("api/Pomodoro/getP", {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    })
+    .then(res => res.json())
+    .then((data) => {
+      setPomodoroOptions(data.body);
+      if (newEvent.pomodoro) {
         const initialPomodoro = data.body.find(p => p.title === newEvent.pomodoro);
-        if(initialPomodoro)
-          setNewEvent( prev => ({ ...prev, pomodoro: initialPomodoro }));
-      }}
-    )}, [pomodoroOptions, setNewEvent])
+        if (initialPomodoro) {
+          setNewEvent(prev => ({ ...prev, pomodoro: initialPomodoro }));
+        }
+      }
+    });
+  }, [pomodoroOptions, setNewEvent]);
 
-  // Gestore per il cambio dell'opzione selezionata
+  // Gestisce il cambio dell'opzione selezionata
   const handleSelectChange = useCallback(e => {
     const selectedTitle = e.target.value;
-    //ritorna se si è passati al valore base
-    if(selectedTitle == "")
-      return;
-    // Trova l'oggetto pomodoro corrispondente all'ID selezionato
+    if (selectedTitle == "") return;
+    
     const foundPomodoro = pomodoroOptions.find(p => p.title === selectedTitle);
-    // setCurrentPomodoro(foundPomodoro); // Aggiorna lo stato con l'intero oggetto
-    setNewEvent( prev => ({ ...prev, pomodoro: foundPomodoro }));
+    setNewEvent(prev => ({ ...prev, pomodoro: foundPomodoro }));
+  }, [pomodoroOptions]);
 
-  }, [pomodoroOptions]); // Dipende da pomodoroOptions per trovare l'oggetto
+  useEffect(() => {
+    FetchPomodoros();
+  }, []);
 
-useEffect(()=>{
-  FetchPomodoros();
-},[]);
-
-  return(
+  return (
     <select
-    className={styles.selectTitle}
-    ref={selectRef}
-    onChange={handleSelectChange}
-    value={
-    typeof newEvent.pomodoro === 'string'
-      ? newEvent.pomodoro // If it's a string (initial state)
-      : newEvent.pomodoro?.title || "" // If it's an object or null/undefined
-    } >
+      className={styles.selectTitle}
+      ref={selectRef}
+      onChange={handleSelectChange}
+      value={
+        typeof newEvent.pomodoro === 'string'
+          ? newEvent.pomodoro
+          : newEvent.pomodoro?.title || ""
+      }
+    >
       <option value="" className={styles.initialOption}>
-        select a pomodoro
+        Seleziona un pomodoro
       </option>
-      {pomodoroOptions.map(el =>(
-        <option value={el.title} key={el.title} {...newEvent?.pomodoro?.title === el.title ? "selected" : ""}>
+      {pomodoroOptions.map(el => (
+        <option value={el.title} key={el.title}>
           {el.title}
         </option>
       ))}
     </select>
-  )
-}
+  );
+};
 
-export {SelectPomodoros};
+export { SelectPomodoros };
