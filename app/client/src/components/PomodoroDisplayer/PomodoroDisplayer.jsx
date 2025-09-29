@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import style from "./PomodoroDisplayer.module.css"
-import { PieChart } from "@mui/x-charts";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 
 const PomodoroDisplayer = ()=>{
     console.log("rendering Pomodoro displayer");
@@ -52,6 +53,48 @@ const PomodoroDisplayer = ()=>{
     day: 'numeric'
     })};
 
+    ChartJS.register(ArcElement, Tooltip, Legend);
+
+    const data = {
+        labels: ['Durata Studio', 'Durata Pausa'],
+        datasets: [
+        {
+            data: [pomodoroEvent?.studyT, pomodoroEvent?.breakT],
+            backgroundColor: ['#4254fb', '#ffb422'],
+            borderColor: ['white', 'white'],
+            borderWidth: 1,
+        },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false, // occupa lo spazio disponibile
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: 'white', // legenda bianca
+                },
+            },
+        },
+        tooltip: {
+            enabled: true,
+        },
+        datalabels: {
+            color: 'white',
+            formatter: (value, context) => {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return ((value / total) * 100).toFixed(0) + '%';
+            },
+            font: {
+                weight: 'bold',
+                size: 14,
+            },
+        },
+    };
+    
+
     if ( pomodoroEvent != null){
     return (
         <div className={style.container}>
@@ -62,16 +105,7 @@ const PomodoroDisplayer = ()=>{
 
             <div className={style.pomodoroBody}>
                 <div className={style.pomodoroChart}>
-                    <PieChart
-                        className={style.pomodoroPie}
-                        series={[{
-                            data : [
-                                {id : 0, value : pomodoroEvent?.studyT, label : "Durata studio"},
-                                {id : 1, value : pomodoroEvent?.breakT, label : "Durata pausa"}
-                            ],
-                        },
-                    ]}
-                    ></PieChart>
+                    <Pie data={data} options={options} />
                 </div>
                 <div className={style.pomodoroStats}>
                     <span>Studio: {pomodoroEvent?.studyT} minuti </span>

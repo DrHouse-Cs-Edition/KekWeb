@@ -315,7 +315,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
 
         {/* {<Animation2 run={runTimer} resetFlag={resetFlag} currentTimer={curTimer}></Animation2>} */}
         { <button className={style.pomodoroButton}
-        onClick={()=>{updateModing(1 ^ isModing); console.log("moding: ", isModing ^ 1)}}>
+        onClick={()=>{updateModing(1 ^ isModing); }}>
         {isModing ? "Pronto allo studio!": "crea/modifica Pomodoro"}</button>}
         <div className={style.sideBar}>
             <PomodoroSideBar loadPomodoro = {loadPomodoro} deleteCallback={newPomodoro}></PomodoroSideBar>
