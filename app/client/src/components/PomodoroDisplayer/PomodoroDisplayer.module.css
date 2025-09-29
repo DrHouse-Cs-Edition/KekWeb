@@ -42,7 +42,7 @@
 }
 
 .pomodoroBody > a{
-    color: var(--dusk-accent);
+    color: var(--dusk-text);
 }
 
 .pomodoroChart {
