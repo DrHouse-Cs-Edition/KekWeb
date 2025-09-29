@@ -261,7 +261,6 @@ async function timeTravelNotificationsReset(now){
   );*/
 
   //sposto indietro Attività e Pomodori
-  /*
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const toMove = await Event.find({ type: {$in: ["activity", "pomodoro"]}, start: {$gt: today}, completed: {$ne: true} }) // attivita non completate successive ad adesso
   toMove.forEach( (event) => {
@@ -274,7 +273,7 @@ async function timeTravelNotificationsReset(now){
         }
       });
     }
-  })*/
+  })
 
   // invio tutte le operazioni in una sola volta
   if(operations.length > 0 )
