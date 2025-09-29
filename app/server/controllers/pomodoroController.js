@@ -1,4 +1,3 @@
-const { request } = require("http");
 const Pomodoro = require ("../mongoSchemas/PomodoroSchema.js");
 const Event = require ("../mongoSchemas/Event.js");
 const { title } = require("process");
@@ -10,7 +9,7 @@ exports.saveP = async function (req, res){
     const newPomodoroBody = req.body;
     newPomodoroBody.user = req.user; // salvo id dell'utente
     try{
-        Pomodoro.find({title: newPomodoroBody.title, user:request.user}, {projection : {title : 1}}) // cerco se esiste già pomodoro creato dall'utente con stesso nome
+        Pomodoro.find({title: newPomodoroBody.title, user: req.user}, {projection : {title : 1}}) // cerco se esiste già pomodoro creato dall'utente con stesso nome
         .then(result => {
             if(result.length){
                 res.status(400).json({
@@ -32,7 +31,7 @@ exports.saveP = async function (req, res){
 }
 
 exports.getP = async function (req, res){
-    Pomodoro.find({}).lean()
+    Pomodoro.find({ user: req.user }).lean()
     .then(result => {
         try{
             res.status(200).json({

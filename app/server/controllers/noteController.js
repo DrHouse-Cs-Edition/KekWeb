@@ -130,14 +130,15 @@ const allNote = async (request,response)=>{
                 case "length":
                     listaNote = await Note.aggregate([ // query avanzata che usa l'Aggregation Pipeline
                         {
-                            $match: { user: request.user },
-                            $addFields: { // aggiungiamo campi temporanei (qui solo 1)
+                            $match: { user: request.user }
+                        },
+                        {   $addFields: { // aggiungiamo campi temporanei (qui solo 1)
                                 stringLength: { $strLenCP: "$text" } // $strLenCP è un aggregation operator che calcola lunghezza stringa, $text indica che il calcolo è sul campo text
                             }
                         },
                         {
                             $sort: { stringLength: -1 }
-                        }
+                        },
                     ])
                     break;
             }

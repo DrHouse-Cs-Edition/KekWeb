@@ -243,6 +243,7 @@ const User = ()=>{
                 console.log("A");
                 // 0. controllo non ci sia già subscription
                 const reg = await navigator.serviceWorker.ready;
+                console.log("A 1/2");
                 const sub = await reg.pushManager.getSubscription();
                 console.log("B");
                 if(sub){
