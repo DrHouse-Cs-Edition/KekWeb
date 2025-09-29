@@ -96,7 +96,6 @@ class TimeMachine extends HTMLElement {
         alert(`Hai viaggiato di: ${days}g ${hours}h ${minutes}m`);
         const localDate = this.dateFormat(new Date(json.date));
         //this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("submit done");
       }
       else{
         console.log("sucess submit = false");
