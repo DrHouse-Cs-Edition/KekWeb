@@ -101,8 +101,10 @@ export default function CalendarApp() {
         let eventStartDate, eventEndDate;
         
         if (event.type === "activity") {
-          eventStartDate = new Date(event.activityDate);
-          eventEndDate = new Date(event.activityDate);
+          // Usa start invece di activityDate, con fallback su activityDate per compatibilità
+          const activityDateSource = event.start || event.activityDate;
+          eventStartDate = new Date(activityDateSource);
+          eventEndDate = new Date(activityDateSource);
           
           const eventDateOnly = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
           const targetDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -110,7 +112,20 @@ export default function CalendarApp() {
           if (eventDateOnly.getTime() === targetDateOnly.getTime()) {
             eventsForDay.push(event);
           }
+        } else if (event.type === "pomodoro") {
+          // Per i pomodori non ricorrenti, usa sempre start/end
+          eventStartDate = new Date(event.start);
+          eventEndDate = new Date(event.end);
+          
+          const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          const startDate = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+          const endDate = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+          
+          if (targetDate >= startDate && targetDate <= endDate) {
+            eventsForDay.push(event);
+          }
         } else {
+          // Eventi normali
           eventStartDate = new Date(event.start);
           eventEndDate = new Date(event.end);
           
@@ -123,18 +138,15 @@ export default function CalendarApp() {
           }
         }
       } else {
-        // Eventi ricorrenti (escluse attività)
+        // Eventi ricorrenti (inclusi pomodori ricorrenti, escluse attività)
         try {
-          // Estrai i dettagli della ricorrenza originale
           const originalStart = new Date(event.start);
           
           // Per eventi mensili, dobbiamo calcolare manualmente se è un'occorrenza valida
           if (event.recurrenceRule.includes('FREQ=MONTHLY')) {
-            // Per ricorrenza mensile, controlla se il giorno del mese corrisponde
             const originalDay = originalStart.getDate();
             const targetDay = date.getDate();
             
-            // Se i giorni corrispondono e la data target è >= alla data originale
             if (targetDay === originalDay && date >= new Date(originalStart.getFullYear(), originalStart.getMonth(), originalStart.getDate())) {
               const originalEnd = new Date(event.end);
               const eventDuration = originalEnd.getTime() - originalStart.getTime();
@@ -258,7 +270,7 @@ export default function CalendarApp() {
       endDate = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate(),
                         originalEnd.getHours(), originalEnd.getMinutes());
     } else {
-      // Evento normale o attività - validazione date
+      // Evento normale, attività o pomodoro - validazione date
       startDate = event.start && !isNaN(new Date(event.start).getTime()) 
         ? new Date(event.start) 
         : new Date();
@@ -284,7 +296,10 @@ export default function CalendarApp() {
     
     switch(eventData.type) {
       case "activity":
-        const activityDateValue = event.activityDate && !isNaN(new Date(event.activityDate).getTime()) 
+        // Usa start se disponibile, altrimenti activityDate per compatibilità
+        const activityDateValue = event.start && !isNaN(new Date(event.start).getTime()) 
+          ? new Date(event.start) 
+          : event.activityDate && !isNaN(new Date(event.activityDate).getTime()) 
           ? new Date(event.activityDate) 
           : startDate;
         eventData.activityDate = activityDateValue;
@@ -294,14 +309,17 @@ export default function CalendarApp() {
         };
         break;
       case "pomodoro":
-        eventData.pomodoro = event.pomodoro || {
-          title: "",
-          studyTime: null,
-          breakTime: null,
-          cycles: null,
-        };
+        // Per i pomodori usa sempre start/end dal database
         eventData.start = startDate;
         eventData.end = endDate;
+        // Recupera i dati del pomodoro, con fallback sui dati salvati
+        eventData.pomodoro = {
+          _id: event.pomodoroData?._id || event.pomodoro?._id || "",
+          title: event.pomodoroData?.title || event.pomodoro?.title || event.pomodoro || "",
+          studyTime: event.pomodoroData?.studyTime || event.pomodoro?.studyTime || null,
+          breakTime: event.pomodoroData?.breakTime || event.pomodoro?.breakTime || null,
+          cycles: event.pomodoroData?.cycles || event.pomodoro?.cycles || null,
+        };
         break;
       case "event":
       default:
@@ -498,7 +516,8 @@ export default function CalendarApp() {
     const dayEvents = getEventsForDate(date);
     return dayEvents.filter(event => {
       if (event.type === 'activity') return hour === 12; // Attività a mezzogiorno
-      
+    
+      // Per pomodori ed eventi usa start/end
       const eventStart = new Date(event.start);
       const eventHour = eventStart.getHours();
       const eventEnd = new Date(event.end);
@@ -644,11 +663,14 @@ export default function CalendarApp() {
           alert("Data dell'attività non valida!");
           return;
         }
-        // Per le attività, salva solo la data senza orario per evitare problemi di fuso orario
+        // Salva sia in activityDate che in start/end per compatibilità
         const activityDateOnly = new Date(activityDate.getFullYear(), activityDate.getMonth(), activityDate.getDate(), 12, 0, 0);
         eventData.activityDate = activityDateOnly.toISOString();
+        eventData.start = activityDateOnly.toISOString();
+        eventData.end = activityDateOnly.toISOString();
         break;
       case "pomodoro":
+        // Salva sia il riferimento pomodoro che start/end per la visualizzazione nel calendario
         eventData.pomodoro = newEvent.pomodoro.title || "";
         let pomodoroStart = newEvent.start || new Date();
         let pomodoroEnd = newEvent.end || new Date(Date.now() + 25 * 60000);
@@ -658,7 +680,16 @@ export default function CalendarApp() {
         }
         eventData.start = new Date(pomodoroStart).toISOString();
         eventData.end = new Date(pomodoroEnd).toISOString();
+        eventData.activityDate = new Date(pomodoroStart).toISOString();
         eventData.recurrenceRule = rruleString;
+        // Salva anche il pomodoro object completo per compatibilità
+        eventData.pomodoroData = {
+          _id: newEvent.pomodoro._id,
+          title: newEvent.pomodoro.title,
+          studyTime: newEvent.pomodoro.studyTime,
+          breakTime: newEvent.pomodoro.breakTime,
+          cycles: newEvent.pomodoro.cycles
+        };
         break;
       case "event":
       default:

@@ -100,7 +100,9 @@ const MobileCalendarApp = () => {
 
             // Imposta colore e durata in base al tipo di evento
             if (event.type === "activity") {
-              let actDate = event.activityDate ? new Date(event.activityDate) : serverDate;
+              // Usa start se disponibile, altrimenti activityDate
+              let actDate = event.start ? new Date(event.start) : 
+                           event.activityDate ? new Date(event.activityDate) : serverDate;
               eventObj.start = actDate;
               eventObj.end = actDate;
               eventObj.allDay = true;
@@ -156,7 +158,7 @@ const MobileCalendarApp = () => {
     });
   };
 
-  // Ottiene tutti gli eventi per una data specifica
+  // Ottiene tutti gli eventi per una data specifica  
   const getEventsForDate = (date) => {
     const eventsForDay = [];
     
@@ -166,8 +168,9 @@ const MobileCalendarApp = () => {
         let eventStartDate, eventEndDate;
         
         if (event.extendedProps?.type === "activity") {
-          eventStartDate = new Date(event.extendedProps.activityDate || event.start);
-          eventEndDate = new Date(event.extendedProps.activityDate || event.start);
+          // Usa start invece di activityDate
+          eventStartDate = new Date(event.start);
+          eventEndDate = new Date(event.start);
           
           const eventDateOnly = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
           const targetDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -610,9 +613,11 @@ const MobileCalendarApp = () => {
           alert("Data dell'attività non valida!");
           return;
         }
-        // Per le attività, salva solo la data senza orario per evitare problemi di fuso orario
+        // Salva sia in activityDate che in start/end per compatibilità
         const activityDateOnly = new Date(activityDate.getFullYear(), activityDate.getMonth(), activityDate.getDate(), 12, 0, 0);
         eventData.activityDate = activityDateOnly.toISOString();
+        eventData.start = activityDateOnly.toISOString();
+        eventData.end = activityDateOnly.toISOString();
         break;
       case "pomodoro":
         eventData.pomodoro = newEvent.pomodoro.title || "";
@@ -624,7 +629,16 @@ const MobileCalendarApp = () => {
         }
         eventData.start = new Date(pomodoroStart).toISOString();
         eventData.end = new Date(pomodoroEnd).toISOString();
+        eventData.activityDate = new Date(pomodoroStart).toISOString();
         eventData.recurrenceRule = rruleString;
+        // Salva anche il pomodoro object completo per compatibilità
+        eventData.pomodoroData = {
+          _id: newEvent.pomodoro._id,
+          title: newEvent.pomodoro.title,
+          studyTime: newEvent.pomodoro.studyTime,
+          breakTime: newEvent.pomodoro.breakTime,
+          cycles: newEvent.pomodoro.cycles
+        };
         break;
       case "event":
       default:
