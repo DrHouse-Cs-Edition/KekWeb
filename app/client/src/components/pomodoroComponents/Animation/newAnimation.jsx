@@ -72,9 +72,7 @@ const BreakAnimation = ({duration, run, resetFlag})=>{
 //style={{animationPlayState: run ? "running" : "paused"}}
 
 const StudyAnimation_new = ({run, resetFlag})=>{
-    useEffect(()=>{
-        console.log("run is: ", run);
-    },[])
+
 
     const ContainerRef = useRef(null);
     const CurvesRef = useRef(null);

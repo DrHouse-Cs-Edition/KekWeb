@@ -85,7 +85,7 @@ export default function CalendarApp() {
         if (data.success) {
           setEvents(data.list);
         } else {
-          console.log("Nessun evento trovato");
+        ("Nessun evento trovato");
         }
       })
       .catch((err) => {

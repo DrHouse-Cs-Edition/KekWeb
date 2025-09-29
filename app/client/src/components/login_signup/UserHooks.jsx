@@ -39,7 +39,6 @@ export {useUsername};
 
 const getPersonalData = async (params)=>{   
     //*params is a URLsearchParams object
-    //console.log("parameters are ", params.toString());
     try{
         return await fetch(`/api/user/getData?${params.toString()}`, {
          method: "GET", 
@@ -62,7 +61,6 @@ export {getPersonalData};
  * The return value is sent to the callback function
  */
 const checkPassword = (username, password, callback)=>{
-    console.log("username and pw: ", username, password);
     fetch("/api/user/reqLogin", {
         method: "POST",
         mode: "cors",
