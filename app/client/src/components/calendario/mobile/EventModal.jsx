@@ -98,13 +98,29 @@ const EventModal = ({
   // Gestisce l'attivazione/disattivazione dell'allarme
   const toggleAlarm = (e) => {
     const enabled = e.target.checked;
-    setSelectedEvent(prev => ({
-      ...prev,
-      alarm: {
-        ...prev.alarm,
-        enabled: enabled
-      }
-    }));
+    if (enabled) {
+      // Enable alarm with default values
+      setSelectedEvent(prev => ({
+        ...prev,
+        alarm: {
+          earlyness: 15,
+          repeat_times: 1,
+          repeat_every: 0,
+          enabled: true
+        }
+      }));
+    } else {
+      // Disable alarm by setting all values to 0
+      setSelectedEvent(prev => ({
+        ...prev,
+        alarm: {
+          earlyness: 0,
+          repeat_times: 0,
+          repeat_every: 0,
+          enabled: false
+        }
+      }));
+    }
   };
 
   const handleEarlynessChange = (e) => {
@@ -166,7 +182,8 @@ const EventModal = ({
     </div>
   );
 
-  let isAlarmEnabled = selectedEvent?.alarm?.enabled === true;
+  // FIX: Cambia la logica per controllare correttamente il campo enabled
+  let isAlarmEnabled = selectedEvent?.alarm?.enabled === true || (selectedEvent?.alarm?.earlyness > 0);
   let shouldShowRepeatEvery = selectedEvent?.alarm?.repeat_times > 1;
 
   const handleRecurrenceChange = (e) => {
@@ -320,7 +337,7 @@ const EventModal = ({
                 <p>Seleziona un template pomodoro per creare la sessione di studio.</p>
               </div>
               
-              <SelectPomodoros newEvent={selectedEvent} setNewEvent={setSelectedEvent} />
+              <SelectPomodoros newEvent={selectedEvent} setSelectedEvent={setSelectedEvent} />
               
               {selectedEvent.pomodoro?.studyTime && (
                 <FormField
