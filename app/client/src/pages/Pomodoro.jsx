@@ -240,6 +240,7 @@ function Pomodoro( {autoStart = 0} ){   //default is studyTime, expressed in sec
         }).then( res => res.json())
         .then(()=>{
             alert("pomodoro aggiornato")
+            window.location.reload();
         })
         .catch(error => {
             alert("errore nell'aggiornamento del pomdoro")
