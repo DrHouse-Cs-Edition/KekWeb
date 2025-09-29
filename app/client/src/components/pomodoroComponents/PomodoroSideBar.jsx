@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import style from './PomodoroSideBar.module.css';
-import { PieChart } from "@mui/x-charts";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 

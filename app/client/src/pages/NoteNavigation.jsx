@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import NotePreview from '../components/NotePreview/NotePreview.jsx';
 import { useNavigate } from "react-router-dom";
-import Style from './NoteNavigation.module.css'
+import style from './NoteNavigation.module.css'
 
 function NoteNavigation() {
 
@@ -29,17 +29,55 @@ function NoteNavigation() {
     // filter = filtra tutti gli elementi che soddisfano condizione
   }
 
+  const addNote = (note) => {
+    setNotes(prevNotes => [note, ...prevNotes]); // in cima
+  }
+
   const handleSortChange = (event) => {  // Quando un utente seleziona un'opzione nel <select>, il browser genera un evento che contiene informazioni sull'azione compiuta
     const value = event.target.value;
     setSortOption(value); // è importante che il value nel select (html) sia il valore che vogliamo mettere nella variabile sortOption (js react) 
     handleLoad(value);
   };
 
+  const handleClone = async (index) => {
+    if (!window.confirm("Sei sicuro di voler clonare la nota " + notes[index].title +"?")) {
+      return;
+    }
+    const time = new Date(); // placeholder, in realtà AddNote prende data server e sovrescrive createdAt e lastModified
+    let note = {
+      title: notes[index].title,
+      categories: notes[index].categories,
+      text: notes[index].text,
+      createdAt: time, // data diversa, resto uguale
+      lastModified: time,
+    };
+    note = await saveNoteOnDB(note);
+    if(note != null)
+      addNote(note); // la mostra senza ricaricare pagina
+  };
+
+  const handleAdd = async () => {
+
+    const time = new Date(); // in realtà AddNote prende data server e sovrescrive createdAt e lastModified
+    let note = {
+      title: "",
+      categories: [],
+      text: "",
+      createdAt: time,
+      lastModified: time,
+    };
+    note = await saveNoteOnDB(note);
+    if(note != null)
+      await openNote(note.id); // devo rifare richiesta al server perché l'id lo crea mongoDB
+  };
+
+
   // API
+
 
   const handleDelete = (index) => {
 
-    if (!window.confirm("Sei sicuro di voler la nota " + notes[index].title +"?")) {
+    if (!window.confirm("Sei sicuro di voler eliminare la nota " + notes[index].title +"?")) {
       return;
     }
 
@@ -82,7 +120,7 @@ function NoteNavigation() {
   };
 
   //prende i dati della pagina e li invia al server perché siano salvati su mongoDB
-  const handleAdd = async () => {
+  const saveNoteOnDB = async (note) => {
     // const time =  new Date();//.toISOString();
     const timeJSON = await fetch('http://localhost:5000/api/timeMachine/date', {
       method: 'GET',
@@ -91,34 +129,35 @@ function NoteNavigation() {
         'Content-Type': 'application/json; charset=UTF-8',
       }
     });
-    const time = timeJSON.json().date;
-    const note = {
-      title: "",
-      categories: [],
-      text: "",
-      createdAt: time,
-      lastModified: time,
-    };
-    //typeof note.lastModified;
+    const jsonData = await timeJSON.json();
+    const time = new Date(jsonData.date);
+    note.createdAt = time;
+    note.lastModified = time;
 
-    fetch('http://localhost:5000/api/notes/save', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: JSON.stringify(note),
-    })
-    .then(response => response.json())
-    .then(json => {
-      if (json.success) {
-        openNote(json.id); // devo rifare richiesta al server perché l'id lo crea mongoDB
-      } else {
-        alert(json.message);
+    try{
+      const response = await fetch('http://localhost:5000/api/notes/save', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify(note),
+      });
+      const json = await response.json();
+      if (!json.success){
+        alert(json.message); // json = {success, message, id}
+        return null;
       }
-    })
-    .catch(err => console.error(err));
+      else{
+        note.id = json.id;
+        return note;
+      }
+    }catch(err){
+      console.log(err);
+    }
   };
+
+  // extra
 
   // useEffect esegue handleLoad una volta quando il componente viene montato
   useEffect(() => {
@@ -126,16 +165,16 @@ function NoteNavigation() {
   }, []);
 
   const openNote = (id)=>{
-    navigate(`/noteEditor/${id}`);
+    navigate(`/note/${id}`);
   }
 
   return (
     <>
-      <div className={Style.contenent}>
+      <div className={style.contenent}>
 
-        <header className={Style.header}>Note</header>
+        <header className={style.header}>Note</header>
 
-        <select className={Style.selectorNote} value={sortOption} onChange={handleSortChange}>
+        <select className={style.selectorNote} value={sortOption} onChange={handleSortChange}>
           <option value="">Ordina per...</option>
           <option value="asc">Alfabetico A-Z</option>
           <option value="desc">Alfabetico Z-A</option>
@@ -143,8 +182,8 @@ function NoteNavigation() {
           <option value="length">Per lunghezza</option>
         </select>
 
-        <div  className={Style.addButtonWrapper}>
-          <button className={Style.addButton} onClick={()=>handleAdd()}>
+        <div  className={style.addButtonWrapper}>
+          <button className={style.addButton} onClick={()=>handleAdd()}>
             Aggiungi nota
           </button>
         </div>
@@ -156,8 +195,8 @@ function NoteNavigation() {
           </button>
         </div>*/}
 
-        <div className={Style.notesList}>
-          {notes.map( (note,index)=> <NotePreview id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleDelete={()=>handleDelete(index)} handleClick={()=>openNote(note.id)}></NotePreview> )}
+        <div className={style.notesList}>
+          {notes.map( (note,index)=> <NotePreview id={note.id} title={note.title} categories={note.categories} text={note.text} modified={note.lastModified} handleClick={()=>openNote(note.id)} handleClone={()=>handleClone(index)} handleDelete={()=>handleDelete(index)} ></NotePreview> )}
         </div>
 
       </div>

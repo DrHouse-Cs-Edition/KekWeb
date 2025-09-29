@@ -2,12 +2,20 @@
     gap: 1rem; /* spazio tra textarea e output */
     margin: 2%;
 }
-.header{
+
+.header{ /*contiene headerTitle e returnButton*/
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.headerTitle{
     font-size: 2em;
     font-weight: bold;
     color: #ff8c6b;
-    
+    text-shadow: 1px 1px 0 #232b4d
 }
+
 .title{
     color: #ff8c6b;
     font-size: 2rem;
@@ -45,9 +53,23 @@
     padding: .5em .8em;
 }
 
+.returnButton{
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
 .usedButton{
     /*background: #ea9a83;*/
-    background: #232b4d;
+    background: #e39984;
     color: white;
     border: 1px solid #0000;
     border-radius: 1.5rem;

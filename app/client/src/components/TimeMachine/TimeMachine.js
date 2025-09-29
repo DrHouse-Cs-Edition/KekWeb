@@ -1,12 +1,6 @@
 class TimeMachine extends HTMLElement {
   constructor() {
     super();
-  }
-
-  connectedCallback() {
-    if (this._initialized) return;
-    this._initialized = true;
-
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
       <style>
@@ -64,15 +58,16 @@ class TimeMachine extends HTMLElement {
         <p id="tm-time"></p>
       </div>
     `;
+  }
 
-  //connectedCallback() {
-    // this.getDate();
-    this.shadowRoot.getElementById("submit").addEventListener("click", () => this.submitTM());
-
-    this.shadowRoot.getElementById("reset").onclick = () => this.reset();
+  connectedCallback() {
+    this.getDate();
+    this.shadowRoot.getElementById("submit").addEventListener("click", () => this.submit());
+    this.shadowRoot.getElementById("reset").addEventListener("click", () => this.reset());
+    setInterval(() => {console.log("date click"); this.getDate();}, 10000); // ogni 10000 ms = 10 s
   };
 
-  async submitTM() {
+  async submit() {
     const days = this.shadowRoot.getElementById("days").value || 0;
     const hours = this.shadowRoot.getElementById("hours").value || 0;
     const minutes = this.shadowRoot.getElementById("minutes").value || 0;
@@ -115,7 +110,6 @@ class TimeMachine extends HTMLElement {
   }
 
   async getDate(){
-    const submitBtn = this.shadowRoot.getElementById("submit");
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
         method: "GET",
@@ -126,6 +120,9 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
+      }
+      else{
+        console.log("Non siamo riusciti a ottenere la data dal server per la TM");
       }
     } catch (err) {
       console.error("Errore getDate: ", err);

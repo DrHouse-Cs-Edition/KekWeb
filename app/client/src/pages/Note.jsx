@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { marked } from 'marked';
-import Style from "./Note.module.css";
+import style from "./Note.module.css";
 import { useParams } from 'react-router-dom'; //per permettere di avere id come Parametro di percorso
 import { useNavigate } from "react-router-dom";
 import CategoriesList from '../components/NoteCategoriesList/NoteCategoriesList.jsx';
+import { ArrowLeft } from "lucide-react";
 
 function Note() {
 
@@ -17,6 +18,7 @@ function Note() {
   //const [noteLastModified,...]
   //const [noteCreatedAt,...]
   const [saved, setSaved] = useState(true); // se la nota è stata appena salvata
+  const [editing, setEditing] = useState(false); // se sto editando la nota
 
   marked.setOptions({
     breakkggs: true,  // converte `\n` in `<br>` IN TEORIA
@@ -44,7 +46,7 @@ function Note() {
     .then(response => response.json())
     .then(json => {
       if (json.success) {
-        navigate(`/note`); // torno alle note
+        navigate(`/noteNavigation`); // torno alle note
       } else {
         alert(json.message);
       }
@@ -143,15 +145,29 @@ function Note() {
     textarea.style.height = (textarea.scrollHeight+5) + "px"; // altezza contenuto (+3px per eliminare scrollbar)
   }
 
+  const returnNoteNavigation = () =>{
+    if(!saved){
+      const result = window.confirm("Sicuro di voler uscire senza salvare?");
+      if (result) {
+        navigate("/noteNavigation");
+      }
+    }else {
+      navigate("/noteNavigation");
+    }
+    
+  }
+
   // useEffect esegue handleLoad una volta quando il componente viene montato
   useEffect(() => {
     handleLoad();  // Chiamare la funzione al caricamento del componente
   }, []);
 
   useEffect(() => {
-    resizeTextarea();
-    setSaved(false);
-  }, [noteText]); // anche al aricamento pagina (perche handleLoad cambia noteText)
+    if(editing){
+      resizeTextarea();
+      setSaved(false);
+    }
+  }, [noteText]); // anche al caricamento pagina (perché handleLoad cambia noteText)
 
   useEffect(() => { // intercetto Ctrl + s
     const handleKeyDown = (event) => {
@@ -169,33 +185,58 @@ function Note() {
 
   return (
     <>
-      <div className={Style.contenent}>
-          <header className={Style.header}>Note</header>
-          
-          <input
-            id="noteName"
-            classNameName={Style.title}
-            type="text"
-            value={noteName} // val iniziale è quello dentro noteName
-            onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
-          />
+      
+      <div className={style.contenent}>
+        <header className={style.header}>
+          <button
+            className={`${style.button} ${style.returnButton}`}
+            onClick={()=>returnNoteNavigation()}
+            title="Ritorna alla navigazione note"
+          >
+            <ArrowLeft/>
+          </button>
+          <h1 className={style.headerTitle}>Note</h1>
+        </header>
+        
+        <input
+          id="noteName"
+          classNameName={style.title}
+          type="text"
+          value={noteName} // val iniziale è quello dentro noteName
+          onChange={(e) => setNoteName(e.target.value)} // ogni volta che valore cambia => setNoteName(val aggiornato)
+        />
 
-          <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
+        <CategoriesList categories={noteCategories} setCategories={setNoteCategories}></CategoriesList>
 
-          <div className= {Style.container}>
-              <textarea
-                id="noteText"
-                className={Style.textareaMarkdown}
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}>
-              </textarea>
-              <p id="outputText" className={Style.output}></p>
-          </div>
-
-          <button className= {Style.button} onClick={handleDelete}>Elimina</button>
-          <button className= {Style.button} onClick={handleCopy}>Copia su appunti</button>
-          <button className= {saved? Style.usedButton : Style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>Salva modifiche</button>
+        <div className= {style.container}>
+          {editing && // solo se sto editando
+          <textarea
+            id="noteText"
+            className={style.textareaMarkdown}
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            onBlur={() => setEditing(false)} // exit when focus is lost
+            autoFocus // focus quando viene renderizzato
+            onFocus={(e) => { // muovo il cursore alla fine
+              const len = e.target.value.length;
+              e.target.setSelectionRange(len, len); // inizio e fine selection
+            }}
+          >
+          </textarea>
+          }
+          <p id="outputText"
+            className={style.output}
+            onClick={() => setEditing(true)}
+          >
+          </p>
         </div>
+
+        <div>
+          <button className= {style.button} onClick={handleDelete}>Elimina</button>
+          <button className= {style.button} onClick={handleCopy}>Copia su appunti</button>
+          <button className= {saved? style.usedButton : style.button} title="Scorciatoia: Ctrl+S" onClick={handleSave}>{saved? "Salvato" : "Salva modifiche"}</button>
+        </div>
+      </div>
     </>
   );
 }

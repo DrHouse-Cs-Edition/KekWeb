@@ -37,7 +37,7 @@ function Navbar() {
           <Link to="/calendario" className={Style.navLink} onClick={closeMenu}>
             Calendario
           </Link>
-          <Link to="/note" className={Style.navLink} onClick={closeMenu}>
+          <Link to="/noteNavigation" className={Style.navLink} onClick={closeMenu}>
             Note
           </Link>
           <Link to="/pomodoro" className={Style.navLink} onClick={closeMenu}>

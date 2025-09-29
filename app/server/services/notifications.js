@@ -85,7 +85,7 @@ function getNextAlarm(event, now){
     // evento con rrule
     if (event.recurrenceRule){
       const rule = rrulestr(event.recurrenceRule);
-      if (rule){ // possibile controllo se ricorrenza è finita?
+      if (rule){
         let next = rule.after(now);
         while (subMinutes(next, event.alarm.earlyness) < now){ // se abbiamo superato orario notifica -> vado avanti
           next = rule.after(next);
@@ -166,31 +166,38 @@ async function timeTravelNotificationsUpdate(now){
   // aggiorno orario di notifica per eventi con rrule
   const eventiRrule = await Event.find({ alarm: { $ne: null }, recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    const rule = rrulestr(event.recurrenceRule);
-    if (rule){
-      const next = rule.after(now);
-      // calcolo quando sarebbe prossima notifica con nuova data
-      const alarmDate = subMinutes(next, event.alarm.earlyness);
-      operations.push({
-        updateOne: {
-          filter: { _id: event._id },
-          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-        }
-      });
+    if(event.alarm  && event.alarm.repeat_times > 0){ // se richiede notifica
+      const rule = rrulestr(event.recurrenceRule);
+      if (rule){
+        // calcolo quando sarebbe prossima notifica con nuova data (NOTA: PER TM non controllo che orario non sia ancora passato -> puo essere ne passato)
+        const next = rule.after(today);
+        const alarmDate = subMinutes(next, event.alarm.earlyness);
+        // carico sul DB
+        operations.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+        });
+      }
     }
   });
+
+        
 
   // riattivo Alarm che dovrebbero suonare (se faccio viaggio nel passato)
   const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
   eventi.forEach( (event) => {
-    const alarmDate = subMinutes( event.start, event.alarm.earlyness);
-    if( alarmDate >= now && alarmDate!=event.nextAlarm ){
-      operations.push({
-        updateOne: {
-          filter: { _id: event._id },
-          update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-        }
-      });
+    if(event.alarm && event.alarm.repeat_times > 0){ // se richiede notifica
+      const alarmDate = subMinutes( event.start, event.alarm.earlyness);
+      if( alarmDate >= now && alarmDate!=event.nextAlarm ){
+        operations.push({
+          updateOne: {
+            filter: { _id: event._id },
+            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+          }
+        });
+      }
     }
   })
 
@@ -206,28 +213,36 @@ async function timeTravelNotificationsReset(now){
   // aggiorno orario di notifica per eventi con rrule
   const eventiRrule = await Event.find({ recurrenceRule: { $ne: null } });
   eventiRrule.forEach((event) => {
-    const rule = rrulestr(event.recurrenceRule);
-    if (rule){
-      const next = rule.after(now);
-      // calcolo quando sarebbe prossima notifica con nuova data
-      const alarmDate = subMinutes(next, event.alarm.earlyness);
-      if( alarmDate!=event.nextAlarm ){ // solo eventi che necessitano aggiornamento sul DB
-        operations.push({
-          updateOne: {
-            filter: { _id: event._id },
-            update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
-          }
-        });
+    if(event.alarm  && event.alarm.repeat_times > 0){ // se richiede notifica
+      const rule = rrulestr(event.recurrenceRule);
+      if (rule){
+        // calcolo prossima notifica
+        let next = rule.after(now);
+        while (subMinutes(next, event.alarm.earlyness) < now){ // se abbiamo superato orario notifica -> vado avanti
+          next = rule.after(next);
+        }
+        const alarmDate = subMinutes(next, event.alarm.earlyness);
+
+        if( alarmDate!=event.nextAlarm ){ // solo eventi che necessitano aggiornamento sul DB
+          operations.push({
+            updateOne: {
+              filter: { _id: event._id },
+              update: { $set: { nextAlarm: alarmDate, repeated: 0 } }
+            }
+          });
+        }
       }
     }
   });
 
-  // resetto Alarm suonati dopo viaggio nel tempo
-  const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null, start: { $gte: now } });
+  // resetto Alarm suonati dopo viaggio nel tempo ($gte: now)
+  const eventi = await Event.find({ alarm: { $ne: null }, recurrenceRule: null,/* start: { $gte: now }*/ });
   eventi.forEach( (event) => {
-    if(event.alarm && event.alarm.repeat_times > 0){ // se l'allarme originariamente suonava
-      const alarmDate = subMinutes( event.start, event.alarm.earlyness);
-      if( alarmDate < now && alarmDate!=event.nextAlarm){ // se deve ancora arrivare momento alarm (&& solo se necessita aggiornamento sul DB)
+    if(event.alarm.repeat_times > 0){ // se l'allarme originariamente suonava
+      let alarmDate = subMinutes( event.start, event.alarm.earlyness);
+      if(alarmDate < now) // se alarm è nel passato -> lo disattivo
+        alarmDate = null;
+      if(alarmDate!=event.nextAlarm){ // solo se necessita aggiornamento sul DB
         operations.push({
           updateOne: {
             filter: { _id: event._id },
@@ -238,14 +253,14 @@ async function timeTravelNotificationsReset(now){
     }
   })
 
-  // elimino Alarm settati dopo viaggio nel tempo ma non più rilevanti
+  /*
+  // elimino Alarm settati dopo viaggio nel tempo ma non più rilevanti ($lt: now)
   const res = await Event.updateMany(
     { nextAlarm:{ $lt: now } }, // filter
     { $set: {nextAlarm: null} } // update
-  );
+  );*/
 
   //sposto indietro Attività e Pomodori
-  // NOTA non posso spostare pomodori perche non conosco data originale
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const toMove = await Event.find({ type: {$in: ["activity", "pomodoro"]}, start: {$gt: today}, completed: {$ne: true} }) // attivita non completate successive ad adesso
   toMove.forEach( (event) => {
