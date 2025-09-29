@@ -381,7 +381,7 @@ const EventModal = ({
           )}
 
           {/* Impostazioni allarme */}
-          {selectedEvent?.type !== "pomodoro" && (
+          {selectedEvent?.type == "event" && (
             <div className={styles.alarmGroup}>
               <div className={styles.alarmCheckbox}>
                 <input

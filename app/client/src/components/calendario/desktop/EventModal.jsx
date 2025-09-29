@@ -365,69 +365,73 @@ const AlarmSettings = ({ alarm, setNewEvent, eventType }) => {
   const isAlarmEnabled = alarm?.enabled === true || (alarm?.earlyness > 0);
 
   return (
-    <div className={styles.notificationGroup}>
-      <div className={styles.notificationCheckbox}>
-        <input
-          type="checkbox"
-          id="enable-alarm"
-          checked={isAlarmEnabled}
-          onChange={(e) => handleAlarmToggle(e.target.checked)}
-        />
-        <label htmlFor="enable-alarm">Abilita Notifiche</label>
-      </div>
-      
-      {/* Impostazioni avanzate solo se allarme abilitato e non è un'attività */}
-      {isAlarmEnabled && eventType !== "activity" && (
-        <div className={styles.notificationSubSettings}>
-          <div className={styles.formGroup}>
-            <label htmlFor="alarm-earlyness">Avvisami (minuti prima)</label>
-            <select
-              id="alarm-earlyness"
-              value={alarm?.earlyness || 15}
-              onChange={(e) => handleAlarmChange('earlyness', e.target.value)}
-            >
-              <option value="0">All'orario dell'evento</option>
-              <option value="5">5 minuti prima</option>
-              <option value="15">15 minuti prima</option>
-              <option value="30">30 minuti prima</option>
-              <option value="60">1 ora prima</option>
-              <option value="1440">1 giorno prima</option>
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="alarm-repeat-times">Ripeti allarme (volte)</label>
-            <select
-              id="alarm-repeat-times"
-              value={alarm?.repeat_times || 1}
-              onChange={(e) => handleAlarmChange('repeat_times', e.target.value)}
-            >
-              <option value="1">Una volta</option>
-              <option value="2">2 volte</option>
-              <option value="3">3 volte</option>
-              <option value="5">5 volte</option>
-            </select>
-          </div>
-
-          {(alarm?.repeat_times || 1) > 1 && (
+    <>
+    {eventType == "event" && (
+      <div className={styles.notificationGroup}>
+        <div className={styles.notificationCheckbox}>
+          <input
+            type="checkbox"
+            id="enable-alarm"
+            checked={isAlarmEnabled}
+            onChange={(e) => handleAlarmToggle(e.target.checked)}
+          />
+          <label htmlFor="enable-alarm">Abilita Notifiche</label>
+        </div>
+        
+        {/* Impostazioni avanzate solo se allarme abilitato e non è un'attività */}
+        {isAlarmEnabled && eventType == "event" && (
+          <div className={styles.notificationSubSettings}>
             <div className={styles.formGroup}>
-              <label htmlFor="alarm-repeat-every">Ripeti ogni (minuti)</label>
+              <label htmlFor="alarm-earlyness">Avvisami (minuti prima)</label>
               <select
-                id="alarm-repeat-every"
-                value={alarm?.repeat_every || 1}
-                onChange={(e) => handleAlarmChange('repeat_every', e.target.value)}
+                id="alarm-earlyness"
+                value={alarm?.earlyness || 15}
+                onChange={(e) => handleAlarmChange('earlyness', e.target.value)}
               >
-                <option value="1">1 minuto</option>
-                <option value="2">2 minuti</option>
-                <option value="5">5 minuti</option>
-                <option value="10">10 minuti</option>
-                <option value="15">15 minuti</option>
+                <option value="0">All'orario dell'evento</option>
+                <option value="5">5 minuti prima</option>
+                <option value="15">15 minuti prima</option>
+                <option value="30">30 minuti prima</option>
+                <option value="60">1 ora prima</option>
+                <option value="1440">1 giorno prima</option>
               </select>
             </div>
-          )}
-        </div>
-      )}
-    </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="alarm-repeat-times">Ripeti allarme (volte)</label>
+              <select
+                id="alarm-repeat-times"
+                value={alarm?.repeat_times || 1}
+                onChange={(e) => handleAlarmChange('repeat_times', e.target.value)}
+              >
+                <option value="1">Una volta</option>
+                <option value="2">2 volte</option>
+                <option value="3">3 volte</option>
+                <option value="5">5 volte</option>
+              </select>
+            </div>
+
+            {(alarm?.repeat_times || 1) > 1 && (
+              <div className={styles.formGroup}>
+                <label htmlFor="alarm-repeat-every">Ripeti ogni (minuti)</label>
+                <select
+                  id="alarm-repeat-every"
+                  value={alarm?.repeat_every || 1}
+                  onChange={(e) => handleAlarmChange('repeat_every', e.target.value)}
+                >
+                  <option value="1">1 minuto</option>
+                  <option value="2">2 minuti</option>
+                  <option value="5">5 minuti</option>
+                  <option value="10">10 minuti</option>
+                  <option value="15">15 minuti</option>
+                </select>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+    </>
   );
 };
 
