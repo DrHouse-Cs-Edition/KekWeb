@@ -29,8 +29,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/calendario" element={<Calendar />} />
-            <Route path="/noteEditor/:id" element={<Note />} />
-            <Route path="/note" element={<NoteNavigation />} />
+            <Route path="/note/:id" element={<Note />} />
+            <Route path="/noteNavigation" element={<NoteNavigation />} />
             <Route path="/pomodoro" element={<Pomodoro />} />
             <Route path="/utente" element={<User />} />
           </Routes>

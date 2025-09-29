@@ -47,7 +47,7 @@ function NoteDisplayer() { // {} servono per destructuring delle prop
   };
 
   const handleClick = (id) =>{
-    navigate(`/noteEditor/${id}`);
+    navigate(`/note/${id}`);
   };
 
   // useEffect esegue handleLoad una volta quando il componente viene montato
@@ -88,7 +88,7 @@ const NoNote = ()=>{
                     Non hai ancora creato alcuna nota. <br></br>
                     Vai alla pagina delle note e creane una se ti va!
                 </p>
-                <Link to={"/note"} className={Style.link}>Pagina delle note</Link>
+                <Link to={"/noteNavigation"} className={Style.link}>Pagina delle note</Link>
             </div>
         </div>
     )

@@ -28,7 +28,7 @@
   width: 100%;
   padding: 2em;
   background: var(--dusk-accent); /* Use the accent color for buttons */
-  color: #232b4d; /* Dark text for contrast on accent background */
+  color: #232b4d;
   font-size: 1.5em;
   font-weight: bold;
   border: none;

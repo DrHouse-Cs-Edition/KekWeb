@@ -9,11 +9,10 @@
 .button{
     cursor: pointer;
     border-radius: 0.75rem;
-    background-color: white;
     font-weight: bold;
-}
-.delete{
-    cursor: pointer;
+    background: transparent;
+    color: white;
+    border: none;
 }
 
 .row {
@@ -24,6 +23,13 @@
 
 .title{
     color: #ff8c6b;
+    padding-bottom : 2%;
+    padding-top: 1%;
+    margin: 0;
+}
+
+.noName{
+    color: white;
     padding-bottom : 2%;
     padding-top: 1%;
     margin: 0;
