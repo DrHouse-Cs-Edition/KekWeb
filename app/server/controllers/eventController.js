@@ -1,6 +1,6 @@
 const { title } = require('process');
 const Event = require('../mongoSchemas/Event.js');
-const { subMinutes, addDays } = require('date-fns');
+const { subMinutes, addHours } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
 const { getNextAlarm } = require('../services/notifications.js');
 
@@ -271,7 +271,7 @@ const latestP = async function (req, res){
 
 // Sposta sia pomodori che attività non completati alla nuova data (versione ottimizzata)
 const movePomodorosAndActivities = async (newDate)=>{
-  let newEndDate = addDays(newDate,1);
+  let newEndDate = addHours(newDate,1);
   let operations = [];
 
   // Query ottimizzata: cerca solo eventi che necessitano di essere spostati
