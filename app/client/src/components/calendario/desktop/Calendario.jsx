@@ -32,7 +32,7 @@ export default function CalendarApp() {
     alarm: {
       earlyness: 15,
       repeat_times: 1,
-      repeat_every: 0,
+      repeat_every: 1,
       enabled: false
     }
   });
@@ -749,7 +749,7 @@ export default function CalendarApp() {
       alarm: {
         earlyness: 15,
         repeat_times: 1,
-        repeat_every: 0,
+        repeat_every: 1,
         enabled: false
       }
     });
