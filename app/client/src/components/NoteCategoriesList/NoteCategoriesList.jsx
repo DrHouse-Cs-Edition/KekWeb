@@ -38,7 +38,7 @@ function CategoriesList({categories, setCategories}) { // {} servono per destruc
                 {categories && categories.length>0 && categories.map((category, index) => ( // controllo prima se esiste
                     <div>
                         {category + " "}
-                        <button onClick={() => removeCategory(category)}>
+                        <button onClick={() => removeCategory(category)} className={Style.removeCategory}>
                             ✕
                         </button>
                     </div>
