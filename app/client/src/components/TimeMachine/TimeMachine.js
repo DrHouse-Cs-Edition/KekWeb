@@ -91,9 +91,6 @@ class TimeMachine extends HTMLElement {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
       }
-      else{
-        console.log("sucess submit = false");
-      }
     } catch (err) {
       console.error("Errore submit: ", err);
     }
@@ -112,9 +109,6 @@ class TimeMachine extends HTMLElement {
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
 
       }
-      else{
-        console.log("sucess reset = false");
-      }
     } catch (err) {
       console.error("Errore reset: ", err);
     }
@@ -132,9 +126,6 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-      }
-      else{
-        console.log("sucess getDate = false");
       }
     } catch (err) {
       console.error("Errore getDate: ", err);

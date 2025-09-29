@@ -128,8 +128,6 @@ const MobileCalendarApp = () => {
           });
           
           setEvents(eventsForMobile);
-        } else {
-          console.log("Nessun evento trovato");
         }
       })
       .catch((err) => {

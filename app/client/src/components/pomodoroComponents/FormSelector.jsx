@@ -13,7 +13,7 @@ function CyclesForm ( {passTimeData}, isNewPomodoro) {
         st = data.Studio;
         bt =  data.Pausa;
         c = data.Cicli;
-        if( !(c || bt || st) ){
+        if( !(c && bt && st) ){
             console.log("no data for registration somewhere")
         }
         passTimeData(data.Studio, data.Pausa, data.Cicli );   //multiplication by 60 transforms seconds in minutes
