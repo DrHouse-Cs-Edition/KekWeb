@@ -230,18 +230,6 @@ const ListaEventiGiornalieri = () => {
                 </div>
               )}
             </div>
-            
-            <div className={styles.modalFooter}>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className={styles.cancelButton}
-              >
-                Chiudi
-              </button>
-              <button className={styles.editButton}>
-                Modifica Evento
-              </button>
-            </div>
           </div>
         </div>
       )}

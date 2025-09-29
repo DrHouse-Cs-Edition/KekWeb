@@ -1,16 +1,17 @@
 /* ========== Container ========== */
 .container {
-  max-width: 400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 400px; /* Adjust as needed, based on the image it looks wider than the todo list */
+  margin: 0 auto; /* Center it */
   padding: 1rem;
-  background: var(--dusk-bg);
+  background: var(--dusk-bg); /* Use the defined background variable */
   color: var(--dusk-text);
   border: 1px solid var(--dusk-border);
   border-radius: 0.75rem;
   box-shadow: var(--dusk-shadow);
   height: fit-content;
-  max-height: 600px;
-  overflow-y: auto;
+  box-sizing: border-box;
+  /* Positioning adjustment if needed, but let's assume flexbox/grid in parent for layout */
 }
 
 /* ========== Header ========== */
@@ -26,7 +27,7 @@
   font-size: 1.125rem;
   font-weight: bold;
   margin: 0 0 0.25rem 0;
-  color: var(--dusk-text);
+  color: var(--dusk-accent)
 }
 
 .date {
@@ -145,6 +146,9 @@
 }
 
 .eventCard {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   background: var(--dusk-card);
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -191,6 +195,8 @@
 }
 
 .eventTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 600;
   font-size: 0.875rem;
   line-height: 1.2;
@@ -366,7 +372,6 @@
 /* Tablet Breakpoint */
 @media (min-width: 641px) {
   .container {
-    max-width: 600px;
     padding: 1.25rem;
   }
   .title {
@@ -409,6 +414,7 @@
     font-size: 0.85rem;
     min-width: 0;
     max-width: 95vw;
+    width: 90%;
   }
   .eventTitle {
     font-size: 0.85rem;
