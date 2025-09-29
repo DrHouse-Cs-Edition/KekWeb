@@ -6,8 +6,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
 const PomodoroDisplayer = ()=>{
-    console.log("rendering Pomodoro displayer");
-
     const [pomodoroEvent, setPomodoroEvent] = useState();           //ultimo pomodoro trovato
     //* Forma dell'oggetto che si deve ricevere
     // const latestPomodoro2 ={
@@ -38,7 +36,7 @@ const PomodoroDisplayer = ()=>{
                 }
             })
         } catch (e) {
-            console.log("error in reatrieving latest pomodoro scheduled \n", e);
+            console.log("errore nell'ottenere l'ultimo pomodoro \n", e);
         }
     }
 

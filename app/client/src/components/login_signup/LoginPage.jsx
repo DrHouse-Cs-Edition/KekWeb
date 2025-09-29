@@ -30,7 +30,7 @@ function loginAttempt(username, password) {
         }
     });
     }catch(e){
-        console.log("client side login error ", e);
+        console.log("Errore nel login lato client ", e);
     }
 }
 
@@ -47,13 +47,11 @@ const LoginPage = ({updateToken})=>{
         // e.preventDefault();
         try{
             let {username, password} = e;
-            console.log("username : ", username, " password : ", password);
             let tmpKek = await loginAttempt(username, password, updateToken);
                 updateToken(tmpKek);
                 password = null;
                 setUsername(username);
         }catch(e){
-            console.log("error in login form: ", e);
             alert("login failed: check your credentials"); 
             // updateToken(null); ditched cause the presence of a token implies a logged in account
         }

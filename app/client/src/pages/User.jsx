@@ -46,13 +46,9 @@ const User = ()=>{
                 window.location.reload(false);
             })
         }catch(e){
-            console.log("error in user page, logout phase: ", e);
+            alert("Errore in fase di logout: ", e);
         }
     }
-
-    // useEffect(()=>{
-    //     console.log("image is ", image);
-    // }, [image])
 
 
     //apporta modifiche in base ai dati presenti nei form; è presente una password di conferma prima di effettuare queste modifiche 
@@ -86,20 +82,19 @@ const User = ()=>{
                     })
                 }).then(res => res.json())
                 .then((res) => {
-                    console.log(res);
                     setShowCPW(0); 
                     updatePersonalData()
                     window.alert("dati modificati");
                     })
             } catch(e){
-                console.log("error in user page, submit phase: ", e);
+                console.log("Errore nella pagina utente, problema di invio: ", e);
             }
             }
         })
     }
 
     //gestisci errori alla richiesta di salvataggio modifiche
-    const onError = (e)=>{console.log("error in user page: ", e);}
+    const onError = (e)=>{alert("errore in pagina utente: ", e);}
 
     //*FUNCTION GETS PERSONAL DATA FROM SERVER 
     const updatePersonalData = async ()=>{
@@ -240,11 +235,9 @@ const User = ()=>{
     const handleSubscribe = async (alertIfEnabled = true) => {
         if ('serviceWorker' in navigator && 'PushManager' in window) { // serviceWorker = registra lo script di background | PushManager = crea il "canale" per inviare notifiche
             try{
-                console.log("A");
                 // 0. controllo non ci sia già subscription
                 const reg = await navigator.serviceWorker.ready;
                 const sub = await reg.pushManager.getSubscription();
-                console.log("B");
                 if(sub){
                     if(alertIfEnabled)
                         alert("notifiche push già abilitate su questo dispositivo");

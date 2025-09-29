@@ -69,12 +69,9 @@ class TimeMachine extends HTMLElement {
   //connectedCallback() {
     // this.getDate();
     this.shadowRoot.addEventListener("click", (e) => {
-      console.log("click catturato sul shadowRoot:", e.target);
       if (e.target.id === "submit") {
-        console.log("submit click");
         this.submit();
       } else if (e.target.id === "reset") {
-        console.log("reset click");
         this.reset();
       };
     }, true); // usa capture phase
@@ -120,7 +117,7 @@ class TimeMachine extends HTMLElement {
         alert("Data resettata al valore normale");
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("reset done");
+
       }
       else{
         console.log("sucess reset = false");
@@ -131,12 +128,7 @@ class TimeMachine extends HTMLElement {
   }
 
   async getDate(){
-    /*
-    const newSubmitNode = this.shadowRoot.getElementById("submit");
-    console.log("submitNode attuale:", newSubmitNode);
-    console.log(submitNode === newSubmitNode);*/
     const submitBtn = this.shadowRoot.getElementById("submit");
-    console.log("submit disabled?", submitBtn.disabled);
     try {
       const response = await fetch("http://localhost:5000/api/timeMachine/date", {
         method: "GET",
@@ -147,7 +139,6 @@ class TimeMachine extends HTMLElement {
       if (json.success) {
         const localDate = this.dateFormat(new Date(json.date));
         this.shadowRoot.getElementById("tm-time").innerText = localDate;
-        console.log("date set");
       }
       else{
         console.log("sucess getDate = false");

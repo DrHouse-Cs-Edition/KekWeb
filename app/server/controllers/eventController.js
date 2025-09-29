@@ -7,9 +7,6 @@ const { getNextAlarm } = require('../services/notifications.js');
 // chiamate
 
 const saveEvent = async (request, response, now) => {
-    console.log("received backend event: ", request.body);
-    console.log("user from request: ", request.user);
-    
     try {
         const eventInput = request.body;
         
@@ -44,11 +41,7 @@ const saveEvent = async (request, response, now) => {
             eventDB.nextAlarm = getNextAlarm(eventDB, now);
         }
 
-        console.log("Event to save: ", eventDB);
-
         await eventDB.save();
-        
-        console.log("Event saved successfully with ID: ", eventDB._id);
         
         response.json({
             success: true,
@@ -57,7 +50,6 @@ const saveEvent = async (request, response, now) => {
         });
     }
     catch(e){
-        console.error("Error saving event: ", e);
         response.status(500).json({
             success: false,
             message: "Errore durante il salvataggio sul DB: " + e.message
@@ -66,7 +58,6 @@ const saveEvent = async (request, response, now) => {
 };
 
 const updateEvent = async (request, response) => {
-    console.log("recieved backend event for UPDATE: ", request.body);
     const id = request.params.id;
     const eventInput = request.body;
   
@@ -92,7 +83,6 @@ const updateEvent = async (request, response) => {
       });
     }
     catch(e) {
-      console.log(e.message);
       response.json({
         success: false,
         message: "Error updating event: " + e.message
@@ -126,7 +116,6 @@ const toggleComplete = async (request, response) => {
       });
     }
     catch(e) {
-      console.log(e.message);
       response.status(500).json({
         success: false,
         message: "Error updating completion status: " + e.message
@@ -145,7 +134,6 @@ const removeEvent = async (request, response) => {
         });
     }
     catch(e){
-        console.log(e.message);
         response.json({
             success: false,
             message: "Errore durante la rimozione dal DB"+e
@@ -167,7 +155,6 @@ const getEvent = async (request,response) => { // serve?
         });
     }
     catch(e){
-        console.log("errore load:" + e.message);
         response.json({
             success: false,
             message: "Errore durante il caricamento dal DB:"+e,
@@ -206,7 +193,6 @@ const allEvent = async (request, response) => {
             });
         }
     } catch (e) {
-        console.log(e.message);
         response.status(500).json({
             success: false,
             message: "Error loading events"
@@ -217,22 +203,17 @@ const allEvent = async (request, response) => {
 const isPomodoroScheduled = (req, res, next)=>{
     const userId = req.user;
     const {title} = req.body;
-    console.log("pomodoro scheduling verification for: ", title);
     Event.find({ user: userId, pomodoro : title}).lean()
     .then( (events) =>{
-      console.log("pomodoro events found: ", events.length);
       if(events.length > 0){
-        console.log("found pomodoro")
         next();
       }else{
-        console.log("no pomodoro found")
         return res.status(404).json({ message: "Nessun pomodoro trovato" });
       }
     }) 
 }
 
 const movePomodoros = (date)=>{
-  console.log("proceding to move pomodoros");
   let datePlus = new Date(date);
   datePlus.setDate(datePlus.getDate() + 1)
   Event.find({type : "pomodoro"})
@@ -252,7 +233,6 @@ const latestP = async function (req, res){
   try {
     const foundEV = await Event.findOne({ user: userId, type: "pomodoro" }).sort("end")
     if(!foundEV){
-      console.log("no EV")
       res.status(200).json({ // non dà errore (caso in cui utente non ha ancora un pomodoro)
         success: false,
         message: "no pomodoro event found"
@@ -263,16 +243,12 @@ const latestP = async function (req, res){
     const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}) // cerco pomodoro associato all'evento
 
     if(!foundP){
-      console.log("no foundP")
       res.status(404).json({
         success: false,
         message: "no pomodoro connected to the event"
       })
       return;
     }
-    
-
-    // console.log("pomodoro found: ", foundP, "\n event found ", foundEV);   //dovrebbero essere trovati
     const latestPomodoro2 ={
       title: foundP.title,
       Pid:  foundP._id,
@@ -289,7 +265,6 @@ const latestP = async function (req, res){
     })
     
   }catch (e) {
-    console.log(e);
     res.status(500).json({
       success: false,
       message: "error retrieving pomodoro",

@@ -12,7 +12,6 @@ const Subscription = require('../mongoSchemas/Subscription.js');
 
 const subscribe = async (req,res) => {
     inputSub = req.body;
-    console.log(inputSub)
     const sub = new Subscription({
         user: req.user,
         endpoint: inputSub.endpoint,
@@ -24,7 +23,6 @@ const subscribe = async (req,res) => {
         res.json({success:true})
     }
     catch(e){
-        console.log(e.message);
         response.json({
             success: false,
             message: "Errore durante il salvataggio dell'iscrizione sul DB: "+e,
@@ -41,16 +39,14 @@ const testNotication = async (req,res) => {
         res.json({success: true, message: "sending notification"});
     else{
         res.json({success: false, message: "no permission for push notification"})
-        console.log("nhu")
     }
 
     subscription.forEach( async (sub) => {
         try{
-            await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload) // .catch(console.error) //.then( out => {console.log(out)});
+            await webpush.sendNotification({endpoint: sub.endpoint, expirationTime: sub.expirationTime, keys: sub.keys}, payload)
         }
         catch(e){ // se c'è errore (iscrizione client eliminata -> la elimino da DB)
             try{
-                console.log(sub)
                 await Subscription.deleteOne({_id: sub._id});
             }
             catch(e){

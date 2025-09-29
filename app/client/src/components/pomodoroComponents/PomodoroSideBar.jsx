@@ -10,7 +10,6 @@ const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
     const [pomodoroData, setPomodoroData] = useState([]);
 
     function FetchPomodoros(){
-        console.log("lezzo gaming");
         fetch("api/Pomodoro/getP", {
             method:"GET",
             mode:"cors",
@@ -21,14 +20,10 @@ const PomodoroSideBar = ( {loadPomodoro,renamePomodoro, deleteCallback})=>{
         })
         .then(res => res.json())
         .then((data) =>{
-            console.log(data.body)
             setPomodoroData(data.body)
-                // data.body.map((el)=>{pomodoroArray.push(el); console.log(el.title)});
-                // setPomodoros(data.body.map(el => (<PomodoroWidgetDiv id = {el._id} title={el.title} studyTime={el.studyT} breakT={el.breakTime} 
-                //     cycle={el.cycles} loadPomodoro={loadPomodoro} deleteCallback={deleteCallback}/>)));
             }
         ).catch(e =>{
-            console.log("error fetching pomodoros for pomodoro page: ", e)
+            alert("error fetching pomodoros for pomodoro page: ", e)
         })
     }
     useEffect(()=>{
