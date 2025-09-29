@@ -4,20 +4,20 @@ const { subMinutes, addDays } = require('date-fns');
 const Pomodoro = require('../mongoSchemas/PomodoroSchema.js')
 const { getNextAlarm } = require('../services/notifications.js');
 
-// chiamate
-
+// Salva un nuovo evento nel database
 const saveEvent = async (request, response, now) => {
     try {
         const eventInput = request.body;
         
-        // Check if user is authenticated
+        // Verifica se l'utente è autenticato
         if (!request.user) {
             return response.status(401).json({
                 success: false,
-                message: "User not authenticated"
+                message: "Utente non autenticato"
             });
         }
 
+        // Crea nuovo evento con i dati ricevuti
         const eventDB = new Event({
             user: request.user,
             title: eventInput.title,
@@ -36,7 +36,7 @@ const saveEvent = async (request, response, now) => {
             repeated: 0,
         });
 
-        // Calculate nextAlarm only if alarm is provided
+        // Calcola il prossimo allarme solo se l'allarme è configurato
         if (eventDB.alarm) {
             eventDB.nextAlarm = getNextAlarm(eventDB, now);
         }
@@ -46,7 +46,7 @@ const saveEvent = async (request, response, now) => {
         response.json({
             success: true,
             id: eventDB._id,
-            message: "Event saved"
+            message: "Evento salvato"
         });
     }
     catch(e){
@@ -57,6 +57,7 @@ const saveEvent = async (request, response, now) => {
     }
 };
 
+// Aggiorna un evento esistente
 const updateEvent = async (request, response) => {
     const id = request.params.id;
     const eventInput = request.body;
@@ -79,18 +80,18 @@ const updateEvent = async (request, response) => {
       
       response.json({
         success: true,
-        message: "Event updated"
+        message: "Evento aggiornato"
       });
     }
     catch(e) {
       response.json({
         success: false,
-        message: "Error updating event: " + e.message
+        message: "Errore durante l'aggiornamento: " + e.message
       });
     }
 };
 
-// NEW METHOD: Quick update for completion status
+// Cambia rapidamente lo stato di completamento di un'attività
 const toggleComplete = async (request, response) => {
     const id = request.params.id;
     const { completed } = request.body;
@@ -99,30 +100,31 @@ const toggleComplete = async (request, response) => {
       const updatedEvent = await Event.findByIdAndUpdate(
         id, 
         { completed: completed },
-        { new: true } // Return the updated document
+        { new: true } // Restituisce il documento aggiornato
       );
       
       if (!updatedEvent) {
         return response.status(404).json({
           success: false,
-          message: "Event not found"
+          message: "Evento non trovato"
         });
       }
       
       response.json({
         success: true,
-        message: "Event completion status updated",
+        message: "Stato completamento aggiornato",
         event: updatedEvent
       });
     }
     catch(e) {
       response.status(500).json({
         success: false,
-        message: "Error updating completion status: " + e.message
+        message: "Errore durante l'aggiornamento: " + e.message
       });
     }
 };
 
+// Rimuove un evento dal database
 const removeEvent = async (request, response) => {
     id = request.params.id;
 
@@ -130,18 +132,19 @@ const removeEvent = async (request, response) => {
         await Event.deleteOne({_id: id});
         response.json({
             success: true,
-            message: "Event removed",
+            message: "Evento rimosso",
         });
     }
     catch(e){
         response.json({
             success: false,
-            message: "Errore durante la rimozione dal DB"+e
+            message: "Errore durante la rimozione dal DB: " + e
         });
     }
 };
 
-const getEvent = async (request,response) => { // serve?
+// Ottiene un singolo evento per ID (probabilmente non più utilizzata)
+const getEvent = async (request,response) => {
     id = request.params.id;
     
     try{
@@ -157,14 +160,16 @@ const getEvent = async (request,response) => { // serve?
     catch(e){
         response.json({
             success: false,
-            message: "Errore durante il caricamento dal DB:"+e,
+            message: "Errore durante il caricamento dal DB: " + e,
         });
     }
 }
 
+// Ottiene tutti gli eventi dell'utente corrente
 const allEvent = async (request, response) => {
     try {
-        const eventList = await Event.find({ user: request.user }).lean(); // user filtering
+        // Filtra gli eventi per utente autenticato
+        const eventList = await Event.find({ user: request.user }).lean();
 
         if (eventList.length > 0) {
             response.json({
@@ -182,73 +187,64 @@ const allEvent = async (request, response) => {
                     recurrenceRule: event.recurrenceRule,
                     urgencyLevel: event.urgencyLevel || 0,
                     completed: event.completed || false,
-                    alarm: event.alarm // Add alarm field to response
+                    alarm: event.alarm
                 })),
-                message: "Events found"
+                message: "Eventi trovati"
             });
         } else {
             response.json({
                 success: false,
-                message: "No events found"
+                message: "Nessun evento trovato"
             });
         }
     } catch (e) {
         response.status(500).json({
             success: false,
-            message: "Error loading events"
+            message: "Errore durante il caricamento eventi"
         });
     }
 };
 
+// Verifica se un pomodoro è già programmato (middleware)
 const isPomodoroScheduled = (req, res, next)=>{
     const userId = req.user;
     const {title} = req.body;
     Event.find({ user: userId, pomodoro : title}).lean()
     .then( (events) =>{
       if(events.length > 0){
-        next();
+        next(); // Continua con il prossimo middleware
       }else{
         return res.status(404).json({ message: "Nessun pomodoro trovato" });
       }
     }) 
 }
 
-const movePomodoros = (date)=>{
-  let datePlus = new Date(date);
-  datePlus.setDate(datePlus.getDate() + 1)
-  Event.find({type : "pomodoro"})
-  .then(p => {
-    p.forEach( (evento)=>{
-      if (evento.end < date && evento.completed == false){
-        
-        evento.start = date;
-        evento.end = datePlus;
-        evento.save();
-    }})
-  })
-}
-
+// Trova l'ultimo pomodoro programmato dall'utente
 const latestP = async function (req, res){
   const userId = req.user;
   try {
+    // Cerca l'ultimo evento pomodoro dell'utente
     const foundEV = await Event.findOne({ user: userId, type: "pomodoro" }).sort("end")
     if(!foundEV){
-      res.status(200).json({ // non dà errore (caso in cui utente non ha ancora un pomodoro)
+      res.status(200).json({
         success: false,
-        message: "no pomodoro event found"
+        message: "Nessun evento pomodoro trovato"
       })
       return;
     }
 
-    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro}) // cerco pomodoro associato all'evento
+    // Cerca i dettagli del pomodoro associato
+    const foundP = await Pomodoro.findOne({title : foundEV.pomodoro})
 
     if(!foundP){
       res.status(404).json({
         success: false,
-        message: "no pomodoro connected to the event"
+        message: "Nessun pomodoro collegato all'evento"
       })
       return;
     }
+    
+    // Prepara i dati del pomodoro per la risposta
     const latestPomodoro2 ={
       title: foundP.title,
       Pid:  foundP._id,
@@ -261,61 +257,44 @@ const latestP = async function (req, res){
     res.status(200).json({
       success : true,
       pomodoro: latestPomodoro2,
-      message: "pomodoro event has been found"
+      message: "Evento pomodoro trovato"
     })
     
   }catch (e) {
     res.status(500).json({
       success: false,
-      message: "error retrieving pomodoro",
+      message: "Errore durante il recupero del pomodoro",
       error: e,
     })
   }  
 }
 
-const moveActivities = async (newDate)=>{
+// Sposta sia pomodori che attività non completati alla nuova data (versione ottimizzata)
+const movePomodorosAndActivities = async (newDate)=>{
   let newEndDate = addDays(newDate,1);
   let operations = [];
 
-  activities = await Event.find({type : "activity"})
-  
-  activities.forEach( (evento)=>{
-    if (evento.end < newDate && evento.completed != true){
-      operations.push({
-        updateOne: {
-          filter: { _id: evento._id },
-          update: { $set: { start: newDate, end: newEndDate, } }
-        }
-      });
-    }
+  // Query ottimizzata: cerca solo eventi che necessitano di essere spostati
+  activities = await Event.find({ 
+    type: {$in: ["activity", "pomodoro"]}, 
+    end: {$lte: newDate} // Trova eventi la cui fine è <= alla nuova data
   })
-
-  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
-  if(operations.length > 0 )
-    Event.bulkWrite(operations);
-}
-
-const movePomodorosAndActivities = async (newDate)=>{ // più efficiente
-  let newEndDate = addDays(newDate,1);
-  let operations = [];
-
-  activities = await Event.find({ type: {$in: ["activity", "pomodoro"]}, end: {$lte: newDate} }) // lte (e non lt) perche confronto vecchia_fine con nuovo_inizio
   
   activities.forEach( (evento)=>{
     if (evento.completed != true){
       operations.push({
         updateOne: {
           filter: { _id: evento._id },
-          update: { $set: { start: newDate, end: newEndDate, } } // activityDate resta la stessa (per conoscere il ritardo)
+          update: { $set: { start: newDate, end: newEndDate, } } // activityDate resta invariata per calcolare il ritardo
         }
       });
     }
   })
 
-  // invio tutte le operazioni in una sola volta (utile se dovessero essercene molte individuali)
+  // Esegue tutte le operazioni in una sola volta per migliori performance
   if(operations.length > 0 )
     Event.bulkWrite(operations);
 }
 
 module.exports = { saveEvent, updateEvent, removeEvent, getEvent, allEvent,
-   toggleComplete, isPomodoroScheduled, movePomodoros, latestP, moveActivities, movePomodorosAndActivities};
+   toggleComplete, isPomodoroScheduled, latestP, movePomodorosAndActivities};
