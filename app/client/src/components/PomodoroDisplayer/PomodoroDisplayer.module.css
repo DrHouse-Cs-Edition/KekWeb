@@ -41,6 +41,10 @@
     align-items: flex-start; /* Align items to the start */
 }
 
+.pomodoroBody > a{
+    color: var(--dusk-accent);
+}
+
 .pomodoroChart {
     /* This would be where your chart component styling goes. */
     /* For now, just a placeholder to show its area. */
